@@ -1,0 +1,47 @@
+<resources>
+    <string name="app_name">Kora Lite</string>
+    <string name="navigation_drawer_open" translatable="false">Open navigation drawer</string>
+    <string name="navigation_drawer_close" translatable="false">Close navigation drawer</string>
+    <string name="nav_header_title" translatable="false">Android Studio</string>
+    <string name="nav_header_subtitle" translatable="false">android.studio@android.com</string>
+    <string name="nav_header_desc" translatable="false">Navigation header</string>
+    <string name="action_settings" translatable="false">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
+    <string name="ended">منتهية</string>
+    <string name="current">جارية حاليا</string>
+    <string name="coming">قادمة</string>
+    <string name="matches">المباريات</string>
+    <string name="departments">البطولات</string>
+    <string name="news">الأخبار</string>
+    <string name="players">ترتيب الهدافين</string>
+    <string name="share_app">مشاركة التطبيق</string>
+    <string name="rate_app">تقييم التطبيق</string>
+
+
+    <array name="days">
+        <item>الأحد</item>
+        <item>الاثنين</item>
+        <item>الثلاثاء</item>
+        <item>الأربعاء</item>
+        <item>الخميس</item>
+        <item>الجمعة</item>
+        <item>السبت</item>
+    </array>
+
+    <array name="match_tabs">
+        <item>الهدافون</item>
+        <item>الترتيب</item>
+        <item>الأخبار</item>
+        <item>التفاصيل</item>
+        <item>أحداث المبارات</item>
+    </array>
+
+    <string name="title_activity_match">MatchActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_match_acitivity">MatchAcitivity</string>
+    <string name="play_store_link">https://play.google.com/store/apps/details?id=com.app_republic.kora</string>
+
+</resources>

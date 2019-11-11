@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kora Lite</string>
+    <string name="ended">منتهية</string>
+    <string name="current">جارية حاليا</string>
+    <string name="coming">قادمة</string>
+
+    <string name="matches">المباريات</string>
+    <string name="departments">البطولات</string>
+    <string name="news">الأخبار</string>
+    <string name="players">ترتيب الهدافين</string>
+    <string name="share_app">مشاركة التطبيق</string>
+    <string name="rate_app">تقييم التطبيق</string>
+
+    <array name="days">
+        <item>الأحد</item>
+        <item>الاثنين</item>
+        <item>الثلاثاء</item>
+        <item>الأربعاء</item>
+        <item>الخميس</item>
+        <item>الجمعة</item>
+        <item>السبت</item>
+    </array>
+
+
+    <array name="match_tabs">
+        <item>الهدافون</item>
+        <item>الترتيب</item>
+        <item>الأخبار</item>
+        <item>التفاصيل</item>
+        <item>أحداث المبارات</item>
+    </array>
+
+    <string name="title_activity_match">MatchActivity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="title_activity_match_acitivity">MatchAcitivity</string>
+    <string name="play_store_link">https://play.google.com/store/apps/details?id=com.app_republic.kora</string>
+
+</resources>

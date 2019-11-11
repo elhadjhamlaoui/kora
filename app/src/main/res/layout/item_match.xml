@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="10dp"
+    app:cardBackgroundColor="@android:color/background_light"
+    app:cardCornerRadius="5dp"
+    app:cardElevation="2dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/department"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="10dp"
+            android:text="TextView"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/department">
+
+            <ImageView
+                android:id="@+id/logo_team_1"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@android:drawable/ic_menu_report_image" />
+
+            <TextView
+                android:id="@+id/name_team_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="وفاق رياضي سطيف"
+                app:layout_constraintBottom_toBottomOf="@+id/logo_team_1"
+                app:layout_constraintEnd_toStartOf="@+id/scoreTeamA"
+                app:layout_constraintStart_toEndOf="@+id/logo_team_1"
+                app:layout_constraintTop_toTopOf="@+id/logo_team_1" />
+
+            <TextView
+                android:id="@+id/state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="08:00 ص"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/logo_team_2"
+                app:layout_constraintStart_toEndOf="@+id/logo_team_1"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/scoreTeamA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="20dp"
+                android:text="3"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="@+id/state"
+                app:layout_constraintEnd_toStartOf="@+id/state"
+                app:layout_constraintTop_toTopOf="@+id/state" />
+
+            <TextView
+                android:id="@+id/scoreTeamB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
+                android:text="1"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="@+id/state"
+                app:layout_constraintStart_toEndOf="@+id/state"
+                app:layout_constraintTop_toTopOf="@+id/state" />
+
+            <TextView
+                android:id="@+id/name_team_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="شبيبة بجاية"
+                app:layout_constraintBottom_toBottomOf="@+id/logo_team_2"
+                app:layout_constraintEnd_toStartOf="@+id/logo_team_2"
+                app:layout_constraintStart_toEndOf="@+id/scoreTeamB"
+                app:layout_constraintTop_toTopOf="@+id/logo_team_2" />
+
+            <ImageView
+                android:id="@+id/logo_team_2"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="10dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@android:drawable/ic_menu_report_image" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
