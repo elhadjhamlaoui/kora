@@ -114,10 +114,12 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
         Context context;
         ArrayList<News> list;
+        Picasso picasso;
 
         public NewsAdapter(Context context, ArrayList<News> list) {
             this.context = context;
             this.list = list;
+            picasso = AppSingleton.getInstance(getActivity()).getPicasso();
         }
 
         @NonNull
@@ -137,7 +139,8 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
             if (!news_item.getPostImage().isEmpty()) {
-                Picasso.get().load(news_item.getPostImage())
+                picasso.cancelRequest(viewHolder.icon);
+                picasso.load(news_item.getPostImage())
                         .placeholder(R.drawable.ic_news_large)
                         .into(viewHolder.icon);
             }

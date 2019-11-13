@@ -20,9 +20,6 @@ import com.app_republic.kora.activity.NewsItemActivity;
 import com.app_republic.kora.model.News;
 import com.app_republic.kora.model.Team;
 import com.app_republic.kora.request.GetItemNews;
-import com.app_republic.kora.request.GetItemPlayersDetailed;
-import com.app_republic.kora.request.GetLatestNews;
-import com.app_republic.kora.request.GetTrendingTeams;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
@@ -37,8 +34,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import static com.app_republic.kora.utils.StaticConfig.ITEM_NEWS_REQUEST;
-import static com.app_republic.kora.utils.StaticConfig.LATEST_NEWS_REQUEST;
-import static com.app_republic.kora.utils.StaticConfig.TRENDING_TEAMS_REQUEST;
 
 public class ItemNewsFragment extends Fragment implements View.OnClickListener {
 
@@ -77,14 +72,12 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
         initialiseViews(view);
 
 
-
         news_adapter = new NewsAdapter(getActivity(), news);
 
         news_recycler.setAdapter(news_adapter);
 
 
         news_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-
 
 
         getNews();
@@ -98,7 +91,6 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -107,15 +99,17 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
     class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
 
         Context context;
         ArrayList<News> list;
+        Picasso picasso;
 
-        public NewsAdapter(Context context, ArrayList<News> list) {
+        NewsAdapter(Context context, ArrayList<News> list) {
             this.context = context;
             this.list = list;
+            picasso = AppSingleton.getInstance(getActivity()).getPicasso();
+
         }
 
         @NonNull
@@ -133,11 +127,13 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
             News news_item = list.get(i);
 
 
+            if (!news_item.getPostImage().isEmpty()) {
+                picasso.cancelRequest(viewHolder.icon);
+                picasso.load(news_item.getImageThumb())
+                        .placeholder(R.drawable.ic_news_large)
+                        .into(viewHolder.icon);
+            }
 
-            if (!news_item.getPostImage().isEmpty())
-            Picasso.get().load(news_item.getPostImage())
-                    .placeholder(R.drawable.ic_news_large)
-                    .into(viewHolder.icon);
 
             viewHolder.title.setText(news_item.getPostTitle());
             viewHolder.time.setText(news_item.getPostDate());
@@ -174,15 +170,12 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
                 });
 
 
-
             }
         }
     }
 
 
-
     public void getNews() {
-
 
 
         GetItemNews getItemNews = new GetItemNews(
@@ -232,7 +225,6 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
 
 
     }
-
 
 
 }

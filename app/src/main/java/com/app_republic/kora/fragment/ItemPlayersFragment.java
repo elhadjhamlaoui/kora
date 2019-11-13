@@ -145,9 +145,11 @@ public class ItemPlayersFragment extends Fragment {
     class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder> {
 
         ArrayList<Player> list;
+        Picasso picasso;
 
         private PlayersAdapter(ArrayList<Player> list) {
             this.list = list;
+            picasso = AppSingleton.getInstance(getActivity()).getPicasso();
         }
 
         @NonNull
@@ -173,8 +175,8 @@ public class ItemPlayersFragment extends Fragment {
             viewHolder.missed_penalty.setText(player.getMissedPenalty());
 
             if (!player.getPlayerImage().isEmpty()) {
-                Picasso.get().cancelRequest(viewHolder.icon);
-                Picasso.get().load(player.getPlayerImage()).into(viewHolder.icon);
+                picasso.cancelRequest(viewHolder.icon);
+                picasso.load(player.getPlayerImage()).into(viewHolder.icon);
             }
 
         }

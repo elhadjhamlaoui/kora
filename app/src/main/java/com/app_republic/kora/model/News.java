@@ -141,4 +141,5 @@ public class News implements Parcelable {
         parcel.writeString(mPostImage);
         parcel.writeString(mPostTitle);
     }
+
 }

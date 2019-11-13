@@ -12,8 +12,11 @@ public class StaticConfig {
 
 
     public static final String API_GET_LATEST_NEWS = "getLatestNews";
-    public static final String API_GET_TRENDING_TEAMS = "getTrendingTeams";
+    public static final String API_GET_TRENDING_TEAMS = "getTimeLine";
     public static final String API_GET_DEP_STANDINGS = "getDepStandings";
+    public static final String API_GET_ITEM_NEWS = "getItemNews";
+    public static final String API_GET_TIME_LINE = "getTimeline";
+
 
 
     public static final String NEWS = "news";
@@ -52,10 +55,7 @@ public class StaticConfig {
     public static String DEPS_WITH_PLAYERS_REQUEST = "dep_players";
     public static String DEP_PLAYERS_REQUEST = "players_for_dep";
     public static String ITEM_NEWS_REQUEST = "item_news_request";
-
-
-
-
+    public static String TIME_LINE_REQUEST = "time_line_request";
 
 
 

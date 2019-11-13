@@ -9,6 +9,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
+import com.squareup.picasso.Picasso;
 
 public class AppSingleton {
     private static AppSingleton mAppSingletonInstance;
@@ -16,6 +17,7 @@ public class AppSingleton {
     private ImageLoader mImageLoader;
     private static Context mContext;
     private Gson gson;
+    private Picasso picasso;
     private AppSingleton(Context context) {
         mContext = context;
         mRequestQueue = getRequestQueue();
@@ -54,6 +56,13 @@ public class AppSingleton {
             mRequestQueue = Volley.newRequestQueue(mContext.getApplicationContext());
         }
         return mRequestQueue;
+    }
+
+    public Picasso getPicasso() {
+        if (picasso == null)
+            picasso = Picasso.get();
+        return picasso;
+
     }
 
     public Gson getGson() {

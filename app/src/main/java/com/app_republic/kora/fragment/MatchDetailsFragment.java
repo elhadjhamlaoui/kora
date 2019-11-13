@@ -21,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.app_republic.kora.R;
 import com.app_republic.kora.activity.MatchActivity;
 import com.app_republic.kora.model.Match;
+import com.app_republic.kora.model.MatchDetail;
 import com.app_republic.kora.request.GetMatches;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
@@ -35,31 +36,19 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 
 import static android.view.View.GONE;
 import static com.app_republic.kora.utils.StaticConfig.MATCHES_REQUEST;
 
-public class MatchDetailsFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class MatchDetailsFragment extends Fragment implements View.OnClickListener {
 
 
-    ArrayList<Match> matches = new ArrayList<>();
+    ArrayList<MatchDetail> details = new ArrayList<>();
 
-    Adapter matches_adapter;
-    RecyclerView matches_recycler;
-
-    Calendar calendar;
-
-    ImageView IV_next, IV_previous;
-    TextView TV_date, TV_day;
-
-    LinearLayout LL_choose_date;
-
-    String dateString;
-    DatePickerDialog datePickerDialog;
-
-    Handler handler;
-    Runnable runnable;
-    long timeDifference;
+    Match match;
+    Adapter details_adapter;
+    RecyclerView details_recycler;
 
     public MatchDetailsFragment() {
         // Required empty public constructor
@@ -81,90 +70,60 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_match_details, container, false);
 
-/*
         initialiseViews(view);
 
 
-        matches_adapter = new Adapter(getActivity(), matches);
+        details_adapter = new Adapter(getActivity(), details);
 
 
-        matches_recycler.setAdapter(matches_adapter);
+        details_recycler.setAdapter(details_adapter);
 
 
-        matches_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        details_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+
+        match = getArguments().getParcelable(StaticConfig.MATCH);
 
 
-        calendar = Calendar.getInstance();
+        details.add(new MatchDetail(getString(R.string.department), match.getLiveDep(),
+                R.drawable.ic_cup));
+        details.add(new MatchDetail(getString(R.string.role), match.getLiveRole(),
+                R.drawable.ic_tournament));
+        details.add(new MatchDetail(getString(R.string.stadium), match.getLiveStad(),
+                R.drawable.ic_field));
+        details.add(new MatchDetail(getString(R.string.channel), match.getLiveTv(),
+                R.drawable.ic_streaming));
+        details.add(new MatchDetail(getString(R.string.commentator), match.getLiveComm(),
+                R.drawable.ic_horn));
+        details.add(new MatchDetail(getString(R.string.match_time), match.getFullTime(),
+                R.drawable.ic_stopwatch));
+        details.add(new MatchDetail(getString(R.string.match_date), match.getLiveDate(),
+                R.drawable.ic_calendar));
 
-        datePickerDialog = new DatePickerDialog(
-                getActivity(), this, calendar.get(Calendar.YEAR),
-                calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-        handler = new Handler();
-        runnable = () -> {
-            getMatches();
-        };
-
-        getMatches();
-        displayDate();
-*/
+        details_adapter.notifyDataSetChanged();
 
         return view;
     }
 
     private void initialiseViews(View view) {
-        matches_recycler = view.findViewById(R.id.matches_recycler);
-
-        LL_choose_date = view.findViewById(R.id.choose_date);
-        IV_next = view.findViewById(R.id.arrow_next);
-        IV_previous = view.findViewById(R.id.arrow_previous);
-        TV_date = view.findViewById(R.id.date_text);
-        TV_day = view.findViewById(R.id.day_text);
-
-        LL_choose_date.setOnClickListener(this);
-        IV_next.setOnClickListener(this);
-        IV_previous.setOnClickListener(this);
-    }
-
-    private void displayDate() {
-        TV_date.setText(Utils.getReadableDate(calendar));
-        TV_day.setText(Utils.getReadableDay(calendar, getActivity()));
+        details_recycler = view.findViewById(R.id.recyclerView);
 
     }
+
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.choose_date:
-                datePickerDialog.show();
-                break;
-            case R.id.arrow_previous:
-                calendar.add(Calendar.DATE, -1);
-                getMatches();
-                displayDate();
-                break;
-            case R.id.arrow_next:
-                calendar.add(Calendar.DATE, 1);
-                getMatches();
-                displayDate();
-                break;
-        }
-    }
 
-    @Override
-    public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-        calendar.set(year, month, day);
-        getMatches();
-        displayDate();
+        }
     }
 
 
     class Adapter extends RecyclerView.Adapter<Adapter.viewHolder> {
 
         Context context;
-        ArrayList<Match> list;
+        ArrayList<MatchDetail> list;
 
-        public Adapter(Context context, ArrayList<Match> list) {
+        public Adapter(Context context, ArrayList<MatchDetail> list) {
             this.context = context;
             this.list = list;
         }
@@ -173,7 +132,7 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
         @Override
         public viewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
             View view = LayoutInflater.from(getActivity())
-                    .inflate(R.layout.item_match, viewGroup, false);
+                    .inflate(R.layout.item_match_detail, viewGroup, false);
 
             return new viewHolder(view);
 
@@ -182,50 +141,11 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
         @Override
         public void onBindViewHolder(@NonNull viewHolder viewHolder, int i) {
 
-            Match match = list.get(i);
+            MatchDetail detail = list.get(i);
 
-            long now = System.currentTimeMillis();
-            int delay = Integer.parseInt(match.getLiveM3());
-            long originalTime = Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces());
-
-
-            long difference = now - originalTime + timeDifference;
-
-            if (difference > 0) {
-                viewHolder.scoreTeamA.setText(match.getLiveRe1());
-                viewHolder.scoreTeamB.setText(match.getLiveRe2());
-
-                int minutes = Integer.parseInt(match.getActualMinutes());
-                if (minutes > 0) {
-
-                    if (minutes > 45) {
-                        if (minutes > (60 - delay))
-                            viewHolder.state.setText(" <" + (minutes - 15 + delay) + "> ");
-                        else
-                            viewHolder.state.setText(" <" + 45 + "> ");
-
-                    } else
-                        viewHolder.state.setText(" <" + minutes + "> ");
-                } else {
-                    viewHolder.state.setText(" - ");
-                }
-            } else {
-                viewHolder.scoreTeamA.setText("");
-                viewHolder.scoreTeamB.setText("");
-                viewHolder.state.setText(Utils.getFullTime(originalTime - timeDifference));
-            }
-
-            viewHolder.name1.setText(match.getLiveTeam1());
-            viewHolder.name2.setText(match.getLiveTeam2());
-
-            Picasso.get().load(match.getTeamLogoA()).into(viewHolder.logo1);
-            Picasso.get().load(match.getTeamLogoB()).into(viewHolder.logo2);
-
-            if (i == 0 || !matches.get(i - 1).getDepId().equals(match.getDepId())) {
-                viewHolder.department.setText(match.getLiveDep());
-                viewHolder.department.setVisibility(View.VISIBLE);
-            } else
-                viewHolder.department.setVisibility(GONE);
+            viewHolder.label.setText(detail.getLabel());
+            viewHolder.content.setText(detail.getContent());
+            viewHolder.icon.setImageDrawable(context.getResources().getDrawable(detail.getIcon()));
 
 
         }
@@ -237,97 +157,24 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
 
         class viewHolder extends RecyclerView.ViewHolder {
 
-            ImageView logo1, logo2;
-            TextView name1, name2, state, department, scoreTeamA, scoreTeamB;
+            ImageView icon;
+            TextView label, content;
             View V_root;
 
-            public viewHolder(@NonNull View itemView) {
+            viewHolder(@NonNull View itemView) {
                 super(itemView);
-                logo1 = itemView.findViewById(R.id.logo_team_1);
-                logo2 = itemView.findViewById(R.id.logo_team_2);
-                name1 = itemView.findViewById(R.id.name_team_1);
-                name2 = itemView.findViewById(R.id.name_team_2);
-                state = itemView.findViewById(R.id.state);
-                scoreTeamA = itemView.findViewById(R.id.scoreTeamA);
-                scoreTeamB = itemView.findViewById(R.id.scoreTeamB);
-                department = itemView.findViewById(R.id.department);
+
                 V_root = itemView.findViewById(R.id.root);
+                label = itemView.findViewById(R.id.label);
+                content = itemView.findViewById(R.id.content);
+                icon = itemView.findViewById(R.id.icon);
 
                 V_root.setOnClickListener(view -> {
-                    Intent intent = new Intent(context, MatchActivity.class);
-                    intent.putExtra(StaticConfig.MATCH, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
+
                 });
 
             }
         }
     }
-
-
-    public void getMatches() {
-
-
-
-
-        dateString = Utils.getReadableDate(calendar);
-        GetMatches matchesRequest = new GetMatches(
-                dateString,
-                response -> {
-
-                    try {
-
-
-                        JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
-
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        boolean liveMatches = false;
-
-                        matches.clear();
-                        matches_adapter.notifyDataSetChanged();
-
-                        for (int i = 0; i < items.length(); i++) {
-                            String jsonString = items.getJSONObject(i).toString();
-                            Match match;
-                            Gson gson = new Gson();
-                            match = gson.fromJson(jsonString, Match.class);
-
-                            matches.add(match);
-
-                            int minutes = Integer.parseInt(match.getActualMinutes());
-                            if (minutes > 0)
-                                liveMatches = true;
-                        }
-
-
-                        if (liveMatches)
-                            handler.postDelayed(runnable, 60 * 1000);
-
-                        Collections.sort(matches);
-
-                        matches_adapter.notifyItemRangeInserted(0, matches.size());
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    }
-
-
-                }, error ->
-                error.printStackTrace());
-
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(matchesRequest, MATCHES_REQUEST);
-
-
-    }
-
 
 }

@@ -160,10 +160,13 @@ public class DepartmentsFragment extends Fragment {
 
         Context context;
         ArrayList<Department> list;
+        Picasso picasso;
 
         public DepartmentsAdapter(Context context, ArrayList<Department> list) {
             this.context = context;
             this.list = list;
+            picasso = AppSingleton.getInstance(getActivity()).getPicasso();
+
         }
 
         @NonNull
@@ -183,10 +186,14 @@ public class DepartmentsFragment extends Fragment {
 
             viewHolder.name.setText(department.getDepName());
 
-            if (!department.getDepLogo().isEmpty())
-            Picasso.get().load(department.getDepLogo())
-                    .placeholder(R.drawable.ic_ball)
-                    .into(viewHolder.icon);
+            if (!department.getDepLogo().isEmpty()) {
+                picasso.cancelRequest(viewHolder.icon);
+
+                picasso.load(department.getDepLogo())
+                        .placeholder(R.drawable.ic_ball)
+                        .into(viewHolder.icon);
+            }
+
 
 
         }

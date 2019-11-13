@@ -43,5 +43,12 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="title_activity_match_acitivity">MatchAcitivity</string>
     <string name="play_store_link">https://play.google.com/store/apps/details?id=com.app_republic.kora</string>
+    <string name="department">البطولة</string>
+    <string name="role">الجولة</string>
+    <string name="stadium">ملعب المباراة</string>
+    <string name="channel">القناة الناقلة</string>
+    <string name="commentator">المعلق</string>
+    <string name="match_time">وقت المباراة</string>
+    <string name="match_date">تاريخ المباراة</string>
 
 </resources>

@@ -163,10 +163,13 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
         Context context;
         ArrayList<Match> list;
+        Picasso picasso;
 
         public Adapter(Context context, ArrayList<Match> list) {
             this.context = context;
             this.list = list;
+            picasso = AppSingleton.getInstance(getActivity()).getPicasso();
+
         }
 
         @NonNull
@@ -219,10 +222,14 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
             viewHolder.name1.setText(match.getLiveTeam1());
             viewHolder.name2.setText(match.getLiveTeam2());
 
-            if (!match.getTeamLogoA().isEmpty())
-            Picasso.get().load(match.getTeamLogoA()).into(viewHolder.logo1);
-            if (!match.getTeamLogoB().isEmpty())
-            Picasso.get().load(match.getTeamLogoB()).into(viewHolder.logo2);
+            if (!match.getTeamLogoA().isEmpty()) {
+                picasso.cancelRequest(viewHolder.logo1);
+                picasso.load(match.getTeamLogoA()).into(viewHolder.logo1);
+            }
+            if (!match.getTeamLogoB().isEmpty()) {
+                picasso.cancelRequest(viewHolder.logo2);
+                picasso.load(match.getTeamLogoB()).into(viewHolder.logo2);
+            }
 
             if (i == 0 || !matches.get(i - 1).getDepId().equals(match.getDepId())) {
                 viewHolder.department.setText(match.getLiveDep());

@@ -143,9 +143,12 @@ public class StandingsFragment extends Fragment {
     class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.StandingsViewHolder> {
 
         ArrayList<Standing> list;
+        Picasso picasso;
 
         private StandingsAdapter(ArrayList<Standing> list) {
             this.list = list;
+            picasso = AppSingleton.getInstance(getActivity()).getPicasso();
+
         }
 
         @NonNull
@@ -174,8 +177,8 @@ public class StandingsFragment extends Fragment {
             viewHolder.name.setText(standing.getTeamName());
 
             if (!standing.getTeamLogo().isEmpty()) {
-                Picasso.get().cancelRequest(viewHolder.icon);
-                Picasso.get().load(standing.getTeamLogo()).into(viewHolder.icon);
+                picasso.cancelRequest(viewHolder.icon);
+                picasso.load(standing.getTeamLogo()).into(viewHolder.icon);
             }
 
         }

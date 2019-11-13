@@ -10,25 +10,22 @@ import java.util.Map;
 
 import static com.android.volley.Request.Method.POST;
 import static com.app_republic.kora.utils.StaticConfig.API_BASE;
-import static com.app_republic.kora.utils.StaticConfig.API_GET_DEP_STANDINGS;
-import static com.app_republic.kora.utils.StaticConfig.API_GET_ITEM_NEWS;
+import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCH_INFO;
+import static com.app_republic.kora.utils.StaticConfig.API_GET_TIME_LINE;
 
-public class GetItemNews extends StringRequest {
+public class GetTimeline extends StringRequest {
 
     Map<String, String> params;
 
-    public GetItemNews(String type,
-                       String item_id,
+    public GetTimeline(String live_id,
                        Response.Listener<String> listener,
                        @Nullable Response.ErrorListener errorListener) {
-        super(POST, API_BASE + API_GET_ITEM_NEWS, listener, errorListener);
+        super(POST, API_BASE + API_GET_TIME_LINE, listener, errorListener);
         params = new HashMap<>();
 
         params.put("accessToken", "");
         params.put("is_android", "1");
-        params.put("type", type);
-        params.put("item_id", item_id);
-
+        params.put("live_id", live_id);
 
     }
 

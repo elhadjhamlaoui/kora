@@ -17,9 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.activity.NewsItemActivity;
+import com.app_republic.kora.model.Match;
 import com.app_republic.kora.model.News;
 import com.app_republic.kora.model.Team;
+import com.app_republic.kora.model.TimeLine;
 import com.app_republic.kora.request.GetLatestNews;
+import com.app_republic.kora.request.GetTimeline;
 import com.app_republic.kora.request.GetTrendingTeams;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
@@ -35,18 +38,20 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import static com.app_republic.kora.utils.StaticConfig.LATEST_NEWS_REQUEST;
+import static com.app_republic.kora.utils.StaticConfig.TIME_LINE_REQUEST;
 import static com.app_republic.kora.utils.StaticConfig.TRENDING_TEAMS_REQUEST;
 
 public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
 
-    ArrayList<News> news = new ArrayList<>();
-    ArrayList<Team> teams = new ArrayList<>();
+    ArrayList<TimeLine> list = new ArrayList<>();
 
-    NewsAdapter news_adapter;
-    TeamsAdapter teams_adapter;
-    RecyclerView news_recycler, teams_recycler;
-    long timeDifference;
+    TimeLineAdapter timeLineAdapter;
+    RecyclerView recyclerView;
+    Match match;
+    final int ITEM_TYPE_TEAM1 = 1;
+    final int ITEM_TYPE_TEAM2 = 2;
+
     public TimeLineFragment() {
         // Required empty public constructor
     }
@@ -66,39 +71,29 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_time_line, container, false);
-/*
+
 
         initialiseViews(view);
 
+        match = getArguments().getParcelable(StaticConfig.MATCH);
 
-        news_adapter = new NewsAdapter(getActivity(), news);
-        teams_adapter = new TeamsAdapter(getActivity(), teams);
-
-
-        teams_recycler.setAdapter(teams_adapter);
-        news_recycler.setAdapter(news_adapter);
+        timeLineAdapter = new TimeLineAdapter(getActivity(), list);
 
 
-        news_recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-        LinearLayoutManager layoutManager
-                = new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL,
-                false);
-        teams_recycler.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(timeLineAdapter);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
 
+        getTimeLine();
 
-        getLatestNews();
-        getTrendingTeams();
 
-*/
         return view;
     }
 
     private void initialiseViews(View view) {
-        news_recycler = view.findViewById(R.id.newsRecycler);
-        teams_recycler = view.findViewById(R.id.teamRecycler);
+        recyclerView = view.findViewById(R.id.recyclerView);
     }
-
 
 
     @Override
@@ -109,41 +104,70 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
-    class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
+    class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.viewHolder> {
 
         Context context;
-        ArrayList<News> list;
+        ArrayList<TimeLine> list;
 
-        public NewsAdapter(Context context, ArrayList<News> list) {
+        public TimeLineAdapter(Context context, ArrayList<TimeLine> list) {
             this.context = context;
             this.list = list;
         }
 
         @NonNull
         @Override
-        public NewsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getActivity())
-                    .inflate(R.layout.item_news, viewGroup, false);
+        public viewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            View view;
+            if (getItemViewType(i) == ITEM_TYPE_TEAM1) {
+                view = LayoutInflater.from(getActivity())
+                        .inflate(R.layout.item_timeline_team1, viewGroup, false);
 
-            return new NewsViewHolder(view);
+            } else {
+                view = LayoutInflater.from(getActivity())
+                        .inflate(R.layout.item_timeline_team2, viewGroup, false);
+
+            }
+
+            return new viewHolder(view);
         }
 
         @Override
-        public void onBindViewHolder(@NonNull NewsViewHolder viewHolder, int i) {
+        public void onBindViewHolder(@NonNull viewHolder viewHolder, int i) {
 
-            News news_item = list.get(i);
-
-
+            TimeLine item = list.get(i);
 
 
-            Picasso.get().load(news_item.getPostImage())
-                    .placeholder(R.drawable.ic_news_large)
-                    .into(viewHolder.icon);
+            viewHolder.time.setText(item.getTime());
+            viewHolder.title.setText(item.getText());
+            if (item.getVideoItem() != null)
+                viewHolder.video.setText(item.getVideoItem().getVideoTitle().split("\\|")[0]);
+            else
+                viewHolder.video.setText("");
 
-            viewHolder.title.setText(news_item.getPostTitle());
-            viewHolder.time.setText(news_item.getPostDate());
+            switch (Integer.parseInt(item.getType())) {
+                case 1:
+                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
+                    break;
+                case 2:
+                    viewHolder.icon.setImageResource(R.drawable.ic_ball_small);
+                    break;
+                case 3:
+                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
+                    break;
+                case 4:
+                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
+                    break;
+                case 5:
+                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
+                    break;
+                case 6:
+                    viewHolder.icon.setImageResource(R.drawable.ic_yellow_card);
+                    break;
+                case 7:
+                    viewHolder.icon.setImageResource(R.drawable.ic_red_card);
+                    break;
 
+            }
 
         }
 
@@ -152,178 +176,67 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
             return list.size();
         }
 
-        class NewsViewHolder extends RecyclerView.ViewHolder {
+        @Override
+        public int getItemViewType(int position) {
+            switch (Integer.parseInt(list.get(position).getTeam())) {
+                case 1:
+                    return ITEM_TYPE_TEAM1;
 
-            TextView title, time;
+                case 2:
+                    return ITEM_TYPE_TEAM2;
+            }
+            return 1;
+        }
+
+        class viewHolder extends RecyclerView.ViewHolder {
+
+            TextView title, video, time;
             ImageView icon;
             View V_root;
 
-            public NewsViewHolder(@NonNull View itemView) {
+            public viewHolder(@NonNull View itemView) {
                 super(itemView);
                 title = itemView.findViewById(R.id.title);
                 time = itemView.findViewById(R.id.time);
+                video = itemView.findViewById(R.id.video);
                 icon = itemView.findViewById(R.id.icon);
                 V_root = itemView.findViewById(R.id.root);
 
                 V_root.setOnClickListener(view -> {
-                    ActivityOptionsCompat options = ActivityOptionsCompat.
-                            makeSceneTransitionAnimation(getActivity(),
-                                    icon, StaticConfig.NEWS);
 
-                    Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.NEWS, list.get(getAdapterPosition()));
-                    context.startActivity(intent, options.toBundle());
                 });
-
 
 
             }
         }
     }
 
-    class TeamsAdapter extends RecyclerView.Adapter<TeamsAdapter.TeamsViewHolder> {
+    public void getTimeLine() {
 
-        Context context;
-        ArrayList<Team> list;
-
-        public TeamsAdapter(Context context, ArrayList<Team> list) {
-            this.context = context;
-            this.list = list;
-        }
-
-        @NonNull
-        @Override
-        public TeamsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getActivity())
-                    .inflate(R.layout.item_news_team, viewGroup, false);
-
-            return new TeamsViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(@NonNull TeamsViewHolder viewHolder, int i) {
-
-            Team team = list.get(i);
+        list.clear();
 
 
-            Picasso.get().load(team.getTeamLogo())
-                    .placeholder(R.drawable.ic_ball)
-                    .into(viewHolder.icon);
-
-        }
-
-        @Override
-        public int getItemCount() {
-            return list.size();
-        }
-
-        class TeamsViewHolder extends RecyclerView.ViewHolder {
-
-            ImageView icon;
-            View V_root;
-
-            public TeamsViewHolder(@NonNull View itemView) {
-                super(itemView);
-                icon = itemView.findViewById(R.id.icon);
-                V_root = itemView.findViewById(R.id.root);
-
-                V_root.setOnClickListener(view -> {
-                   /* Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.TEAM, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                    */
-
-                });
-            }
-        }
-    }
-
-
-
-
-
-    public void getLatestNews() {
-
-
-
-        GetLatestNews latestNewsRequest = new GetLatestNews(
+        GetTimeline getTimeline = new GetTimeline(
+                match.getLiveId(),
                 response -> {
 
                     try {
 
 
                         JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
-
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        news.clear();
-                        news_adapter.notifyDataSetChanged();
-
-                        for (int i = 0; i < items.length(); i++) {
-                            String jsonString = items.getJSONObject(i).toString();
-                            News news_item;
-                            Gson gson = new Gson();
-                            news_item = gson.fromJson(jsonString, News.class);
-                            news.add(news_item);
-                        }
-
-
-                        news_adapter.notifyItemRangeInserted(0, news.size());
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    }
-
-
-                }, error ->
-                error.printStackTrace());
-
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(latestNewsRequest, LATEST_NEWS_REQUEST);
-
-
-    }
-
-    public void getTrendingTeams() {
-
-        teams.clear();
-
-
-        GetTrendingTeams trendingTeamsRequest = new GetTrendingTeams(
-                response -> {
-
-                    try {
-
-
-                        JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
-
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
 
                         JSONArray items = object.getJSONArray("items");
 
                         for (int i = 0; i < items.length(); i++) {
                             String jsonString = items.getJSONObject(i).toString();
-                            Team team;
+                            TimeLine timeLine;
                             Gson gson = new Gson();
-                            team = gson.fromJson(jsonString, Team.class);
-                            teams.add(team);
+                            timeLine = gson.fromJson(jsonString, TimeLine.class);
+                            list.add(timeLine);
                         }
 
 
-                        teams_adapter.notifyDataSetChanged();
+                        timeLineAdapter.notifyDataSetChanged();
 
 
                     } catch (JSONException e) {
@@ -336,7 +249,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 }, error ->
                 error.printStackTrace());
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(trendingTeamsRequest, TRENDING_TEAMS_REQUEST);
+        AppSingleton.getInstance(getActivity()).addToRequestQueue(getTimeline, TIME_LINE_REQUEST);
 
 
     }

@@ -20,6 +20,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -70,6 +71,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         result = getIntent().getStringExtra(StaticConfig.RESULT);
 
         ViewPager viewPager = findViewById(R.id.view_pager);
+        viewPager.setOffscreenPageLimit(5);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
@@ -87,13 +89,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         IV_share = findViewById(R.id.share);
         TV_extra = findViewById(R.id.extra);
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                .setAction("Action", null).show());
 
         IV_back.setOnClickListener(this);
 
@@ -198,6 +195,9 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         int delay = Integer.parseInt(match.getLiveM3());
         long originalTime = Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces());
         long difference = now - originalTime + timeDifference;
+        String match_time = Utils.getFullTime(originalTime - timeDifference);
+
+        MatchActivity.this.match.setFullTime(match_time);
 
         if (difference > 0) {
             TV_scoreTeamA.setText(match.getLiveRe1());
@@ -221,7 +221,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         } else {
             TV_scoreTeamA.setText("");
             TV_scoreTeamB.setText("");
-            TV_state.setText(Utils.getFullTime(originalTime - timeDifference));
+            TV_state.setText(match_time);
 
             if (firstCall) {
                 firstCall = false;
@@ -248,21 +248,25 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final Context mContext;
+        private String[] tabs;
 
 
         public SectionsPagerAdapter(Context context, FragmentManager fm) {
             super(fm);
             mContext = context;
+            tabs = mContext.getResources().getStringArray(R.array.match_tabs);
         }
+
+
 
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            Log.wtf("position", position + "");
+            Fragment fragment = null;
             switch (position) {
                 case 0:
-                    Fragment itemPlayersFragment = ItemPlayersFragment.newInstance();
+                    fragment = ItemPlayersFragment.newInstance();
                     Bundle args0 = new Bundle();
 
                     args0.putString(StaticConfig.PARAM_ITEM_TYPE,
@@ -270,22 +274,22 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                     args0.putString(StaticConfig.PARAM_ITEM_ID,
                             match.getDepId());
 
-                    itemPlayersFragment.setArguments(args0);
+                    fragment.setArguments(args0);
 
-                    return itemPlayersFragment;
+                    break;
 
                 case 1:
-                    Fragment standingsFragment = StandingsFragment.newInstance();
+                    fragment = StandingsFragment.newInstance();
                     Bundle args1 = new Bundle();
 
                     args1.putString(StaticConfig.PARAM_DEP_ID,
                             match.getDepId());
 
-                    standingsFragment.setArguments(args1);
+                    fragment.setArguments(args1);
 
-                    return standingsFragment;
+                    break;
                 case 2:
-                    Fragment itemNewsFragment = ItemNewsFragment.newInstance();
+                    fragment = ItemNewsFragment.newInstance();
                     Bundle args2 = new Bundle();
 
                     args2.putString(StaticConfig.PARAM_ITEM_TYPE,
@@ -293,45 +297,40 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                     args2.putString(StaticConfig.PARAM_ITEM_ID,
                             match.getLiveId());
 
-                    itemNewsFragment.setArguments(args2);
+                    fragment.setArguments(args2);
 
-                    return itemNewsFragment;
+                    break;
                 case 3:
-                    Fragment matchDetailsFragment = MatchDetailsFragment.newInstance();
+                    fragment = MatchDetailsFragment.newInstance();
                     Bundle args3 = new Bundle();
 
-                    /*args3.putString(StaticConfig.PARAM_ITEM_TYPE,
-                            StaticConfig.PARAM_TYPE_MATCH);
-                    args3.putString(StaticConfig.PARAM_ITEM_ID,
-                            match.getLiveId());*/
+                    args3.putParcelable(StaticConfig.MATCH,
+                            match);
 
-                    matchDetailsFragment.setArguments(args3);
+                    fragment.setArguments(args3);
 
-                    return matchDetailsFragment;
+                    break;
                 case 4:
-                    Fragment timeLineFragment = TimeLineFragment.newInstance();
+                    fragment = TimeLineFragment.newInstance();
                     Bundle args4 = new Bundle();
 
-                    /*args.putString(StaticConfig.PARAM_ITEM_TYPE,
-                            StaticConfig.PARAM_TYPE_MATCH);
-                    args.putString(StaticConfig.PARAM_ITEM_ID,
-                            match.getLiveId());*/
-
-                    timeLineFragment.setArguments(args4);
-
-                    return timeLineFragment;
+                    args4.putParcelable(StaticConfig.MATCH,
+                            match);
 
 
-                default:
-                    return null;
+                    fragment.setArguments(args4);
+
+                    break;
 
             }
+            fragment.setRetainInstance(true);
+            return fragment;
         }
 
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            return mContext.getResources().getStringArray(R.array.match_tabs)[position];
+            return tabs[position];
         }
 
         @Override
