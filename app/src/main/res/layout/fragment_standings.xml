@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     tools:context=".fragment.DepartmentsFragment">
 
 
@@ -27,6 +28,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:text="نقاط"
+            android:textColor="@color/grey_7"
             android:textSize="14sp"
             app:autoSizeTextType="uniform" />
 
@@ -57,6 +59,7 @@
                 android:gravity="center"
                 android:maxLines="1"
                 android:text="أهداف"
+                android:textColor="@color/grey_7"
                 android:textSize="14sp"
                 app:autoSizeTextType="uniform" />
 
@@ -126,6 +129,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:text="لعب"
+            android:textColor="@color/grey_7"
             android:textSize="14sp"
             app:autoSizeTextType="uniform" />
 
@@ -139,6 +143,7 @@
             android:maxLength="15"
             android:maxLines="1"
             android:text="الفريق"
+            android:textColor="@color/grey_7"
             android:textSize="12sp"
             app:autoSizeTextType="uniform" />
 
@@ -158,6 +163,7 @@
             android:layout_weight="1"
             android:gravity="center"
             android:text="ت"
+            android:textColor="@color/grey_7"
             android:textSize="14sp"
             app:autoSizeTextType="uniform" />
     </LinearLayout>
@@ -166,6 +172,7 @@
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:soundEffectsEnabled="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

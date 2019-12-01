@@ -9,6 +9,7 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_editor_absoluteY="78dp"
     xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView
@@ -38,7 +39,8 @@
         android:layout_marginEnd="20dp"
         android:layout_weight="2"
         android:gravity="center"
-        android:text="5" />
+        android:text="5"
+        android:textColor="@color/grey_7" />
 
     <LinearLayout
         android:layout_width="0dp"
@@ -54,23 +56,27 @@
             android:maxLength="15"
             android:maxLines="1"
             android:text="كريم بنزيما"
+            android:textColor="@color/grey_7"
             android:textSize="14sp" />
 
         <TextView
-            android:id="@+id/department"
+            android:id="@+id/extra"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="ريال مدريد"
+            android:textColor="@color/grey_7"
             android:textSize="12sp" />
     </LinearLayout>
 
-    <ImageView
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/icon"
         android:layout_width="0dp"
         android:layout_height="30dp"
-        android:layout_marginEnd="10dp"
         android:layout_weight="1"
+        app:civ_border_color="@color/blue_8" android:scaleType="centerCrop"
+        app:civ_border_width="2dp"
         app:srcCompat="@drawable/ic_ball_small" />
+
 
     <TextView
         android:id="@+id/standing"
@@ -79,6 +85,7 @@
         android:layout_weight="1"
         android:gravity="center"
         android:text="1"
+        android:textColor="@color/grey_7"
         android:textSize="14sp"
         app:autoSizeTextType="uniform" />
 </LinearLayout>

@@ -36,6 +36,23 @@ public class GetMatches extends StringRequest {
     }
 
     @Override
+    public byte[] getBody() {
+        return new JSONObject(params).toString().getBytes();
+    }
+
+    @Override
+    public Map<String, String> getHeaders(){
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put("User-agent", "okhttp/3.3.0");
+        return headers;
+    }
+
+    @Override
+    public String getBodyContentType() {
+        return "application/json";
+    }
+
+    @Override
     protected Map<String, String> getParams() {
         return params;
     }

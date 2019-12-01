@@ -10,6 +10,7 @@ import com.app_republic.kora.fragment.ItemPlayersFragment;
 import com.app_republic.kora.fragment.MatchDetailsFragment;
 import com.app_republic.kora.fragment.StandingsFragment;
 import com.app_republic.kora.fragment.TimeLineFragment;
+import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Match;
 import com.app_republic.kora.request.GetMatchInfo;
 import com.app_republic.kora.utils.AppSingleton;
@@ -19,8 +20,6 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
@@ -45,6 +44,10 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.app_republic.kora.utils.StaticConfig.MATCH_INFO_REQUEST;
 
 public class MatchActivity extends AppCompatActivity implements View.OnClickListener {
@@ -60,10 +63,15 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     boolean firstCall = true;
     long timeDifference;
 
+    Gson gson;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match);
+
+        gson = AppSingleton.getInstance(this).getGson();
+
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
                 getSupportFragmentManager());
 
@@ -75,7 +83,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
-        FloatingActionButton fab = findViewById(R.id.fab);
+
 
         TV_nameTeamA = findViewById(R.id.nameTeamA);
         TV_nameTeamB = findViewById(R.id.nameTeamB);
@@ -89,8 +97,17 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         IV_share = findViewById(R.id.share);
         TV_extra = findViewById(R.id.extra);
 
-        fab.setOnClickListener(view -> Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show());
+        IV_logoTeamA.setOnClickListener(view -> {
+            Intent intent = new Intent(MatchActivity.this, TeamInfoActivity.class);
+            intent.putExtra(StaticConfig.PARAM_TEAM_ID, match.getTeamIdA());
+            startActivity(intent);
+        });
+        IV_logoTeamB.setOnClickListener(view -> {
+            Intent intent = new Intent(MatchActivity.this, TeamInfoActivity.class);
+            intent.putExtra(StaticConfig.PARAM_TEAM_ID, match.getTeamIdB());
+            startActivity(intent);
+        });
+
 
         IV_back.setOnClickListener(this);
 
@@ -109,6 +126,15 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
         handler = new Handler();
         runnable = () -> getMatchInfo();
+
+        if ("0".equals(match.getHasPlayers()))
+            tabs.removeTabAt(0);
+
+        if ("0".equals(match.getHasStandings()))
+            tabs.removeTabAt(1);
+
+        if ("0".equals(match.getHasTimeline()))
+            tabs.removeTabAt(4);
     }
 
     @Override
@@ -149,45 +175,48 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
     public void getMatchInfo() {
 
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatchInfo("1",
+                "", match.getLiveId());
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
 
-        GetMatchInfo matchInfoRequest = new GetMatchInfo(
-                match.getLiveId(),
-                response -> {
-
-                    try {
-
-
-                        JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
-
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        String jsonString = items.getJSONObject(0).toString();
-                        Match match;
-                        Gson gson = new Gson();
-                        match = gson.fromJson(jsonString, Match.class);
-
-                        updateUI(match);
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
-                    }
+                try {
 
 
-                }, error ->
-                error.printStackTrace());
+                    ApiResponse response = apiResponse.body();
+                    String current_date = response.getCurrentDate();
+                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-        AppSingleton.getInstance(this).addToRequestQueue(matchInfoRequest, MATCH_INFO_REQUEST);
+                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
+
+                    timeDifference = currentServerTime > currentClientTime ?
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+
+                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+
+                    String jsonString = items.getJSONObject(0).toString();
+                    Match match;
+                    ;
+                    match = gson.fromJson(jsonString, Match.class);
+
+                    updateUI(match);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
 
 
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
     }
 
     private void updateUI(Match match) {
@@ -258,7 +287,6 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         }
 
 
-
         @Override
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
@@ -273,6 +301,10 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                             StaticConfig.PARAM_ITEM_TYPE_DEPARTMENT);
                     args0.putString(StaticConfig.PARAM_ITEM_ID,
                             match.getDepId());
+                    args0.putString(StaticConfig.PARAM_TEAM_ID_A,
+                            match.getTeamIdA());
+                    args0.putString(StaticConfig.PARAM_TEAM_ID_B,
+                            match.getTeamIdB());
 
                     fragment.setArguments(args0);
 
@@ -284,6 +316,10 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
                     args1.putString(StaticConfig.PARAM_DEP_ID,
                             match.getDepId());
+                    args1.putString(StaticConfig.PARAM_TEAM_ID_A,
+                            match.getTeamIdA());
+                    args1.putString(StaticConfig.PARAM_TEAM_ID_B,
+                            match.getTeamIdB());
 
                     fragment.setArguments(args1);
 

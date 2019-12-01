@@ -17,8 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.activity.NewsItemActivity;
+import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.News;
-import com.app_republic.kora.model.Team;
+import com.app_republic.kora.model.TrendingTeam;
 import com.app_republic.kora.request.GetLatestNews;
 import com.app_republic.kora.request.GetTrendingTeams;
 import com.app_republic.kora.utils.AppSingleton;
@@ -34,6 +35,10 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.app_republic.kora.utils.StaticConfig.LATEST_NEWS_REQUEST;
 import static com.app_republic.kora.utils.StaticConfig.TRENDING_TEAMS_REQUEST;
 
@@ -41,12 +46,13 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
     ArrayList<News> news = new ArrayList<>();
-    ArrayList<Team> teams = new ArrayList<>();
+    ArrayList<TrendingTeam> trendingTeams = new ArrayList<>();
 
     NewsAdapter news_adapter;
     TeamsAdapter teams_adapter;
     RecyclerView news_recycler, teams_recycler;
     long timeDifference;
+    Gson gson;
     public NewsFragment() {
         // Required empty public constructor
     }
@@ -59,6 +65,8 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        gson = AppSingleton.getInstance(getActivity()).getGson();
+
     }
 
     @Override
@@ -72,7 +80,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
         news_adapter = new NewsAdapter(getActivity(), news);
-        teams_adapter = new TeamsAdapter(getActivity(), teams);
+        teams_adapter = new TeamsAdapter(getActivity(), trendingTeams);
 
 
         teams_recycler.setAdapter(teams_adapter);
@@ -186,9 +194,9 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     class TeamsAdapter extends RecyclerView.Adapter<TeamsAdapter.TeamsViewHolder> {
 
         Context context;
-        ArrayList<Team> list;
+        ArrayList<TrendingTeam> list;
 
-        public TeamsAdapter(Context context, ArrayList<Team> list) {
+        public TeamsAdapter(Context context, ArrayList<TrendingTeam> list) {
             this.context = context;
             this.list = list;
         }
@@ -205,10 +213,10 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onBindViewHolder(@NonNull TeamsViewHolder viewHolder, int i) {
 
-            Team team = list.get(i);
+            TrendingTeam trendingTeam = list.get(i);
 
 
-            Picasso.get().load(team.getTeamLogo())
+            Picasso.get().load(trendingTeam.getTeamLogo())
                     .placeholder(R.drawable.ic_ball)
                     .into(viewHolder.icon);
 
@@ -246,98 +254,105 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     public void getLatestNews() {
 
 
-
-        GetLatestNews latestNewsRequest = new GetLatestNews(
-                response -> {
-
-                    try {
-
-
-                        JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
-
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        news.clear();
-                        news_adapter.notifyDataSetChanged();
-
-                        for (int i = 0; i < items.length(); i++) {
-                            String jsonString = items.getJSONObject(i).toString();
-                            News news_item;
-                            Gson gson = new Gson();
-                            news_item = gson.fromJson(jsonString, News.class);
-                            news.add(news_item);
-                        }
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("1",
+                "");
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                try {
 
 
-                        news_adapter.notifyItemRangeInserted(0, news.size());
+                    ApiResponse response = apiResponse.body();
+                    String current_date = response.getCurrentDate();
+                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
+                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
+
+                    timeDifference = currentServerTime > currentClientTime ?
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+
+                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+
+                    news.clear();
+                    news_adapter.notifyDataSetChanged();
+
+                    for (int i = 0; i < items.length(); i++) {
+                        String jsonString = items.getJSONObject(i).toString();
+                        News news_item;
+                        ;
+                        news_item = gson.fromJson(jsonString, News.class);
+                        news.add(news_item);
                     }
 
 
-                }, error ->
-                error.printStackTrace());
+                    news_adapter.notifyItemRangeInserted(0, news.size());
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(latestNewsRequest, LATEST_NEWS_REQUEST);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
+            }
 
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
 
     }
 
     public void getTrendingTeams() {
 
-        teams.clear();
+        trendingTeams.clear();
+
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTrendingTeams("1",
+                "");
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                try {
 
 
-        GetTrendingTeams trendingTeamsRequest = new GetTrendingTeams(
-                response -> {
+                    ApiResponse response = apiResponse.body();
+                    String current_date = response.getCurrentDate();
+                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-                    try {
+                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
+                    timeDifference = currentServerTime > currentClientTime ?
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
 
-                        JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
+                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        for (int i = 0; i < items.length(); i++) {
-                            String jsonString = items.getJSONObject(i).toString();
-                            Team team;
-                            Gson gson = new Gson();
-                            team = gson.fromJson(jsonString, Team.class);
-                            teams.add(team);
-                        }
-
-
-                        teams_adapter.notifyDataSetChanged();
-
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
+                    for (int i = 0; i < items.length(); i++) {
+                        String jsonString = items.getJSONObject(i).toString();
+                        TrendingTeam trendingTeam;
+                        ;
+                        trendingTeam = gson.fromJson(jsonString, TrendingTeam.class);
+                        trendingTeams.add(trendingTeam);
                     }
 
 
-                }, error ->
-                error.printStackTrace());
+                    teams_adapter.notifyDataSetChanged();
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(trendingTeamsRequest, TRENDING_TEAMS_REQUEST);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
 
 
     }

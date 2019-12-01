@@ -1,21 +1,15 @@
 package com.app_republic.kora.utils;
 
 import android.content.Context;
-import android.widget.TextView;
 
 import com.app_republic.kora.R;
-import com.app_republic.kora.model.Match;
+import com.app_republic.kora.model.Player;
 
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
-import java.util.ConcurrentModificationException;
 import java.util.Date;
-import java.util.Locale;
 
 public class Utils {
 
@@ -36,6 +30,14 @@ public class Utils {
     public static String getReadableDate(Calendar cal) {
         Date date=cal. getTime();
         DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+        String formattedDate=dateFormat. format(date);
+
+        return formattedDate;
+    }
+
+    public static String getReadableFullDate(Calendar cal) {
+        Date date=cal. getTime();
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm aa");
         String formattedDate=dateFormat. format(date);
 
         return formattedDate;
@@ -79,6 +81,16 @@ public class Utils {
         
         return timeInMilliseconds;
 
+
+    }
+
+    public static Player getPlayerFromDepId(Player player, String dep_id) {
+        if (player.getOtherInfo() != null)
+        for (Player player1 : player.getOtherInfo())
+            if (player1.getDepId().equals(dep_id))
+                return player1;
+
+        return player;
 
     }
 

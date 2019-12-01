@@ -14,9 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
+import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Department;
-import com.app_republic.kora.request.GetDepsWithPlayers;
-import com.app_republic.kora.request.GetDepsWithStandings;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
@@ -30,8 +29,9 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import static com.app_republic.kora.utils.StaticConfig.DEPS_WITH_PLAYERS_REQUEST;
-import static com.app_republic.kora.utils.StaticConfig.DEPS_WITH_STANDINGS_REQUEST;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class DepartmentsFragment extends Fragment {
 
@@ -40,7 +40,7 @@ public class DepartmentsFragment extends Fragment {
 
     DepartmentsAdapter departmentsAdapter;
     RecyclerView depsRecyclerView;
-
+    Gson gson;
     long timeDifference;
 
     String type;
@@ -57,6 +57,8 @@ public class DepartmentsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        gson = AppSingleton.getInstance(getActivity()).getGson();
+
     }
 
     @Override
@@ -96,34 +98,47 @@ public class DepartmentsFragment extends Fragment {
     private void getDepartmentsWithStandings() {
 
 
-        GetDepsWithStandings getDepsWithStandings = new GetDepsWithStandings(
-                response -> {
-                    parseResponse(response);
-                }, error ->
-                error.printStackTrace());
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithStandings("1",
+                "");
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                parseResponse(apiResponse.body());
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(getDepsWithStandings,
-                DEPS_WITH_STANDINGS_REQUEST);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
 
     }
 
     private void getDepartmentsWithPlayers() {
 
-        GetDepsWithPlayers getDepsWithPlayers = new GetDepsWithPlayers(
-                response -> {
-                    parseResponse(response);
-                }, error ->
-                error.printStackTrace());
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithPlayers("1",
+                "");
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                parseResponse(apiResponse.body());
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(getDepsWithPlayers,
-                DEPS_WITH_PLAYERS_REQUEST);
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
 
     }
 
-    private void parseResponse(String response) {
+    private void parseResponse(ApiResponse response) {
         try {
-            JSONObject object = new JSONObject(response);
-            String current_date = object.getString("current_date");
+            String current_date = response.getCurrentDate();
             long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
             long currentClientTime = Calendar.getInstance().getTimeInMillis();
@@ -131,7 +146,7 @@ public class DepartmentsFragment extends Fragment {
             timeDifference = currentServerTime > currentClientTime ?
                     currentServerTime - currentClientTime : currentClientTime - currentServerTime;
 
-            JSONArray items = object.getJSONArray("items");
+            JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
             departments.clear();
 
@@ -140,7 +155,6 @@ public class DepartmentsFragment extends Fragment {
             for (int i = 0; i < items.length(); i++) {
                 String jsonString = items.getJSONObject(i).toString();
                 Department department;
-                Gson gson = new Gson();
                 department = gson.fromJson(jsonString, Department.class);
                 departments.add(department);
             }

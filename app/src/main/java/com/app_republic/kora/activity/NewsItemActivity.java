@@ -6,14 +6,13 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
-import android.transition.Transition;
 import android.view.View;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.model.News;
+import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.squareup.picasso.Picasso;
 
@@ -22,12 +21,14 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
     ImageView IV_thumb, IV_back, IV_share;
     TextView TV_title, TV_body, TV_time;
     News news;
+    Picasso picasso;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_item);
 
+        picasso = AppSingleton.getInstance(this).getPicasso();
 
         news = getIntent().getParcelableExtra(StaticConfig.NEWS);
         initialiseViews();
@@ -51,8 +52,8 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
             IV_thumb.setTransitionName(StaticConfig.THUMB);
         }
 
-        Picasso.get()
-                .load(news.getPostImage())
+        if (!news.getPostImage().isEmpty())
+        picasso.load(news.getPostImage())
                 .placeholder(R.drawable.ic_news_large)
                 .into(IV_thumb);
         TV_title.setText(news.getPostTitle());

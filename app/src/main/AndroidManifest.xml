@@ -10,13 +10,22 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".activity.GoToVideoActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            />
+        <activity
+            android:name=".activity.TeamInfoActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.MatchActivity"
             android:label="@string/title_activity_match"
-            android:theme="@style/AppTheme.NoActionBar"/>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.NewsItemActivity"
             android:theme="@style/NewsItemTheme" />
+        <activity
+            android:name=".activity.PlayerActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activity.MainActivity"
             android:label="@string/app_name"

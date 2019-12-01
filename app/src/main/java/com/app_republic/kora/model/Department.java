@@ -24,6 +24,17 @@ public class Department implements Parcelable {
     @SerializedName("has_standings")
     private String mHasStandings;
 
+
+    public Department(String mDepId, String mDepLogo, String mDepName, String mDepNameEn, String mHasGroups, String mHasPlayers, String mHasStandings) {
+        this.mDepId = mDepId;
+        this.mDepLogo = mDepLogo;
+        this.mDepName = mDepName;
+        this.mDepNameEn = mDepNameEn;
+        this.mHasGroups = mHasGroups;
+        this.mHasPlayers = mHasPlayers;
+        this.mHasStandings = mHasStandings;
+    }
+
     protected Department(Parcel in) {
         mDepId = in.readString();
         mDepLogo = in.readString();

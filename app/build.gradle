@@ -40,6 +40,14 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.5'
     implementation 'com.github.jhonnyx2012:horizontal-picker:1.0.6'
     implementation 'com.squareup.picasso:picasso:2.71828'
+    implementation 'com.facebook.shimmer:shimmer:0.5.0'
+    implementation 'de.hdodenhof:circleimageview:3.0.1'
+
+
+    implementation 'com.squareup.retrofit2:retrofit:2.1.0'
+
+    implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
+
     debugImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
     releaseImplementation 'com.squareup.leakcanary:leakcanary-android:1.5.4'
 

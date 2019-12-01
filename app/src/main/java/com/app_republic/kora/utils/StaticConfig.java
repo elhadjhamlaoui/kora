@@ -1,14 +1,18 @@
 package com.app_republic.kora.utils;
 
-import java.util.Calendar;
-
 public class StaticConfig {
+    public static final APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
+
     public static final String API_BASE = "https://yalla-group.com/api-v3.4.520/api/";
     public static final String API_GET_MATCHES = "getMatches";
     public static final String API_GET_MATCH_INFO = "getMatchInfo";
+    public static final String API_GET_TEAM_INFO = "getTeamInfo";
+
     public static final String API_GET_DEPS_STANDINGS = "getDepsWithStandings";
     public static final String API_GET_DEPS_PLAYERS = "getDepsWithPlayers";
     public static final String API_GET_PLAYERS = "getItemPlayersDetailed";
+    public static final String API_GET_PLAYER_MATCHES = "getPlayerMatches";
+
 
 
     public static final String API_GET_LATEST_NEWS = "getLatestNews";
@@ -16,8 +20,6 @@ public class StaticConfig {
     public static final String API_GET_DEP_STANDINGS = "getDepStandings";
     public static final String API_GET_ITEM_NEWS = "getItemNews";
     public static final String API_GET_TIME_LINE = "getTimeline";
-
-
 
     public static final String NEWS = "news";
     public static final String TEAM = "team";
@@ -28,6 +30,7 @@ public class StaticConfig {
     public static final String FRAGMENT_DEPS = "fragment_departments";
     public static final String FRAGMENT_STANDINGS = "fragment_standings";
     public static final String FRAGMENT_PLAYERS = "fragment_players";
+    public static final String TEAM_INFO = "team_info";
 
 
     public static final String PARAM_DEPS_TYPE = "deps_type";
@@ -35,11 +38,20 @@ public class StaticConfig {
     public static final String PARAM_ITEM_ID = "item_id";
     public static final String PARAM_ITEM_TYPE = "item_type";
 
+    public static final String PARAM_ITEM_TYPE_PLAYER = "Player";
     public static final String PARAM_ITEM_TYPE_DEPARTMENT = "dep";
+    public static final String PARAM_ITEM_TYPE_TEAM = "team";
 
     public static final String DEPS_TYPE_PLAYERS = "players";
     public static final String DEPS_TYPE_STANDINGS = "standings";
     public static final String PARAM_TYPE_MATCH = "match";
+    public static final String PARAM_TEAM_ID = "team_id";
+    public static final String PARAM_TEAM_ID_A = "team_id_a";
+    public static final String PARAM_TEAM_ID_B = "team_id_b";
+    public static final String PARAM_PLAYER_ID = "player_id";
+    public static final String PLAYER = "player";
+    public static final String PLAYER_INFO = "player_info" ;
+    public static final String VIDEO_URI = "video_uri";
 
 
     public static String ENDED = "ended";
@@ -56,6 +68,9 @@ public class StaticConfig {
     public static String DEP_PLAYERS_REQUEST = "players_for_dep";
     public static String ITEM_NEWS_REQUEST = "item_news_request";
     public static String TIME_LINE_REQUEST = "time_line_request";
+    public static String TEAM_INFO_REQUEST = "team_info_request";
+    public static String PLAYER_MATCHES_REQUEST = "player_matches";
+
 
 
 

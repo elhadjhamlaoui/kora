@@ -1,11 +1,15 @@
 
 package com.app_republic.kora.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
 import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
 @SuppressWarnings("unused")
-public class Player {
+public class Player implements Parcelable {
 
     @SerializedName("default_dep_id")
     private String mDefaultDepId;
@@ -32,7 +36,7 @@ public class Player {
     @SerializedName("national_team_image")
     private String mNationalTeamImage;
     @SerializedName("other_info")
-    private List<OtherInfo> mOtherInfo;
+    private ArrayList<Player> mOtherInfo;
     @SerializedName("other_team_id")
     private String mOtherTeamId;
     @SerializedName("other_team_image")
@@ -65,6 +69,51 @@ public class Player {
     private String mTeamName;
     @SerializedName("yellow_cards")
     private String mYellowCards;
+
+
+    protected Player(Parcel in) {
+        mDefaultDepId = in.readString();
+        mDepId = in.readString();
+        mDepImage = in.readString();
+        mDepName = in.readString();
+        mGoals = in.readString();
+        mGoalsAgainst = in.readString();
+        mHasPlayers = in.readString();
+        mMissedPenalty = in.readString();
+        mName = in.readString();
+        mNameEn = in.readString();
+        mNationalTeam = in.readString();
+        mNationalTeamImage = in.readString();
+        mOtherInfo = in.createTypedArrayList(Player.CREATOR);
+        mOtherTeamId = in.readString();
+        mOtherTeamImage = in.readString();
+        mPlace = in.readString();
+        mPlayerAge = in.readString();
+        mPlayerDepNotes = in.readString();
+        mPlayerId = in.readString();
+        mPlayerImage = in.readString();
+        mPlayerNo = in.readString();
+        mPlayerStatus = in.readString();
+        mRedCards = in.readString();
+        mScoredPenalty = in.readString();
+        mShallCountPts = in.readString();
+        mTeamId = in.readString();
+        mTeamImage = in.readString();
+        mTeamName = in.readString();
+        mYellowCards = in.readString();
+    }
+
+    public static final Creator<Player> CREATOR = new Creator<Player>() {
+        @Override
+        public Player createFromParcel(Parcel in) {
+            return new Player(in);
+        }
+
+        @Override
+        public Player[] newArray(int size) {
+            return new Player[size];
+        }
+    };
 
     public String getDefaultDepId() {
         return mDefaultDepId;
@@ -162,11 +211,11 @@ public class Player {
         mNationalTeamImage = nationalTeamImage;
     }
 
-    public List<OtherInfo> getOtherInfo() {
+    public List<Player> getOtherInfo() {
         return mOtherInfo;
     }
 
-    public void setOtherInfo(List<OtherInfo> otherInfo) {
+    public void setOtherInfo(ArrayList<Player> otherInfo) {
         mOtherInfo = otherInfo;
     }
 
@@ -298,4 +347,41 @@ public class Player {
         mYellowCards = yellowCards;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(mDefaultDepId);
+        parcel.writeString(mDepId);
+        parcel.writeString(mDepImage);
+        parcel.writeString(mDepName);
+        parcel.writeString(mGoals);
+        parcel.writeString(mGoalsAgainst);
+        parcel.writeString(mHasPlayers);
+        parcel.writeString(mMissedPenalty);
+        parcel.writeString(mName);
+        parcel.writeString(mNameEn);
+        parcel.writeString(mNationalTeam);
+        parcel.writeString(mNationalTeamImage);
+        parcel.writeTypedList(mOtherInfo);
+        parcel.writeString(mOtherTeamId);
+        parcel.writeString(mOtherTeamImage);
+        parcel.writeString(mPlace);
+        parcel.writeString(mPlayerAge);
+        parcel.writeString(mPlayerDepNotes);
+        parcel.writeString(mPlayerId);
+        parcel.writeString(mPlayerImage);
+        parcel.writeString(mPlayerNo);
+        parcel.writeString(mPlayerStatus);
+        parcel.writeString(mRedCards);
+        parcel.writeString(mScoredPenalty);
+        parcel.writeString(mShallCountPts);
+        parcel.writeString(mTeamId);
+        parcel.writeString(mTeamImage);
+        parcel.writeString(mTeamName);
+        parcel.writeString(mYellowCards);
+    }
 }

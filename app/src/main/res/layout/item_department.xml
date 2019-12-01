@@ -12,7 +12,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
+
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/icon"
             android:layout_width="50dp"
             android:layout_height="50dp"
@@ -22,7 +23,12 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_ball_small" />
+            app:srcCompat="@drawable/ic_ball_small"
+            app:civ_border_color="@color/blue_8" android:scaleType="centerCrop"
+            app:civ_border_width="2dp"
+
+            />
+
 
         <TextView
             android:id="@+id/name"
@@ -31,6 +37,7 @@
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
             android:text="TextView"
+            android:textColor="@color/grey_7"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/icon"
             app:layout_constraintHorizontal_bias="1"

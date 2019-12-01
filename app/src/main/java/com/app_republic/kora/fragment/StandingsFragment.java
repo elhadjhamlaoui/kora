@@ -1,5 +1,6 @@
 package com.app_republic.kora.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
+import com.app_republic.kora.activity.MatchActivity;
+import com.app_republic.kora.activity.TeamInfoActivity;
+import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Standing;
 import com.app_republic.kora.request.GetDepStandings;
 import com.app_republic.kora.utils.AppSingleton;
@@ -29,17 +33,25 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.app_republic.kora.utils.StaticConfig.DEP_STANDINGS_REQUEST;
+import static com.app_republic.kora.utils.StaticConfig.PARAM_TEAM_ID;
 
 public class StandingsFragment extends Fragment {
 
-    ArrayList<Standing> standings = new ArrayList<>();;
+    ArrayList<Standing> standings = new ArrayList<>();
+    ;
 
     StandingsAdapter standingsAdapter;
     RecyclerView standingsRecyclerView;
 
     long timeDifference;
     String dep_id;
+    String team_id, team_id_a, team_id_b;
+    Gson gson;
 
     public StandingsFragment() {
         // Required empty public constructor
@@ -53,6 +65,7 @@ public class StandingsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        gson = AppSingleton.getInstance(getActivity()).getGson();
     }
 
     @Override
@@ -62,6 +75,9 @@ public class StandingsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_standings, container, false);
 
         dep_id = getArguments().getString(StaticConfig.PARAM_DEP_ID);
+        team_id = getArguments().getString(PARAM_TEAM_ID, "");
+        team_id_a = getArguments().getString(StaticConfig.PARAM_TEAM_ID_A, "");
+        team_id_b = getArguments().getString(StaticConfig.PARAM_TEAM_ID_B, "");
 
         initialiseViews(view);
 
@@ -76,7 +92,7 @@ public class StandingsFragment extends Fragment {
 
 
         getStandings();
-        
+
         return view;
 
     }
@@ -89,53 +105,55 @@ public class StandingsFragment extends Fragment {
 
     private void getStandings() {
 
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepStandings("1",
+                "", dep_id);
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                try {
 
 
-        GetDepStandings getDepStandings = new GetDepStandings(
-                dep_id,
-                response -> {
+                    ApiResponse response = apiResponse.body();
+                    String current_date = response.getCurrentDate();
+                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-                    try {
+                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
+                    timeDifference = currentServerTime > currentClientTime ?
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
 
-                        JSONObject object = new JSONObject(response);
-                        String current_date = object.getString("current_date");
-                        long currentServerTime = Utils.getMillisFromServerDate(current_date);
+                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
-                        long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                        timeDifference = currentServerTime > currentClientTime ?
-                                currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        standings.clear();
-                        standingsAdapter.notifyDataSetChanged();
+                    standings.clear();
+                    standingsAdapter.notifyDataSetChanged();
 
 
-                        for (int i = 0; i < items.length(); i++) {
-                            String jsonString = items.getJSONObject(i).toString();
-                            Standing standing;
-                            Gson gson = new Gson();
-                            standing = gson.fromJson(jsonString, Standing.class);
-                            standings.add(standing);
-                        }
-
-
-                        standingsAdapter.notifyItemRangeInserted(0, standings.size());
-
-
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
+                    for (int i = 0; i < items.length(); i++) {
+                        String jsonString = items.getJSONObject(i).toString();
+                        Standing standing;
+                        ;
+                        standing = gson.fromJson(jsonString, Standing.class);
+                        standings.add(standing);
                     }
 
 
-                }, error ->
-                error.printStackTrace());
+                    standingsAdapter.notifyItemRangeInserted(0, standings.size());
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(getDepStandings, DEP_STANDINGS_REQUEST);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
 
 
     }
@@ -181,6 +199,25 @@ public class StandingsFragment extends Fragment {
                 picasso.load(standing.getTeamLogo()).into(viewHolder.icon);
             }
 
+            if (team_id.equals(standing.getTeamId()) || team_id_a.equals(standing.getTeamId())
+                    || team_id_b.equals(standing.getTeamId())
+            ) {
+                viewHolder.V_root
+                        .setBackgroundColor(getResources()
+                                .getColor(android.R.color.holo_orange_light));
+            } else {
+                if (i % 2 == 0)
+                    viewHolder.V_root
+                            .setBackgroundColor(getResources()
+                                    .getColor(R.color.gray_200));
+                else
+
+                    viewHolder.V_root
+                            .setBackgroundColor(getResources()
+                                    .getColor(android.R.color.transparent));
+            }
+
+
         }
 
         @Override
@@ -212,12 +249,17 @@ public class StandingsFragment extends Fragment {
                 standing = itemView.findViewById(R.id.standing);
 
                 V_root.setOnClickListener(view -> {
-                   /* Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.TEAM, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                    */
+                    String current_team_id = list.get(getAdapterPosition()).getTeamId();
+                    if (!current_team_id.equals(team_id)) {
+                        Intent intent = new Intent(getActivity(), TeamInfoActivity.class);
+                        intent.putExtra(StaticConfig.PARAM_TEAM_ID,
+                                list.get(getAdapterPosition()).getTeamId());
+                        startActivity(intent);
+                    }
 
                 });
+
+
             }
         }
     }

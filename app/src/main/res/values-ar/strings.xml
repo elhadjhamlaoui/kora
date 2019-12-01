@@ -30,11 +30,35 @@
         <item>التفاصيل</item>
         <item>أحداث المبارات</item>
     </array>
+    <array name="timeline_types">
+        <item>هدف</item>
+        <item>مشاهدة</item>
+        <item>هدف في مرماه</item>
+        <item>ضربة جزاء ناجهة</item>
+        <item>ضربة جزاء فاشلة</item>
+        <item>بطاقة صفراء</item>
+        <item>بطاقة حمراء</item>
+
+    </array>
 
     <string name="title_activity_match">MatchActivity</string>
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="title_activity_match_acitivity">MatchAcitivity</string>
     <string name="play_store_link">https://play.google.com/store/apps/details?id=com.app_republic.kora</string>
+
+    <string name="department">البطولة</string>
+    <string name="role">الجولة</string>
+    <string name="stadium">ملعب المباراة</string>
+    <string name="channel">القناة الناقلة</string>
+    <string name="commentator">المعلق</string>
+    <string name="match_time">وقت المباراة</string>
+    <string name="match_date">تاريخ المباراة</string>
+    <string name="end_half_time">نهاية الشوط الأول</string>
+    <string name="end_match">نهاية المباراة</string>
+
+    <string name="match_state_finished">منتهية</string>
+    <string name="match_state_coming">قادمة</string>
+    <string name="match_state_live">جارية</string>
 
 </resources>

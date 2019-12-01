@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layoutDirection="ltr"
 
+    android:layoutDirection="ltr"
+    android:orientation="vertical"
     tools:context=".fragment.NewsFragment">
 
     <LinearLayout
         android:id="@+id/date_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:background="@color/blue_10"
+        android:orientation="horizontal"
+        android:visibility="visible">
 
 
         <LinearLayout
@@ -20,8 +23,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="0"
-            android:orientation="horizontal"
-            >
+            android:orientation="horizontal">
 
             <ImageView
                 android:id="@+id/arrow_next"
@@ -36,6 +38,7 @@
                 app:srcCompat="@drawable/arrow_right" />
 
         </LinearLayout>
+
         <RelativeLayout
             android:id="@+id/day_layout"
             android:layout_width="0dp"
@@ -48,6 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="TextView"
+                android:textColor="@android:color/white"
                 android:textSize="18sp" />
 
         </RelativeLayout>
@@ -68,6 +72,7 @@
                 android:layout_weight="1"
                 android:maxLines="1"
                 android:text="TextView"
+                android:textColor="@android:color/white"
                 android:textSize="14sp" />
 
             <ImageView
@@ -83,16 +88,51 @@
         </LinearLayout>
 
 
-
     </LinearLayout>
+
+    <com.facebook.shimmer.ShimmerFrameLayout
+        android:id="@+id/shimmer_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:shimmer_duration="700">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include
+                layout="@layout/item_match_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible" />
+
+            <include
+                layout="@layout/item_match_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible" />
+
+            <include
+                layout="@layout/item_match_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible" />
+
+            <include
+                layout="@layout/item_match_shimmer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="visible" />
+        </LinearLayout>
+    </com.facebook.shimmer.ShimmerFrameLayout>
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/matches_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/date_layout"
-        />
+        android:background="@android:color/white" />
 
 
-
-</RelativeLayout>
+</LinearLayout>

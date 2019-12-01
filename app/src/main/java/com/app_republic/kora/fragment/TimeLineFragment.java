@@ -10,36 +10,32 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
-import com.app_republic.kora.activity.NewsItemActivity;
+import com.app_republic.kora.activity.GoToVideoActivity;
+import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Match;
-import com.app_republic.kora.model.News;
-import com.app_republic.kora.model.Team;
 import com.app_republic.kora.model.TimeLine;
-import com.app_republic.kora.request.GetLatestNews;
 import com.app_republic.kora.request.GetTimeline;
-import com.app_republic.kora.request.GetTrendingTeams;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
-import com.app_republic.kora.utils.Utils;
 import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Calendar;
+import java.util.Collections;
 
-import static com.app_republic.kora.utils.StaticConfig.LATEST_NEWS_REQUEST;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 import static com.app_republic.kora.utils.StaticConfig.TIME_LINE_REQUEST;
-import static com.app_republic.kora.utils.StaticConfig.TRENDING_TEAMS_REQUEST;
 
 public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
@@ -49,6 +45,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
     TimeLineAdapter timeLineAdapter;
     RecyclerView recyclerView;
     Match match;
+    Gson gson;
     final int ITEM_TYPE_TEAM1 = 1;
     final int ITEM_TYPE_TEAM2 = 2;
 
@@ -64,6 +61,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        gson = AppSingleton.getInstance(getActivity()).getGson();
     }
 
     @Override
@@ -116,9 +114,9 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
         @NonNull
         @Override
-        public viewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+        public viewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int viewType) {
             View view;
-            if (getItemViewType(i) == ITEM_TYPE_TEAM1) {
+            if (viewType == ITEM_TYPE_TEAM1) {
                 view = LayoutInflater.from(getActivity())
                         .inflate(R.layout.item_timeline_team1, viewGroup, false);
 
@@ -136,20 +134,64 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
             TimeLine item = list.get(i);
 
+            int type = Integer.parseInt(item.getType()) - 1;
+
 
             viewHolder.time.setText(item.getTime());
             viewHolder.title.setText(item.getText());
-            if (item.getVideoItem() != null)
-                viewHolder.video.setText(item.getVideoItem().getVideoTitle().split("\\|")[0]);
-            else
-                viewHolder.video.setText("");
 
+
+
+            if (item.getVideoItem() != null) {
+                viewHolder.video.setText(context.getResources()
+                        .getStringArray(R.array.timeline_types)[type]);
+                viewHolder.video.
+                        setCompoundDrawablesWithIntrinsicBounds(context.getResources()
+                                        .getDrawable(R.drawable.ic_play_white),
+                                null, null, null);
+            }
+
+            else {
+                viewHolder.video.setText(context.getResources()
+                        .getStringArray(R.array.timeline_types)[type]);
+
+                viewHolder.video.
+                        setCompoundDrawablesWithIntrinsicBounds(
+                                null, null, null, null);
+            }
+
+
+
+
+            if (i == 0) {
+                viewHolder.end.setVisibility(View.VISIBLE);
+                viewHolder.end.setText(context.getString(R.string.end_match));
+            } else {
+
+                int mins = Integer.parseInt(item.getTime());
+                int previousMins = Integer.parseInt(list.get(i - 1).getTime());
+
+                if (i == (list.size() - 1)) {
+                    viewHolder.watch_bac.setVisibility(View.VISIBLE);
+                    viewHolder.watch.setVisibility(View.VISIBLE);
+                } else {
+                    viewHolder.watch_bac.setVisibility(View.GONE);
+                    viewHolder.watch.setVisibility(View.GONE);
+                }
+
+                if (previousMins > 45 && mins <= 45) {
+                    viewHolder.end.setVisibility(View.VISIBLE);
+                    viewHolder.end.setText(context.getString(R.string.end_half_time));
+                } else {
+                    viewHolder.end.setVisibility(View.GONE);
+                }
+            }
             switch (Integer.parseInt(item.getType())) {
                 case 1:
                     viewHolder.icon.setImageResource(R.drawable.ic_goal);
                     break;
                 case 2:
-                    viewHolder.icon.setImageResource(R.drawable.ic_ball_small);
+                    viewHolder.icon.setImageResource(R.drawable.ic_streaming);
                     break;
                 case 3:
                     viewHolder.icon.setImageResource(R.drawable.ic_goal);
@@ -190,8 +232,8 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
         class viewHolder extends RecyclerView.ViewHolder {
 
-            TextView title, video, time;
-            ImageView icon;
+            TextView title, video, time, end;
+            ImageView icon, watch, watch_bac;
             View V_root;
 
             public viewHolder(@NonNull View itemView) {
@@ -199,11 +241,18 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 title = itemView.findViewById(R.id.title);
                 time = itemView.findViewById(R.id.time);
                 video = itemView.findViewById(R.id.video);
+                end = itemView.findViewById(R.id.end);
+
                 icon = itemView.findViewById(R.id.icon);
-                V_root = itemView.findViewById(R.id.root);
+                watch = itemView.findViewById(R.id.watch);
+                watch_bac = itemView.findViewById(R.id.watch_bac);
+                V_root = itemView.findViewById(R.id.card);
 
                 V_root.setOnClickListener(view -> {
-
+                    Intent intent = new Intent(context, GoToVideoActivity.class);
+                    intent.putExtra(StaticConfig.VIDEO_URI,
+                            list.get(getAdapterPosition()).getVideoItem().getVideoCode());
+                    startActivity(intent);
                 });
 
 
@@ -216,40 +265,47 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
         list.clear();
 
 
-        GetTimeline getTimeline = new GetTimeline(
-                match.getLiveId(),
-                response -> {
-
-                    try {
 
 
-                        JSONObject object = new JSONObject(response);
-
-                        JSONArray items = object.getJSONArray("items");
-
-                        for (int i = 0; i < items.length(); i++) {
-                            String jsonString = items.getJSONObject(i).toString();
-                            TimeLine timeLine;
-                            Gson gson = new Gson();
-                            timeLine = gson.fromJson(jsonString, TimeLine.class);
-                            list.add(timeLine);
-                        }
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTimeline("1",
+                "", match.getLiveId());
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                try {
 
 
-                        timeLineAdapter.notifyDataSetChanged();
+                    ApiResponse response = apiResponse.body();
 
+                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    } catch (IllegalStateException e) {
-                        e.printStackTrace();
+                    for (int i = 0; i < items.length(); i++) {
+                        String jsonString = items.getJSONObject(i).toString();
+                        TimeLine timeLine;
+                        ;
+                        timeLine = gson.fromJson(jsonString, TimeLine.class);
+                        list.add(timeLine);
                     }
 
 
-                }, error ->
-                error.printStackTrace());
+                    Collections.reverse(list);
 
-        AppSingleton.getInstance(getActivity()).addToRequestQueue(getTimeline, TIME_LINE_REQUEST);
+                    timeLineAdapter.notifyDataSetChanged();
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
 
 
     }

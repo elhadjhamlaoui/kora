@@ -83,6 +83,10 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
 
         match = getArguments().getParcelable(StaticConfig.MATCH);
 
+        long time = match.getLocalTime().isEmpty() ? 0 : Long.parseLong(match.getLocalTime());
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(time);
 
         details.add(new MatchDetail(getString(R.string.department), match.getLiveDep(),
                 R.drawable.ic_cup));
@@ -94,9 +98,9 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
                 R.drawable.ic_streaming));
         details.add(new MatchDetail(getString(R.string.commentator), match.getLiveComm(),
                 R.drawable.ic_horn));
-        details.add(new MatchDetail(getString(R.string.match_time), match.getFullTime(),
+        details.add(new MatchDetail(getString(R.string.match_time), Utils.getFullTime(time),
                 R.drawable.ic_stopwatch));
-        details.add(new MatchDetail(getString(R.string.match_date), match.getLiveDate(),
+        details.add(new MatchDetail(getString(R.string.match_date), Utils.getReadableDate(calendar),
                 R.drawable.ic_calendar));
 
         details_adapter.notifyDataSetChanged();

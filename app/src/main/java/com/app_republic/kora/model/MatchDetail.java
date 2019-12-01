@@ -33,4 +33,6 @@ public class MatchDetail {
     public void setContent(String content) {
         this.content = content;
     }
+
+
 }

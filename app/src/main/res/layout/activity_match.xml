@@ -19,6 +19,107 @@
             app:contentScrim="@color/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/root"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="?attr/actionBarSize">
+
+                <TextView
+                    android:id="@+id/scoreTeamA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="30dp"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/state"
+                    app:layout_constraintEnd_toStartOf="@+id/state"
+                    app:layout_constraintTop_toTopOf="@+id/state" />
+
+                <TextView
+                    android:id="@+id/scoreTeamB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="30dp"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/state"
+                    app:layout_constraintStart_toEndOf="@+id/state"
+                    app:layout_constraintTop_toTopOf="@+id/state" />
+
+                <TextView
+                    android:id="@+id/state"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="@+id/logoTeamA"
+                    app:layout_constraintEnd_toStartOf="@+id/logoTeamB"
+                    app:layout_constraintStart_toEndOf="@+id/logoTeamA" />
+
+                <TextView
+                    android:id="@+id/nameTeamA"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/logoTeamA"
+                    app:layout_constraintStart_toStartOf="@+id/logoTeamA"
+                    app:layout_constraintTop_toBottomOf="@id/logoTeamA" />
+
+                <TextView
+                    android:id="@+id/nameTeamB"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:textColor="@android:color/white"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="@+id/logoTeamB"
+                    app:layout_constraintStart_toStartOf="@+id/logoTeamB"
+                    app:layout_constraintTop_toBottomOf="@+id/logoTeamB" />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/logoTeamA"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_ball"
+                    app:civ_border_color="@color/blue_8"
+                    android:scaleType="centerCrop"
+                    app:civ_border_width="2dp"
+
+                    />
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/logoTeamB"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:srcCompat="@drawable/ic_ball"
+                    app:civ_border_color="@color/blue_8" android:scaleType="centerCrop"
+                    app:civ_border_width="2dp"
+
+                    />
+
+
+                <TextView
+                    android:id="@+id/extra"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:textColor="@android:color/white"
+                    android:visibility="visible"
+                    app:layout_constraintEnd_toEndOf="@+id/state"
+                    app:layout_constraintStart_toStartOf="@+id/state"
+                    app:layout_constraintTop_toBottomOf="@+id/state" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
@@ -56,102 +157,6 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.appcompat.widget.Toolbar>
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/root"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize">
-
-                <TextView
-                    android:id="@+id/scoreTeamA"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="30dp"
-                    android:text="3"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="@+id/state"
-                    app:layout_constraintEnd_toStartOf="@+id/state"
-                    app:layout_constraintTop_toTopOf="@+id/state" />
-
-                <TextView
-                    android:id="@+id/scoreTeamB"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="30dp"
-                    android:text="1"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="@+id/state"
-                    app:layout_constraintStart_toEndOf="@+id/state"
-                    app:layout_constraintTop_toTopOf="@+id/state" />
-
-                <TextView
-                    android:id="@+id/state"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="انتهت"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="@+id/logoTeamA"
-                    app:layout_constraintEnd_toStartOf="@+id/logoTeamB"
-                    app:layout_constraintStart_toEndOf="@+id/logoTeamA" />
-
-                <TextView
-                    android:id="@+id/nameTeamA"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:text="TextView"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/logoTeamA"
-                    app:layout_constraintStart_toStartOf="@+id/logoTeamA"
-                    app:layout_constraintTop_toBottomOf="@id/logoTeamA" />
-
-                <TextView
-                    android:id="@+id/nameTeamB"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:text="TextView"
-                    android:textColor="@android:color/white"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="@+id/logoTeamB"
-                    app:layout_constraintStart_toStartOf="@+id/logoTeamB"
-                    app:layout_constraintTop_toBottomOf="@+id/logoTeamB" />
-
-                <ImageView
-                    android:id="@+id/logoTeamA"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="20dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_ball" />
-
-                <ImageView
-                    android:id="@+id/logoTeamB"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="20dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_ball" />
-
-                <TextView
-                    android:id="@+id/extra"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="20dp"
-                    android:text="03:20:22"
-                    android:textColor="@android:color/white"
-                    android:visibility="visible"
-                    app:layout_constraintEnd_toEndOf="@+id/state"
-                    app:layout_constraintStart_toStartOf="@+id/state"
-                    app:layout_constraintTop_toBottomOf="@+id/state" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
 
@@ -159,7 +164,10 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/colorPrimary" />
+            android:background="@color/blue_9"
+            app:tabIndicatorColor="@android:color/holo_orange_dark"
+            app:tabSelectedTextColor="@android:color/holo_orange_dark"
+            app:tabTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.viewpager.widget.ViewPager
@@ -168,11 +176,4 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_dialog_email" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
