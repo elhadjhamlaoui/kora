@@ -8,13 +8,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/departments_recycler"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/deps_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="5dp"
+        app:cardElevation="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/departments_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </androidx.cardview.widget.CardView>
 
     <LinearLayout
         android:id="@+id/root"
@@ -27,13 +36,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/departments_recycler"
+        app:layout_constraintTop_toBottomOf="@id/deps_layout"
         app:layout_editor_absoluteY="78dp">
 
         <TextView
             android:id="@+id/scored_penalty"
             android:layout_width="0dp"
-            android:layout_height="17dp"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
             android:gravity="center"
             android:text="ضربات الجزاء"

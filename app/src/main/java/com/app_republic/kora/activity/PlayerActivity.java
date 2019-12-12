@@ -7,6 +7,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,6 +26,9 @@ import com.app_republic.kora.fragment.PlayerDetailsFragment;
 import com.app_republic.kora.model.Player;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -84,7 +88,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 TV_team.setCompoundDrawablesWithIntrinsicBounds(
                         null,
-                                null, new BitmapDrawable(getResources(),bitmap), null);
+                        null, new BitmapDrawable(getResources(), bitmap), null);
             }
 
             @Override
@@ -102,7 +106,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                 TV_country.setCompoundDrawablesWithIntrinsicBounds(
                         null,
-                        null, new BitmapDrawable(getResources(),bitmap), null);
+                        null, new BitmapDrawable(getResources(), bitmap), null);
             }
 
             @Override
@@ -119,7 +123,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         picasso.load(player.getPlayerImage()).placeholder(R.drawable.ic_ball).into(new Target() {
             @Override
             public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                IV_photo.setImageDrawable(new BitmapDrawable(getResources(),bitmap));
+                IV_photo.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
             }
 
             @Override
@@ -134,8 +138,13 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         });
 
 
+        AdView mAdView = new AdView(this);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
+        mAdView.setAdSize(AdSize.SMART_BANNER);
+        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
+        mAdView.loadAd(adRequest);
     }
-
 
 
     @Override
@@ -147,7 +156,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             case R.id.country:
                 Intent intent = new Intent(this, TeamInfoActivity.class);
                 intent.putExtra(StaticConfig.PARAM_TEAM_ID, player.getOtherTeamId());
-                startActivity(intent);                break;
+                startActivity(intent);
+                break;
             case R.id.team:
                 Intent intent2 = new Intent(this, TeamInfoActivity.class);
                 intent2.putExtra(StaticConfig.PARAM_TEAM_ID, player.getTeamId());
@@ -155,8 +165,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 break;
         }
     }
-
-
 
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

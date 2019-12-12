@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="colorPrimary">@color/blue_10</color>
-    <color name="colorPrimaryDark">@color/blue_9</color>
+    <color name="colorPrimaryDark">@color/blue_10</color>
     <color name="colorAccent">#D81B60</color>
     <color name="gray_200">#EEEEEE</color>
+    <color name="gray_300">#e0e0e0</color>
+
+
     <color name="indigo_0">#e8eaf6</color>
     <color name="indigo_1">#c5cae9</color>
     <color name="amber_0">#fff8e1</color>
@@ -16,6 +19,10 @@
     <color name="blue_9">#01579b</color>
     <color name="blue_8">#0277bd</color>
     <color name="blue_7">#0288d1</color>
+
+    <color name="light_blue_0">#e1f5fe</color>
+
+
 
 
     <color name="indigo_2">#9fa8da</color>

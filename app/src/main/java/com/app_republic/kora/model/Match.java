@@ -7,7 +7,7 @@ import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
 
 @SuppressWarnings("unused")
-public class Match implements Comparable, Parcelable {
+public class Match implements Parcelable {
 
     @SerializedName("actual_minutes")
     private String mActualMinutes;
@@ -529,12 +529,6 @@ public class Match implements Comparable, Parcelable {
 
     public void setTeamLogoB(String teamLogoB) {
         mTeamLogoB = teamLogoB;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        Match match = (Match) o;
-        return this.getDepId().compareTo(match.getDepId());
     }
 
 

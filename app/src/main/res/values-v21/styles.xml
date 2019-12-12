@@ -8,12 +8,20 @@
         <item name="windowNoTitle">true</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="android:fontFamily">@font/jozoor_reg</item>
+        <item name="fontFamily">@font/jozoor_reg</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">0dp</item>
     </style>
     <style name="NewsItemTheme" parent="AppTheme.NoActionBar">
         <item name="android:textColor">@color/grey_7</item>
 
         <item name="android:windowEnterTransition">@android:transition/explode</item>
         <item name="android:windowExitTransition">@android:transition/explode</item>
+        <item name="android:fontFamily">@font/jozoor_reg</item>
+        <item name="fontFamily">@font/jozoor_reg</item>
+        <item name="android:includeFontPadding">false</item>
+        <item name="android:lineSpacingExtra">0dp</item>
 
     </style>
 </resources>

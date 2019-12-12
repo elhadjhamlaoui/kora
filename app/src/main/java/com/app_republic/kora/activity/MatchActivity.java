@@ -16,6 +16,9 @@ import com.app_republic.kora.request.GetMatchInfo;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -32,6 +35,7 @@ import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.Log;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -42,7 +46,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -60,6 +67,9 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     Handler handler;
     Runnable runnable;
 
+    List<Fragment> fragmentList;
+    List<String> tabList = new ArrayList<>();
+
     boolean firstCall = true;
     long timeDifference;
 
@@ -71,12 +81,16 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.activity_match);
 
         gson = AppSingleton.getInstance(this).getGson();
+        tabList.addAll(Arrays.asList(getResources().getStringArray(R.array.match_tabs)));
+        match = getIntent().getParcelableExtra(StaticConfig.MATCH);
+        result = getIntent().getStringExtra(StaticConfig.RESULT);
+
+        initialiseFragments();
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
                 getSupportFragmentManager());
 
-        match = getIntent().getParcelableExtra(StaticConfig.MATCH);
-        result = getIntent().getStringExtra(StaticConfig.RESULT);
+
 
         ViewPager viewPager = findViewById(R.id.view_pager);
         viewPager.setOffscreenPageLimit(5);
@@ -127,14 +141,32 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         handler = new Handler();
         runnable = () -> getMatchInfo();
 
-        if ("0".equals(match.getHasPlayers()))
-            tabs.removeTabAt(0);
 
-        if ("0".equals(match.getHasStandings()))
-            tabs.removeTabAt(1);
+        if ("0".equals(match.getHasPlayers())) {
+            fragmentList.remove(4);
+            tabList.remove(4);
 
-        if ("0".equals(match.getHasTimeline()))
-            tabs.removeTabAt(4);
+
+        }
+        if ("0".equals(match.getHasStandings())) {
+            fragmentList.remove(3);
+            tabList.remove(3);
+
+        }
+        if ("0".equals(match.getHasTimeline())) {
+            fragmentList.remove(0);
+            tabList.remove(0);
+        }
+
+
+        sectionsPagerAdapter.notifyDataSetChanged();
+
+        AdView mAdView = new AdView(this);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
+        mAdView.setAdSize(AdSize.SMART_BANNER);
+        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
+        mAdView.loadAd(adRequest);
     }
 
     @Override
@@ -238,12 +270,12 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                 handler.postDelayed(runnable, 60 * 1000);
                 if (minutes > 45) {
                     if (minutes > (60 - delay))
-                        TV_state.setText(" <" + (minutes - 15 + delay) + "> ");
+                        TV_state.setText(String.valueOf(minutes - 15 + delay));
                     else
-                        TV_state.setText(" <" + 45 + "> ");
+                        TV_state.setText(String.valueOf(45));
 
                 } else
-                    TV_state.setText(" <" + minutes + "> ");
+                    TV_state.setText(String.valueOf(minutes));
             } else {
                 TV_state.setText(" - ");
             }
@@ -274,105 +306,101 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
+    public void initialiseFragments() {
+        fragmentList = new ArrayList<>();
+
+        ItemPlayersFragment itemPlayersFragment = ItemPlayersFragment.newInstance();
+        Bundle args0 = new Bundle();
+
+        args0.putString(StaticConfig.PARAM_ITEM_TYPE,
+                StaticConfig.PARAM_ITEM_TYPE_DEPARTMENT);
+        args0.putString(StaticConfig.PARAM_ITEM_ID,
+                match.getDepId());
+        args0.putString(StaticConfig.PARAM_TEAM_ID_A,
+                match.getTeamIdA());
+        args0.putString(StaticConfig.PARAM_TEAM_ID_B,
+                match.getTeamIdB());
+
+        itemPlayersFragment.setArguments(args0);
+        itemPlayersFragment.setRetainInstance(true);
+
+        StandingsFragment standingsFragment = StandingsFragment.newInstance();
+        Bundle args1 = new Bundle();
+
+        args1.putString(StaticConfig.PARAM_DEP_ID,
+                match.getDepId());
+        args1.putString(StaticConfig.PARAM_TEAM_ID_A,
+                match.getTeamIdA());
+        args1.putString(StaticConfig.PARAM_TEAM_ID_B,
+                match.getTeamIdB());
+
+        standingsFragment.setArguments(args1);
+        standingsFragment.setRetainInstance(true);
+
+        ItemNewsFragment itemNewsFragment = ItemNewsFragment.newInstance();
+        Bundle args2 = new Bundle();
+
+        args2.putString(StaticConfig.PARAM_ITEM_TYPE,
+                StaticConfig.PARAM_TYPE_MATCH);
+        args2.putString(StaticConfig.PARAM_ITEM_ID,
+                match.getLiveId());
+
+        itemNewsFragment.setArguments(args2);
+        itemNewsFragment.setRetainInstance(true);
+
+        MatchDetailsFragment matchDetailsFragment = MatchDetailsFragment.newInstance();
+        Bundle args3 = new Bundle();
+
+        args3.putParcelable(StaticConfig.MATCH,
+                match);
+
+        matchDetailsFragment.setArguments(args3);
+        matchDetailsFragment.setRetainInstance(true);
+
+        TimeLineFragment timeLineFragment = TimeLineFragment.newInstance();
+        Bundle args4 = new Bundle();
+
+        args4.putParcelable(StaticConfig.MATCH,
+                match);
+
+
+        timeLineFragment.setArguments(args4);
+        timeLineFragment.setRetainInstance(true);
+
+        fragmentList.add(timeLineFragment);
+        fragmentList.add(matchDetailsFragment);
+        fragmentList.add(itemNewsFragment);
+        fragmentList.add(standingsFragment);
+        fragmentList.add(itemPlayersFragment);
+
+    }
+
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
 
         private final Context mContext;
-        private String[] tabs;
 
 
         public SectionsPagerAdapter(Context context, FragmentManager fm) {
             super(fm);
             mContext = context;
-            tabs = mContext.getResources().getStringArray(R.array.match_tabs);
         }
 
 
         @Override
         public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            Fragment fragment = null;
-            switch (position) {
-                case 0:
-                    fragment = ItemPlayersFragment.newInstance();
-                    Bundle args0 = new Bundle();
-
-                    args0.putString(StaticConfig.PARAM_ITEM_TYPE,
-                            StaticConfig.PARAM_ITEM_TYPE_DEPARTMENT);
-                    args0.putString(StaticConfig.PARAM_ITEM_ID,
-                            match.getDepId());
-                    args0.putString(StaticConfig.PARAM_TEAM_ID_A,
-                            match.getTeamIdA());
-                    args0.putString(StaticConfig.PARAM_TEAM_ID_B,
-                            match.getTeamIdB());
-
-                    fragment.setArguments(args0);
-
-                    break;
-
-                case 1:
-                    fragment = StandingsFragment.newInstance();
-                    Bundle args1 = new Bundle();
-
-                    args1.putString(StaticConfig.PARAM_DEP_ID,
-                            match.getDepId());
-                    args1.putString(StaticConfig.PARAM_TEAM_ID_A,
-                            match.getTeamIdA());
-                    args1.putString(StaticConfig.PARAM_TEAM_ID_B,
-                            match.getTeamIdB());
-
-                    fragment.setArguments(args1);
-
-                    break;
-                case 2:
-                    fragment = ItemNewsFragment.newInstance();
-                    Bundle args2 = new Bundle();
-
-                    args2.putString(StaticConfig.PARAM_ITEM_TYPE,
-                            StaticConfig.PARAM_TYPE_MATCH);
-                    args2.putString(StaticConfig.PARAM_ITEM_ID,
-                            match.getLiveId());
-
-                    fragment.setArguments(args2);
-
-                    break;
-                case 3:
-                    fragment = MatchDetailsFragment.newInstance();
-                    Bundle args3 = new Bundle();
-
-                    args3.putParcelable(StaticConfig.MATCH,
-                            match);
-
-                    fragment.setArguments(args3);
-
-                    break;
-                case 4:
-                    fragment = TimeLineFragment.newInstance();
-                    Bundle args4 = new Bundle();
-
-                    args4.putParcelable(StaticConfig.MATCH,
-                            match);
-
-
-                    fragment.setArguments(args4);
-
-                    break;
-
-            }
-            fragment.setRetainInstance(true);
-            return fragment;
+            return fragmentList.get(position);
         }
 
         @Nullable
         @Override
         public CharSequence getPageTitle(int position) {
-            return tabs[position];
+            return tabList.get(position);
         }
 
         @Override
         public int getCount() {
             // Show 5 total pages.
-            return 5;
+            return fragmentList.size();
         }
     }
 }

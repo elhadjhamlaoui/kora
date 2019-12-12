@@ -22,6 +22,7 @@ import com.app_republic.kora.model.TimeLine;
 import com.app_republic.kora.request.GetTimeline;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.gson.Gson;
 
 import org.json.JSONArray;
@@ -35,6 +36,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static android.view.View.GONE;
 import static com.app_republic.kora.utils.StaticConfig.TIME_LINE_REQUEST;
 
 public class TimeLineFragment extends Fragment implements View.OnClickListener {
@@ -48,6 +50,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
     Gson gson;
     final int ITEM_TYPE_TEAM1 = 1;
     final int ITEM_TYPE_TEAM2 = 2;
+    ShimmerFrameLayout shimmerFrameLayout;
 
     public TimeLineFragment() {
         // Required empty public constructor
@@ -91,6 +94,8 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
     private void initialiseViews(View view) {
         recyclerView = view.findViewById(R.id.recyclerView);
+        shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
+        shimmerFrameLayout.showShimmer(true);
     }
 
 
@@ -141,6 +146,11 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
             viewHolder.title.setText(item.getText());
 
 
+            if (type == 1)
+                viewHolder.video.setVisibility(GONE);
+            else
+                viewHolder.video.setVisibility(GONE);
+
 
             if (item.getVideoItem() != null) {
                 viewHolder.video.setText(context.getResources()
@@ -161,7 +171,11 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
             }
 
 
-
+            if (i == (list.size() - 1)) {
+                viewHolder.watch.setVisibility(View.VISIBLE);
+            } else {
+                viewHolder.watch.setVisibility(View.GONE);
+            }
 
             if (i == 0) {
                 viewHolder.end.setVisibility(View.VISIBLE);
@@ -171,13 +185,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 int mins = Integer.parseInt(item.getTime());
                 int previousMins = Integer.parseInt(list.get(i - 1).getTime());
 
-                if (i == (list.size() - 1)) {
-                    viewHolder.watch_bac.setVisibility(View.VISIBLE);
-                    viewHolder.watch.setVisibility(View.VISIBLE);
-                } else {
-                    viewHolder.watch_bac.setVisibility(View.GONE);
-                    viewHolder.watch.setVisibility(View.GONE);
-                }
+
 
                 if (previousMins > 45 && mins <= 45) {
                     viewHolder.end.setVisibility(View.VISIBLE);
@@ -233,7 +241,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
         class viewHolder extends RecyclerView.ViewHolder {
 
             TextView title, video, time, end;
-            ImageView icon, watch, watch_bac;
+            ImageView icon, watch;
             View V_root;
 
             public viewHolder(@NonNull View itemView) {
@@ -245,14 +253,16 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
                 icon = itemView.findViewById(R.id.icon);
                 watch = itemView.findViewById(R.id.watch);
-                watch_bac = itemView.findViewById(R.id.watch_bac);
                 V_root = itemView.findViewById(R.id.card);
 
                 V_root.setOnClickListener(view -> {
-                    Intent intent = new Intent(context, GoToVideoActivity.class);
-                    intent.putExtra(StaticConfig.VIDEO_URI,
-                            list.get(getAdapterPosition()).getVideoItem().getVideoCode());
-                    startActivity(intent);
+                    if (list.get(getAdapterPosition()).getVideoItem() != null) {
+                        Intent intent = new Intent(context, GoToVideoActivity.class);
+                        intent.putExtra(StaticConfig.VIDEO_URI,
+                                list.get(getAdapterPosition()).getVideoItem().getVideoCode());
+                        startActivity(intent);
+                    }
+
                 });
 
 
@@ -289,7 +299,8 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
 
                     Collections.reverse(list);
-
+                    shimmerFrameLayout.hideShimmer();
+                    shimmerFrameLayout.setVisibility(GONE);
                     timeLineAdapter.notifyDataSetChanged();
 
 

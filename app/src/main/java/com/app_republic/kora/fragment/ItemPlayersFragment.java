@@ -346,10 +346,7 @@ public class ItemPlayersFragment extends Fragment {
 
 
                 V_root.setOnClickListener(view -> {
-                   /* Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.TEAM, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                    */
+
 
 
                     for (PlayerDepartment playerDepartment : list)

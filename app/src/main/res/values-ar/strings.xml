@@ -24,11 +24,11 @@
 
 
     <array name="match_tabs">
-        <item>الهدافون</item>
-        <item>الترتيب</item>
-        <item>الأخبار</item>
-        <item>التفاصيل</item>
         <item>أحداث المبارات</item>
+        <item>التفاصيل</item>
+        <item>الأخبار</item>
+        <item>الترتيب</item>
+        <item>الهدافون</item>
     </array>
     <array name="timeline_types">
         <item>هدف</item>
@@ -60,5 +60,14 @@
     <string name="match_state_finished">منتهية</string>
     <string name="match_state_coming">قادمة</string>
     <string name="match_state_live">جارية</string>
+    <string name="scored_penalty">ضربات جزاء ناجحة</string>
+    <string name="missed_penalty">ضربات جزاء ضائعة</string>
+    <string name="goals">الأهداف</string>
+    <string name="red_cards">البطاقات الحمراء</string>
+    <string name="yellow_cards">البطاقات الصفراء</string>
+    <string name="goals_against">أهداف في مرماه</string>
+    <string name="year">سنة</string>
+    <string name="games">ألعاب</string>
+
 
 </resources>

@@ -33,14 +33,15 @@
                     android:layout_marginTop="30dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="40dp"
+                    android:scaleType="centerCrop"
+                    app:civ_border_color="@color/blue_8"
+                    app:civ_border_width="2dp"
+                    app:civ_circle_background_color="@color/indigo_0"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_ball_small"
-                    app:civ_border_color="@color/blue_8" android:scaleType="centerCrop"
-                    app:civ_border_width="2dp"
 
-                    />
+                    app:srcCompat="@drawable/ic_ball_small" />
 
 
 
@@ -87,6 +88,8 @@
                     android:background="@drawable/bac_circle_white"
                     android:gravity="center"
                     android:padding="5dp"
+                    android:paddingStart="10dp"
+                    android:paddingEnd="10dp"
                     android:text="33"
                     android:textColor="@color/cardview_dark_background"
                     android:textSize="14sp"
@@ -98,6 +101,7 @@
                     android:id="@+id/age"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="60dp"
                     android:background="@drawable/bac_round_white"
                     android:paddingStart="10dp"
                     android:paddingTop="5dp"
@@ -106,10 +110,9 @@
                     android:text="30 عام"
                     android:textColor="@color/cardview_dark_background"
                     android:textSize="14sp"
-                    app:layout_constraintBottom_toBottomOf="@+id/photo"
                     app:layout_constraintEnd_toEndOf="@+id/photo"
                     app:layout_constraintStart_toStartOf="@+id/photo"
-                    app:layout_constraintTop_toBottomOf="@+id/photo" />
+                    app:layout_constraintTop_toTopOf="@+id/photo" />
             </androidx.constraintlayout.widget.ConstraintLayout>
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
@@ -155,17 +158,36 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blue_7"
-            app:tabIndicatorColor="@color/green_5"
-            app:tabRippleColor="@android:color/white"
-            app:tabSelectedTextColor="@color/green_5"
+            android:background="@color/blue_9"
+            app:tabIndicatorColor="@android:color/holo_orange_dark"
+            app:tabSelectedTextColor="@android:color/holo_orange_dark"
             app:tabTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+         <FrameLayout
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        >
+
+    </FrameLayout>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

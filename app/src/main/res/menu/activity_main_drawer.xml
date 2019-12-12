@@ -20,6 +20,10 @@
             android:id="@+id/nav_players"
             android:icon="@drawable/ic_players"
             android:title="@string/players" />
+        <item
+            android:id="@+id/nav_games"
+            android:icon="@drawable/ic_games"
+            android:title="@string/games" />
     </group>
 
     <item android:title="">

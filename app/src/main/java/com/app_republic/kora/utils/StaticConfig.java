@@ -3,6 +3,11 @@ package com.app_republic.kora.utils;
 public class StaticConfig {
     public static final APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
 
+
+    public static String ADMOB_NATIVE_UNIT_ID = "";
+    public static String ADMOB_BANNER_UNIT_ID = "";
+    public static String ADMOB_APP_ID = "";
+
     public static final String API_BASE = "https://yalla-group.com/api-v3.4.520/api/";
     public static final String API_GET_MATCHES = "getMatches";
     public static final String API_GET_MATCH_INFO = "getMatchInfo";
@@ -13,10 +18,19 @@ public class StaticConfig {
     public static final String API_GET_PLAYERS = "getItemPlayersDetailed";
     public static final String API_GET_PLAYER_MATCHES = "getPlayerMatches";
 
+    public static final int NUMBER_OF_NATIVE_ADS = 2;
+    public static final int NUMBER_OF_NATIVE_ADS_MATCHES = 2;
+    public static final int NUMBER_OF_NATIVE_ADS_NEWS = 5;
+
+
+    public static final int CONTENT_ITEM_VIEW_TYPE = 0;
+
+    public static final int UNIFIED_NATIVE_AD_VIEW_TYPE = 1;
+
 
 
     public static final String API_GET_LATEST_NEWS = "getLatestNews";
-    public static final String API_GET_TRENDING_TEAMS = "getTimeLine";
+    public static final String API_GET_TRENDING_TEAMS = "getTrendingTeams";
     public static final String API_GET_DEP_STANDINGS = "getDepStandings";
     public static final String API_GET_ITEM_NEWS = "getItemNews";
     public static final String API_GET_TIME_LINE = "getTimeline";
@@ -52,6 +66,7 @@ public class StaticConfig {
     public static final String PLAYER = "player";
     public static final String PLAYER_INFO = "player_info" ;
     public static final String VIDEO_URI = "video_uri";
+    public static final String GAME = "game";
 
 
     public static String ENDED = "ended";

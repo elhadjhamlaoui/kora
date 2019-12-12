@@ -3,6 +3,7 @@ package com.app_republic.kora.activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -25,6 +26,9 @@ import com.app_republic.kora.request.GetTeamInfo;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -78,6 +82,12 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
         getTeamInfo();
 
+        AdView mAdView = new AdView(this);
+        AdRequest adRequest = new AdRequest.Builder().build();
+        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
+        mAdView.setAdSize(AdSize.SMART_BANNER);
+        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
+        mAdView.loadAd(adRequest);
 
     }
 
@@ -135,6 +145,7 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
                 call.cancel();
             }
         });
+
 
     }
 

@@ -19,32 +19,34 @@ import com.app_republic.kora.R;
 import com.app_republic.kora.activity.NewsItemActivity;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.News;
-import com.app_republic.kora.model.TrendingTeam;
-import com.app_republic.kora.request.GetItemNews;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.UnifiedNativeAdViewHolder;
 import com.app_republic.kora.utils.Utils;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.app_republic.kora.utils.StaticConfig.ITEM_NEWS_REQUEST;
+import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
+import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
+import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
 public class ItemNewsFragment extends Fragment implements View.OnClickListener {
 
-
-    ArrayList<News> news = new ArrayList<>();
-    ArrayList<TrendingTeam> trendingTeams = new ArrayList<>();
+    List<News> news = new ArrayList<>();
+    List<Object> list = new ArrayList<>();
+    List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
 
     NewsAdapter news_adapter;
     RecyclerView news_recycler;
@@ -80,7 +82,7 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
         initialiseViews(view);
 
 
-        news_adapter = new NewsAdapter(getActivity(), news);
+        news_adapter = new NewsAdapter(getActivity(), list);
 
         news_recycler.setAdapter(news_adapter);
 
@@ -107,44 +109,63 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
     }
 
 
-    class NewsAdapter extends RecyclerView.Adapter<NewsAdapter.NewsViewHolder> {
+    class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         Context context;
-        ArrayList<News> list;
+        List<Object> list;
         Picasso picasso;
 
-        NewsAdapter(Context context, ArrayList<News> list) {
+        NewsAdapter(Context context, List<Object> list) {
             this.context = context;
             this.list = list;
             picasso = AppSingleton.getInstance(getActivity()).getPicasso();
 
         }
 
+
         @NonNull
         @Override
-        public NewsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getActivity())
-                    .inflate(R.layout.item_news, viewGroup, false);
-
-            return new NewsViewHolder(view);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            switch (viewType) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    View unifiedNativeLayoutView = LayoutInflater.from(
+                            parent.getContext()).inflate(R.layout.ad_unified_news,
+                            parent, false);
+                    return new UnifiedNativeAdViewHolder(unifiedNativeLayoutView);
+                case CONTENT_ITEM_VIEW_TYPE:
+                    View ContentLayoutView = LayoutInflater.from(parent.getContext())
+                            .inflate(R.layout.item_news, parent, false);
+                    return new NewsAdapter.NewsViewHolder(ContentLayoutView);
+            }
+            return null;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull NewsViewHolder viewHolder, int i) {
-
-            News news_item = list.get(i);
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
 
 
-            if (!news_item.getPostImage().isEmpty()) {
-                picasso.cancelRequest(viewHolder.icon);
-                picasso.load(news_item.getImageThumb())
-                        .placeholder(R.drawable.ic_news_large)
-                        .into(viewHolder.icon);
+
+            int viewType = getItemViewType(i);
+            switch (viewType) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    UnifiedNativeAd nativeAd = (UnifiedNativeAd) list.get(i);
+                    UnifiedNativeAdViewHolder.populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) viewHolder).getAdView());
+                    break;
+                case CONTENT_ITEM_VIEW_TYPE:
+                    News news_item = (News) list.get(i);
+                    NewsViewHolder newsViewHolder = (NewsViewHolder) viewHolder;
+                    if (!news_item.getPostImage().isEmpty()) {
+                        picasso.cancelRequest(newsViewHolder.icon);
+                        picasso.load(news_item.getImageThumb())
+                                .placeholder(R.drawable.ic_news_large)
+                                .into(newsViewHolder.icon);
+                    }
+
+
+                    newsViewHolder.title.setText(news_item.getPostTitle());
+                    newsViewHolder.time.setText(news_item.getPostDate());
+                    break;
             }
-
-
-            viewHolder.title.setText(news_item.getPostTitle());
-            viewHolder.time.setText(news_item.getPostDate());
 
 
         }
@@ -173,12 +194,22 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
                                     icon, StaticConfig.NEWS);
 
                     Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.NEWS, list.get(getAdapterPosition()));
+                    intent.putExtra(StaticConfig.NEWS, (News) list.get(getAdapterPosition()));
                     context.startActivity(intent, options.toBundle());
                 });
 
 
             }
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+
+            Object recyclerViewItem = list.get(position);
+            if (recyclerViewItem instanceof UnifiedNativeAd) {
+                return UNIFIED_NATIVE_AD_VIEW_TYPE;
+            }
+            return CONTENT_ITEM_VIEW_TYPE;
         }
     }
 
@@ -205,6 +236,7 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
+                    list.clear();
                     news.clear();
                     news_adapter.notifyDataSetChanged();
 
@@ -215,7 +247,10 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
                         news_item = gson.fromJson(jsonString, News.class);
                         news.add(news_item);
                     }
+                    list.addAll(news);
 
+                    AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_adapter,
+                            news, list, NUMBER_OF_NATIVE_ADS_NEWS);
 
                     news_adapter.notifyItemRangeInserted(0, news.size());
 

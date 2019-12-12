@@ -32,16 +32,17 @@
                     android:layout_height="50dp"
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="20dp"
+                    android:scaleType="centerCrop"
+                    app:civ_border_color="@color/blue_8"
+                    app:civ_border_width="2dp"
+                    app:civ_circle_background_color="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.317"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_ball"
-                    app:civ_border_color="@color/blue_8" android:scaleType="centerCrop"
-                    app:civ_border_width="2dp"
 
-                    />
+                    app:srcCompat="@drawable/ic_ball" />
 
 
 
@@ -115,17 +116,36 @@
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blue_7"
-            app:tabIndicatorColor="@color/green_5"
-            app:tabRippleColor="@android:color/white"
-            app:tabSelectedTextColor="@color/green_5"
+            android:background="@color/blue_9"
+            app:tabIndicatorColor="@android:color/holo_orange_dark"
+            app:tabSelectedTextColor="@android:color/holo_orange_dark"
             app:tabTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
 
-    <androidx.viewpager.widget.ViewPager
-        android:id="@+id/view_pager"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        >
+
+
+        <androidx.viewpager.widget.ViewPager
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            />
+         <FrameLayout
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        >
+
+    </FrameLayout>
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
