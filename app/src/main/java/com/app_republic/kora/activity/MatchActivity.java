@@ -2,26 +2,24 @@ package com.app_republic.kora.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 
 import com.app_republic.kora.R;
+import com.app_republic.kora.fragment.CommentsFragment;
 import com.app_republic.kora.fragment.ItemNewsFragment;
 import com.app_republic.kora.fragment.ItemPlayersFragment;
 import com.app_republic.kora.fragment.MatchDetailsFragment;
 import com.app_republic.kora.fragment.StandingsFragment;
 import com.app_republic.kora.fragment.TimeLineFragment;
+import com.app_republic.kora.fragment.VideosFragment;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Match;
-import com.app_republic.kora.request.GetMatchInfo;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
 import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -33,9 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.CountDownTimer;
 import android.os.Handler;
-import android.util.Log;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,7 +40,6 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,8 +49,6 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.app_republic.kora.utils.StaticConfig.MATCH_INFO_REQUEST;
 
 public class MatchActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -73,6 +66,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     boolean firstCall = true;
     long timeDifference;
 
+    AppSingleton appSingleton;
     Gson gson;
 
     @Override
@@ -80,7 +74,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_match);
 
-        gson = AppSingleton.getInstance(this).getGson();
+        appSingleton = AppSingleton.getInstance(this);
+        gson = appSingleton.getGson();
         tabList.addAll(Arrays.asList(getResources().getStringArray(R.array.match_tabs)));
         match = getIntent().getParcelableExtra(StaticConfig.MATCH);
         result = getIntent().getStringExtra(StaticConfig.RESULT);
@@ -98,6 +93,22 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
 
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         TV_nameTeamA = findViewById(R.id.nameTeamA);
         TV_nameTeamB = findViewById(R.id.nameTeamB);
@@ -112,14 +123,11 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         TV_extra = findViewById(R.id.extra);
 
         IV_logoTeamA.setOnClickListener(view -> {
-            Intent intent = new Intent(MatchActivity.this, TeamInfoActivity.class);
-            intent.putExtra(StaticConfig.PARAM_TEAM_ID, match.getTeamIdA());
-            startActivity(intent);
+            Utils.startTeamActivity(MatchActivity.this, getSupportFragmentManager(), match.getTeamIdA());
         });
         IV_logoTeamB.setOnClickListener(view -> {
-            Intent intent = new Intent(MatchActivity.this, TeamInfoActivity.class);
-            intent.putExtra(StaticConfig.PARAM_TEAM_ID, match.getTeamIdB());
-            startActivity(intent);
+            Utils.startTeamActivity(MatchActivity.this, getSupportFragmentManager(), match.getTeamIdB());
+
         });
 
 
@@ -134,8 +142,16 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         TV_nameTeamA.setText(match.getLiveTeam1());
         TV_nameTeamB.setText(match.getLiveTeam2());
 
-        Picasso.get().load(match.getTeamLogoA()).placeholder(R.drawable.ic_ball).into(IV_logoTeamA);
-        Picasso.get().load(match.getTeamLogoB()).placeholder(R.drawable.ic_ball).into(IV_logoTeamB);
+
+        try {
+            Picasso.get().load(match.getTeamLogoA()).placeholder(R.drawable.ic_ball).into(IV_logoTeamA);
+            Picasso.get().load(match.getTeamLogoB()).placeholder(R.drawable.ic_ball).into(IV_logoTeamB);
+
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+            Picasso.get().load(match.getTeamLogoA()).into(IV_logoTeamA);
+            Picasso.get().load(match.getTeamLogoB()).into(IV_logoTeamB);
+        }
 
 
         handler = new Handler();
@@ -143,16 +159,20 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
 
         if ("0".equals(match.getHasPlayers())) {
-            fragmentList.remove(4);
-            tabList.remove(4);
+            fragmentList.remove(6);
+            tabList.remove(6);
 
 
         }
+
         if ("0".equals(match.getHasStandings())) {
-            fragmentList.remove(3);
-            tabList.remove(3);
+            fragmentList.remove(5);
+            tabList.remove(5);
 
         }
+
+
+
         if ("0".equals(match.getHasTimeline())) {
             fragmentList.remove(0);
             tabList.remove(0);
@@ -161,25 +181,31 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
         sectionsPagerAdapter.notifyDataSetChanged();
 
-        AdView mAdView = new AdView(this);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
-        mAdView.setAdSize(AdSize.SMART_BANNER);
-        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
-        mAdView.loadAd(adRequest);
+
+        Utils.loadBannerAd(this, "match");
+
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         handler.postDelayed(runnable, 1000);
+        appSingleton.getInterstitialAd().loadAd(new AdRequest.Builder().build());
     }
+
 
     @Override
     protected void onPause() {
         super.onPause();
         handler.removeCallbacks(runnable);
+
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
 
     @Override
     public void onClick(View view) {
@@ -191,8 +217,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT,
-                        match.getLiveTeam1() + " " + result + " " + match.getLiveTeam2()
-                                + "\n\n" + getString(R.string.app_name) + "\n" +
+                        match.getLiveTeam1() + " " + TV_state.getText().toString() + " " + match.getLiveTeam2()
+                                + "\n\n" + getString(R.string.app_name) + "\n\n" +
                                 getString(R.string.play_store_link));
 
 
@@ -223,7 +249,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
                     timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
@@ -237,6 +263,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 
@@ -309,6 +337,9 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     public void initialiseFragments() {
         fragmentList = new ArrayList<>();
 
+
+        // players fragment
+
         ItemPlayersFragment itemPlayersFragment = ItemPlayersFragment.newInstance();
         Bundle args0 = new Bundle();
 
@@ -324,6 +355,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         itemPlayersFragment.setArguments(args0);
         itemPlayersFragment.setRetainInstance(true);
 
+        // Standings fragment
+
         StandingsFragment standingsFragment = StandingsFragment.newInstance();
         Bundle args1 = new Bundle();
 
@@ -337,6 +370,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         standingsFragment.setArguments(args1);
         standingsFragment.setRetainInstance(true);
 
+        // News fragment
+
         ItemNewsFragment itemNewsFragment = ItemNewsFragment.newInstance();
         Bundle args2 = new Bundle();
 
@@ -348,27 +383,59 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         itemNewsFragment.setArguments(args2);
         itemNewsFragment.setRetainInstance(true);
 
-        MatchDetailsFragment matchDetailsFragment = MatchDetailsFragment.newInstance();
+        // Videos Fragment
+
+        VideosFragment videosFragment = VideosFragment.newInstance();
         Bundle args3 = new Bundle();
 
         args3.putParcelable(StaticConfig.MATCH,
                 match);
 
-        matchDetailsFragment.setArguments(args3);
-        matchDetailsFragment.setRetainInstance(true);
+        videosFragment.setArguments(args3);
+        videosFragment.setRetainInstance(true);
 
-        TimeLineFragment timeLineFragment = TimeLineFragment.newInstance();
+        // Comments Fragment
+
+        CommentsFragment commentsFragment = CommentsFragment.newInstance();
         Bundle args4 = new Bundle();
 
         args4.putParcelable(StaticConfig.MATCH,
                 match);
+        args4.putString(StaticConfig.TARGET_TYPE,
+                StaticConfig.MATCH);
+
+        args4.putString(StaticConfig.TARGET_ID,
+                match.getLiveId());
 
 
-        timeLineFragment.setArguments(args4);
+        commentsFragment.setArguments(args4);
+        commentsFragment.setRetainInstance(true);
+
+
+        // MatchDetails fragment
+
+        MatchDetailsFragment matchDetailsFragment = MatchDetailsFragment.newInstance();
+        Bundle args5 = new Bundle();
+
+        args5.putParcelable(StaticConfig.MATCH,
+                match);
+
+        matchDetailsFragment.setArguments(args5);
+        matchDetailsFragment.setRetainInstance(true);
+
+        // TimeLine fragment
+
+        TimeLineFragment timeLineFragment = TimeLineFragment.newInstance();
+        Bundle args6 = new Bundle();
+        args6.putParcelable(StaticConfig.MATCH,
+                match);
+        timeLineFragment.setArguments(args6);
         timeLineFragment.setRetainInstance(true);
 
         fragmentList.add(timeLineFragment);
         fragmentList.add(matchDetailsFragment);
+        fragmentList.add(commentsFragment);
+        fragmentList.add(videosFragment);
         fragmentList.add(itemNewsFragment);
         fragmentList.add(standingsFragment);
         fragmentList.add(itemPlayersFragment);
@@ -399,8 +466,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
         @Override
         public int getCount() {
-            // Show 5 total pages.
-            return fragmentList.size();
+            return tabList.size();
         }
     }
 }

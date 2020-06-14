@@ -4,7 +4,9 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/section_layout"
@@ -64,147 +66,164 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/section_layout" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/root"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@android:color/white"
+        android:layout_margin="10dp"
+
+        android:background="@drawable/bac_match"
         android:padding="10dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/department">
 
-
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/logo_team_1"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:layout_marginStart="5dp"
-            android:scaleType="centerCrop"
-            app:civ_border_color="@android:color/black"
-            app:civ_border_width="2dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_ball_small"
-
-            />
-
-
-        <TextView
-            android:id="@+id/name_team_1"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/root"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:layout_marginStart="10dp"
-            android:layout_marginEnd="30dp"
-            android:fontFamily="sans-serif-condensed"
-            android:gravity="center"
-            android:maxLines="2"
-            android:text="وفاق رياضي سطيف"
-            android:textColor="@android:color/black"
-            app:layout_constraintBottom_toBottomOf="@+id/logo_team_1"
-            app:layout_constraintEnd_toStartOf="@+id/scoreTeamA"
-            app:layout_constraintStart_toEndOf="@+id/logo_team_1"
-            app:layout_constraintTop_toTopOf="@+id/logo_team_1" />
-
-        <TextView
-            android:id="@+id/state"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:background="@drawable/bac_match_state"
-            android:gravity="center"
-            android:maxLines="2"
-            android:padding="5dp"
-            android:text="18:56 pm"
-            android:textColor="@android:color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/logo_team_2"
-            app:layout_constraintStart_toEndOf="@+id/logo_team_1"
-            app:layout_constraintTop_toBottomOf="@+id/liveTextView" />
-
-        <TextView
-            android:id="@+id/scoreTeamA"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:text="3"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@+id/name_team_1"
-            app:layout_constraintEnd_toStartOf="@+id/state"
-            app:layout_constraintTop_toTopOf="@+id/name_team_1" />
-
-        <TextView
-            android:id="@+id/scoreTeamB"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:text="1"
-            android:textColor="@color/colorPrimaryDark"
-            android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="@+id/name_team_2"
-            app:layout_constraintStart_toEndOf="@+id/state"
-            app:layout_constraintTop_toTopOf="@+id/name_team_2" />
-
-        <TextView
-            android:id="@+id/name_team_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="5dp"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="10dp"
-            android:gravity="center"
-            android:maxLines="2"
-            android:text="شبيبة بجاية"
-            android:textColor="@android:color/black"
-            app:layout_constraintBottom_toBottomOf="@+id/logo_team_2"
-            app:layout_constraintEnd_toStartOf="@+id/logo_team_2"
-            app:layout_constraintStart_toEndOf="@+id/scoreTeamB"
-            app:layout_constraintTop_toTopOf="@+id/logo_team_2" />
+            android:background="@drawable/bac_match"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="10dp">
 
 
-        <de.hdodenhof.circleimageview.CircleImageView
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/logo_team_1"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginStart="5dp"
+                android:scaleType="centerCrop"
+                app:civ_border_color="@android:color/black"
+                app:civ_border_width="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_ball_small"
 
-            android:id="@+id/logo_team_2"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:layout_marginEnd="5dp"
-            android:scaleType="centerCrop"
-            app:civ_border_color="@android:color/black"
-            app:civ_border_width="2dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_ball_small"
+                />
 
-            />
 
-        <TextView
-            android:id="@+id/liveTextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            android:background="@drawable/bac_text_live"
-            android:paddingStart="10dp"
-            android:paddingTop="5dp"
-            android:paddingEnd="10dp"
-            android:paddingBottom="5dp"
-            android:text="LIVE"
-            android:textColor="@android:color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            <TextView
+                android:id="@+id/name_team_1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="30dp"
+                android:fontFamily="sans-serif-condensed"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="وفاق رياضي سطيف"
+                android:textColor="@android:color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/logo_team_1"
+                app:layout_constraintEnd_toStartOf="@+id/scoreTeamA"
+                app:layout_constraintStart_toEndOf="@+id/logo_team_1"
+                app:layout_constraintTop_toTopOf="@+id/logo_team_1" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/state"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:background="@drawable/bac_match_state"
+                android:gravity="center"
+                android:maxLines="2"
+                android:padding="5dp"
+                android:text="18:56 pm"
+                android:textColor="@color/blue_9"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/logo_team_2"
+                app:layout_constraintStart_toEndOf="@+id/logo_team_1"
+                app:layout_constraintTop_toBottomOf="@+id/liveTextView" />
+
+            <TextView
+                android:id="@+id/scoreTeamA"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:text="3"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/name_team_1"
+                app:layout_constraintEnd_toStartOf="@+id/state"
+                app:layout_constraintTop_toTopOf="@+id/name_team_1" />
+
+            <TextView
+                android:id="@+id/scoreTeamB"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:text="1"
+                android:textColor="@color/colorPrimaryDark"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="@+id/name_team_2"
+                app:layout_constraintStart_toEndOf="@+id/state"
+                app:layout_constraintTop_toTopOf="@+id/name_team_2" />
+
+            <TextView
+                android:id="@+id/name_team_2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_margin="5dp"
+                android:layout_marginStart="30dp"
+                android:layout_marginEnd="10dp"
+                android:gravity="center"
+                android:maxLines="2"
+                android:text="شبيبة بجاية"
+                android:textColor="@android:color/black"
+                app:layout_constraintBottom_toBottomOf="@+id/logo_team_2"
+                app:layout_constraintEnd_toStartOf="@+id/logo_team_2"
+                app:layout_constraintStart_toEndOf="@+id/scoreTeamB"
+                app:layout_constraintTop_toTopOf="@+id/logo_team_2" />
+
+
+            <de.hdodenhof.circleimageview.CircleImageView
+
+                android:id="@+id/logo_team_2"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginEnd="5dp"
+                android:scaleType="centerCrop"
+                app:civ_border_color="@android:color/black"
+                app:civ_border_width="2dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_ball_small"
+
+                />
+
+            <TextView
+                android:id="@+id/liveTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/bac_text_live"
+                android:paddingStart="10dp"
+                android:paddingTop="5dp"
+                android:paddingEnd="10dp"
+                android:paddingBottom="5dp"
+                android:text="LIVE"
+                android:textColor="@android:color/white"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.cardview.widget.CardView>
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

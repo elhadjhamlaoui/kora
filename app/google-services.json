@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+          "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -28,7 +28,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+              "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -44,7 +44,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+          "client_id": "1000558491875-ces302mnn33chnjfnhblvn114s3lmmmr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app_republic.kora",
+            "certificate_hash": "b343fa6907c3c96bf2d94f999b71575289e38526"
+          }
+        },
+        {
+          "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -57,7 +65,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+              "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -74,7 +82,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+          "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -87,7 +95,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+              "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
@@ -104,7 +112,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+          "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -117,7 +125,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1000558491875-hdqrfsbrc2bnmm1a4jhvohmi2febi7fo.apps.googleusercontent.com",
+              "client_id": "1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

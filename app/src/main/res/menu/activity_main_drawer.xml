@@ -14,12 +14,16 @@
             android:title="@string/news" />
         <item
             android:id="@+id/nav_departments"
-            android:icon="@drawable/ic_departments"
+            android:icon="@drawable/ic_trophy"
             android:title="@string/departments" />
         <item
             android:id="@+id/nav_players"
-            android:icon="@drawable/ic_players"
+            android:icon="@drawable/ic_person"
             android:title="@string/players" />
+        <item
+            android:id="@+id/nav_chat"
+            android:icon="@drawable/ic_chat"
+            android:title="@string/chat" />
         <item
             android:id="@+id/nav_games"
             android:icon="@drawable/ic_games"
@@ -28,6 +32,20 @@
 
     <item android:title="">
         <menu>
+            <item
+                android:id="@+id/nav_login"
+                android:icon="@drawable/ic_account_small"
+                android:title="@string/login_user" />
+
+            <item
+                android:id="@+id/nav_facebook"
+                android:icon="@drawable/ic_facebook_white"
+                android:title="@string/facebook_page" />
+
+            <item
+                android:id="@+id/nav_website"
+                android:icon="@drawable/ic_web_site"
+                android:title="@string/website" />
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_share"
@@ -38,5 +56,6 @@
                 android:title="@string/rate_app" />
         </menu>
     </item>
+
 
 </menu>

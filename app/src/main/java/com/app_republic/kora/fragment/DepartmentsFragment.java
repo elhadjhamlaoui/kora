@@ -1,6 +1,7 @@
 package com.app_republic.kora.fragment;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +25,6 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -144,7 +144,7 @@ public class DepartmentsFragment extends Fragment {
             long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
             timeDifference = currentServerTime > currentClientTime ?
-                    currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
 
             JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
@@ -164,8 +164,10 @@ public class DepartmentsFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         } catch (IllegalStateException e) {
-            e.printStackTrace();
-        }
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
 
 
     }
@@ -203,9 +205,18 @@ public class DepartmentsFragment extends Fragment {
             if (!department.getDepLogo().isEmpty()) {
                 picasso.cancelRequest(viewHolder.icon);
 
-                picasso.load(department.getDepLogo())
-                        .placeholder(R.drawable.ic_ball)
-                        .into(viewHolder.icon);
+
+                try {
+                    picasso.load(department.getDepLogo())
+                            .fit()
+                            .placeholder(R.drawable.ic_ball)
+                            .into(viewHolder.icon);
+                } catch (Resources.NotFoundException e) {
+                    e.printStackTrace();
+                    picasso.load(department.getDepLogo())
+                            .fit()
+                            .into(viewHolder.icon);
+                }
             }
 
 
@@ -262,11 +273,6 @@ public class DepartmentsFragment extends Fragment {
 
 
 
-
-                    /* Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.TEAM, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                    */
 
                 });
             }

@@ -20,7 +20,6 @@ import com.app_republic.kora.activity.PlayerActivity;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Player;
 import com.app_republic.kora.model.PlayerDepartment;
-import com.app_republic.kora.request.GetItemPlayersDetailed;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
@@ -29,7 +28,6 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -38,7 +36,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.app_republic.kora.utils.StaticConfig.DEP_PLAYERS_REQUEST;
 import static com.app_republic.kora.utils.StaticConfig.PLAYER_INFO;
 
 public class ItemPlayersFragment extends Fragment {
@@ -124,6 +121,7 @@ public class ItemPlayersFragment extends Fragment {
         getPlayers();
 
 
+
         return view;
 
     }
@@ -153,7 +151,7 @@ public class ItemPlayersFragment extends Fragment {
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
                     timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
@@ -176,6 +174,8 @@ public class ItemPlayersFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 
@@ -231,7 +231,7 @@ public class ItemPlayersFragment extends Fragment {
 
             if (!player.getPlayerImage().isEmpty()) {
                 picasso.cancelRequest(viewHolder.icon);
-                picasso.load(player.getPlayerImage()).into(viewHolder.icon);
+                picasso.load(player.getPlayerImage()).fit().into(viewHolder.icon);
             }
 
             if (team_id_a.equals(player.getTeamId()) || team_id_b.equals(player.getTeamId())) {
@@ -279,11 +279,15 @@ public class ItemPlayersFragment extends Fragment {
                 V_root.setOnClickListener(view -> {
                     if (player == null || !list.get(getAdapterPosition())
                             .getPlayerId().equals(player.getPlayerId())) {
-                        Intent intent = new Intent(context, PlayerActivity.class);
-                        Player player = list.get(getAdapterPosition());
 
-                        intent.putExtra(StaticConfig.PLAYER, player);
-                        context.startActivity(intent);
+                        Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","player", getContext(), () -> {
+                            Intent intent = new Intent(context, PlayerActivity.class);
+                            Player player = list.get(getAdapterPosition());
+
+                            intent.putExtra(StaticConfig.PLAYER, player);
+                            context.startActivity(intent);
+                        });
+
                     }
 
 

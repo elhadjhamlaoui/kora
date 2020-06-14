@@ -247,10 +247,7 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
 
 
                 V_root.setOnClickListener(view -> {
-                   /* Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.TEAM, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                    */
+
 
 
                     for (PlayerDepartment playerDepartment : list)

@@ -7,9 +7,22 @@ public class Comment implements Parcelable {
 
     private String targetId, targetType, uid, text, photo, name, id;
     private long likes, dislikes, timeStamp;
+    private boolean feeling;
+    private int like;
+    private String rootType;
+    private String rootId;
+    private long replies;
+
+
+
+    public Comment() {
+
+    }
 
     public Comment(String targetId, String targetType, String uid, String text, String photo,
-                   String name, String id, long likes, long dislikes, long timeStamp) {
+                   String name, String id, long likes, long dislikes,
+                   long timeStamp, boolean feeling, int like, String rootType,
+                   String rootId, long replies) {
         this.targetId = targetId;
         this.targetType = targetType;
         this.uid = uid;
@@ -20,6 +33,11 @@ public class Comment implements Parcelable {
         this.likes = likes;
         this.dislikes = dislikes;
         this.timeStamp = timeStamp;
+        this.feeling = feeling;
+        this.like = like;
+        this.rootType = rootType;
+        this.rootId = rootId;
+        this.replies = replies;
     }
 
     protected Comment(Parcel in) {
@@ -33,6 +51,11 @@ public class Comment implements Parcelable {
         likes = in.readLong();
         dislikes = in.readLong();
         timeStamp = in.readLong();
+        feeling = in.readByte() != 0;
+        like = in.readInt();
+        rootType = in.readString();
+        rootId = in.readString();
+        replies = in.readLong();
     }
 
     public static final Creator<Comment> CREATOR = new Creator<Comment>() {
@@ -127,6 +150,46 @@ public class Comment implements Parcelable {
         this.timeStamp = timeStamp;
     }
 
+    public boolean isFeeling() {
+        return feeling;
+    }
+
+    public void setFeeling(boolean feeling) {
+        this.feeling = feeling;
+    }
+
+    public int getLike() {
+        return like;
+    }
+
+    public void setLike(int like) {
+        this.like = like;
+    }
+
+    public String getRootType() {
+        return rootType;
+    }
+
+    public void setRootType(String rootType) {
+        this.rootType = rootType;
+    }
+
+    public String getRootId() {
+        return rootId;
+    }
+
+    public void setRootId(String rootId) {
+        this.rootId = rootId;
+    }
+
+    public long getReplies() {
+        return replies;
+    }
+
+    public void setReplies(long replies) {
+        this.replies = replies;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -144,5 +207,12 @@ public class Comment implements Parcelable {
         parcel.writeLong(likes);
         parcel.writeLong(dislikes);
         parcel.writeLong(timeStamp);
+        parcel.writeByte((byte) (feeling ? 1 : 0));
+        parcel.writeInt(like);
+        parcel.writeString(rootType);
+        parcel.writeString(rootId);
+        parcel.writeLong(replies);
     }
+
+
 }

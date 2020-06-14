@@ -19,30 +19,41 @@
 
 
         <LinearLayout
-            android:id="@+id/arrows_layout"
+            android:id="@+id/arrow_next"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0"
-            android:orientation="horizontal">
+            android:layout_marginEnd="10dp"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            >
 
             <ImageView
-                android:id="@+id/arrow_next"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_marginEnd="10dp"
-                android:foreground="?android:attr/selectableItemBackground"
 
                 app:srcCompat="@drawable/arrow_left" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/arrow_previous"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            >
 
             <ImageView
-                android:id="@+id/arrow_previous"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 app:srcCompat="@drawable/arrow_right"
-                android:foreground="?android:attr/selectableItemBackground"
 
                 />
-
         </LinearLayout>
 
         <RelativeLayout
@@ -68,7 +79,8 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:foreground="?android:attr/selectableItemBackground"
-            >
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp">
 
             <TextView
                 android:id="@+id/date_text"
@@ -139,8 +151,20 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/matches_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@android:color/white" />
+        android:layout_height="wrap_content"
+        android:background="@android:color/white">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
+        android:gravity="center"
+        android:text="لا توجد مباريات اليوم"
+        android:textSize="30sp"
+        android:visibility="gone" />
 
 
 </LinearLayout>

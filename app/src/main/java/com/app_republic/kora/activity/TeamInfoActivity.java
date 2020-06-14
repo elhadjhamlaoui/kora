@@ -1,9 +1,9 @@
 package com.app_republic.kora.activity;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -22,30 +22,22 @@ import com.app_republic.kora.fragment.MatchesFragment;
 import com.app_republic.kora.fragment.StandingsFragment;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.TeamInfo;
-import com.app_republic.kora.request.GetTeamInfo;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Calendar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.app_republic.kora.utils.StaticConfig.TEAM_INFO_REQUEST;
 
 public class TeamInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -57,13 +49,15 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
     String team_id;
     long timeDifference;
+    AppSingleton appSingleton;
     Gson gson;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_team_info);
-        gson = AppSingleton.getInstance(this).getGson();
+        appSingleton = AppSingleton.getInstance(this);
+        gson = appSingleton.getGson();
 
         team_id = getIntent().getStringExtra(StaticConfig.PARAM_TEAM_ID);
 
@@ -82,14 +76,29 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
         getTeamInfo();
 
-        AdView mAdView = new AdView(this);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
-        mAdView.setAdSize(AdSize.SMART_BANNER);
-        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
-        mAdView.loadAd(adRequest);
+        Utils.loadBannerAd(this, "match");
+
 
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appSingleton.getInterstitialAd().loadAd(new AdRequest.Builder().build());
+
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
 
 
     @Override
@@ -123,11 +132,11 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
                     timeDifference = currentServerTime > currentClientTime ?
                             currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
                     String jsonString = items.getJSONObject(0).toString();
-                    ;
                     teamInfo = gson.fromJson(jsonString, TeamInfo.class);
 
                     updateUI(teamInfo);
@@ -135,6 +144,8 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
@@ -151,14 +162,23 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
     private void updateUI(TeamInfo teamInfo) {
 
-        Picasso picasso = AppSingleton.getInstance(this).getPicasso();
+        Picasso picasso = appSingleton.getPicasso();
 
         TV_name.setText(teamInfo.getTeamName());
         TV_country.setText(teamInfo.getTeamCountry());
 
-        picasso.load(teamInfo.getTeamLogo())
-                .placeholder(R.drawable.ic_ball_small)
-                .into(IV_logo);
+        try {
+            picasso.load(teamInfo.getTeamLogo())
+                    .fit()
+                    .placeholder(R.drawable.ic_ball_small)
+                    .into(IV_logo);
+        } catch (Resources.NotFoundException e) {
+            e.printStackTrace();
+            picasso.load(teamInfo.getTeamLogo())
+                    .fit()
+                    .into(IV_logo);
+        }
+
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
                 getSupportFragmentManager());
@@ -168,6 +188,22 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     public class SectionsPagerAdapter extends FragmentPagerAdapter {

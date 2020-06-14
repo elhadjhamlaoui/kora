@@ -1,13 +1,12 @@
 package com.app_republic.kora.activity;
 
 import android.content.Context;
-import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -26,11 +25,8 @@ import com.app_republic.kora.fragment.PlayerDetailsFragment;
 import com.app_republic.kora.model.Player;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.Utils;
 import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
@@ -42,16 +38,18 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     ConstraintLayout Layout_root;
     Player player;
     Picasso picasso;
+    AppSingleton appSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_player);
 
+        appSingleton = AppSingleton.getInstance(this);
 
         player = getIntent().getParcelableExtra(StaticConfig.PLAYER);
 
-        picasso = AppSingleton.getInstance(this).getPicasso();
+        picasso = appSingleton.getPicasso();
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
                 getSupportFragmentManager());
@@ -60,6 +58,22 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
+
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
         TV_name = findViewById(R.id.name);
         TV_age = findViewById(R.id.age);
@@ -83,67 +97,151 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         TV_team.setText(player.getTeamName());
         TV_age.setText(getString(R.string.year) + player.getPlayerAge());
 
-        picasso.load(player.getTeamImage()).placeholder(R.drawable.ic_ball).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                TV_team.setCompoundDrawablesWithIntrinsicBounds(
-                        null,
-                        null, new BitmapDrawable(getResources(), bitmap), null);
+        if (!player.getTeamImage().isEmpty()) {
+            try {
+                picasso.load(player.getTeamImage()).placeholder(R.drawable.ic_ball).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        TV_team.setCompoundDrawablesWithIntrinsicBounds(
+                                null,
+                                null, new BitmapDrawable(getResources(), bitmap), null);
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+            } catch (Resources.NotFoundException e) {
+                e.printStackTrace();
+                picasso.load(player.getTeamImage()).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        TV_team.setCompoundDrawablesWithIntrinsicBounds(
+                                null,
+                                null, new BitmapDrawable(getResources(), bitmap), null);
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
             }
+        }
 
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+        if (!player.getNationalTeamImage().isEmpty()) {
+            try {
+                picasso.load(player.getNationalTeamImage()).placeholder(R.drawable.ic_ball).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        TV_country.setCompoundDrawablesWithIntrinsicBounds(
+                                null,
+                                null, new BitmapDrawable(getResources(), bitmap), null);
+                    }
 
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+            } catch (Resources.NotFoundException e) {
+                e.printStackTrace();
+                picasso.load(player.getNationalTeamImage()).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        TV_country.setCompoundDrawablesWithIntrinsicBounds(
+                                null,
+                                null, new BitmapDrawable(getResources(), bitmap), null);
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
             }
+        }
 
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
+        if (!player.getPlayerImage().isEmpty()) {
+            try {
+                picasso.load(player.getPlayerImage()).placeholder(R.drawable.ic_ball).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        IV_photo.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                    }
 
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
+            } catch (Resources.NotFoundException e) {
+                e.printStackTrace();
+                picasso.load(player.getPlayerImage()).into(new Target() {
+                    @Override
+                    public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                        IV_photo.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
+                    }
+
+                    @Override
+                    public void onBitmapFailed(Exception e, Drawable errorDrawable) {
+
+                    }
+
+                    @Override
+                    public void onPrepareLoad(Drawable placeHolderDrawable) {
+
+                    }
+                });
             }
-        });
-        picasso.load(player.getNationalTeamImage()).placeholder(R.drawable.ic_ball).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                TV_country.setCompoundDrawablesWithIntrinsicBounds(
-                        null,
-                        null, new BitmapDrawable(getResources(), bitmap), null);
-            }
-
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });
-
-        picasso.load(player.getPlayerImage()).placeholder(R.drawable.ic_ball).into(new Target() {
-            @Override
-            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-                IV_photo.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
-            }
-
-            @Override
-            public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-
-            }
-
-            @Override
-            public void onPrepareLoad(Drawable placeHolderDrawable) {
-
-            }
-        });
+        }
 
 
-        AdView mAdView = new AdView(this);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
-        mAdView.setAdSize(AdSize.SMART_BANNER);
-        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
-        mAdView.loadAd(adRequest);
+        Utils.loadBannerAd(this, "player");
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appSingleton.getInterstitialAd().loadAd(new AdRequest.Builder().build());
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
 
@@ -154,14 +252,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 onBackPressed();
                 break;
             case R.id.country:
-                Intent intent = new Intent(this, TeamInfoActivity.class);
-                intent.putExtra(StaticConfig.PARAM_TEAM_ID, player.getOtherTeamId());
-                startActivity(intent);
+                Utils.startTeamActivity(this, getSupportFragmentManager(), player.getOtherTeamId());
                 break;
             case R.id.team:
-                Intent intent2 = new Intent(this, TeamInfoActivity.class);
-                intent2.putExtra(StaticConfig.PARAM_TEAM_ID, player.getTeamId());
-                startActivity(intent2);
+                Utils.startTeamActivity(this, getSupportFragmentManager(), player.getTeamId());
                 break;
         }
     }
@@ -240,4 +334,6 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             return 3;
         }
     }
+
+
 }

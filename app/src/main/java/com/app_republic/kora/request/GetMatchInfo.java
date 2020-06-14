@@ -10,7 +10,6 @@ import java.util.Map;
 
 import static com.android.volley.Request.Method.POST;
 import static com.app_republic.kora.utils.StaticConfig.API_BASE;
-import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCHES;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCH_INFO;
 
 public class GetMatchInfo extends StringRequest {

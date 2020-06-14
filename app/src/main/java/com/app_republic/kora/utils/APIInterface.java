@@ -14,6 +14,7 @@ import static com.app_republic.kora.utils.StaticConfig.API_GET_ITEM_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_LATEST_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCHES;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCH_INFO;
+import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCH_VIDEOS;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_PLAYERS;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_PLAYER_MATCHES;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_TEAM_INFO;
@@ -117,6 +118,13 @@ public interface APIInterface {
     Call<ApiResponse> getMatchInfo(@Field("is_android") String is_android,
                                   @Field("accessToken") String accessToken,
                                   @Field("live_id") String live_id
+    );
+
+    @FormUrlEncoded
+    @POST(API_GET_MATCH_VIDEOS)
+    Call<ApiResponse> getVideos(@Field("is_android") String is_android,
+                                   @Field("accessToken") String accessToken,
+                                   @Field("live_id") String live_id
     );
 
 

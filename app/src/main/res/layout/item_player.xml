@@ -9,7 +9,9 @@
     app:layout_constraintStart_toStartOf="parent"
     app:layout_editor_absoluteY="78dp"
     xmlns:android="http://schemas.android.com/apk/res/android"
-
+    android:foreground="?android:attr/selectableItemBackground"
+    android:focusable="true"
+    android:clickable="true"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <TextView

@@ -11,7 +11,6 @@ import java.util.Map;
 import static com.android.volley.Request.Method.POST;
 import static com.app_republic.kora.utils.StaticConfig.API_BASE;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_DEPS_PLAYERS;
-import static com.app_republic.kora.utils.StaticConfig.API_GET_DEPS_STANDINGS;
 
 public class GetDepsWithPlayers extends StringRequest {
 

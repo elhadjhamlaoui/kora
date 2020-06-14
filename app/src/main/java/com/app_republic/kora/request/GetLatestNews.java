@@ -11,7 +11,6 @@ import java.util.Map;
 import static com.android.volley.Request.Method.POST;
 import static com.app_republic.kora.utils.StaticConfig.API_BASE;
 import static com.app_republic.kora.utils.StaticConfig.API_GET_LATEST_NEWS;
-import static com.app_republic.kora.utils.StaticConfig.API_GET_MATCHES;
 
 public class GetLatestNews extends StringRequest {
 

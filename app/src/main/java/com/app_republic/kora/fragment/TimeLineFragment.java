@@ -19,7 +19,6 @@ import com.app_republic.kora.activity.GoToVideoActivity;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Match;
 import com.app_republic.kora.model.TimeLine;
-import com.app_republic.kora.request.GetTimeline;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -27,7 +26,6 @@ import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,7 +35,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static android.view.View.GONE;
-import static com.app_republic.kora.utils.StaticConfig.TIME_LINE_REQUEST;
 
 public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
@@ -88,6 +85,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
         getTimeLine();
 
+        AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView));
 
         return view;
     }
@@ -147,9 +145,9 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
 
             if (type == 1)
-                viewHolder.video.setVisibility(GONE);
+                viewHolder.video.setVisibility(View.GONE);
             else
-                viewHolder.video.setVisibility(GONE);
+                viewHolder.video.setVisibility(View.VISIBLE);
 
 
             if (item.getVideoItem() != null) {
@@ -307,6 +305,8 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }

@@ -5,7 +5,11 @@
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:layout_margin="10dp"
-    android:background="@drawable/circle_black">
+    android:background="@drawable/circle_black"
+    android:foreground="?android:attr/selectableItemBackground"
+    android:focusable="true"
+    android:clickable="true"
+    >
 
 
     <de.hdodenhof.circleimageview.CircleImageView

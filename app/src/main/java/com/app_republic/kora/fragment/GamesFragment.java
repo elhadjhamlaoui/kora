@@ -9,9 +9,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,10 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.activity.GameActivity;
-import com.app_republic.kora.activity.PlayerActivity;
 import com.app_republic.kora.model.Game;
 import com.app_republic.kora.model.GameCategory;
-import com.app_republic.kora.model.Player;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.squareup.picasso.Picasso;
@@ -178,7 +174,7 @@ public class GamesFragment extends Fragment {
 
             holder.name.setText(game.getName());
             if (!game.getIcon().isEmpty())
-            picasso.load(game.getIcon()).into(holder.icon);
+            picasso.load(game.getIcon()).fit().into(holder.icon);
 
         }
 

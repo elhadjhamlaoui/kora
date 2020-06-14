@@ -45,7 +45,6 @@
                     app:srcCompat="@drawable/ic_ball" />
 
 
-
                 <TextView
                     android:id="@+id/country_label"
 
@@ -112,12 +111,20 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
 
+        <View
+            android:id="@+id/divider9"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/almost_black" />
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blue_9"
+            android:background="@color/blue_10"
             app:tabIndicatorColor="@android:color/holo_orange_dark"
+            app:tabMode="fixed"
+            app:tabRippleColor="@color/ripple_blue"
             app:tabSelectedTextColor="@android:color/holo_orange_dark"
             app:tabTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>

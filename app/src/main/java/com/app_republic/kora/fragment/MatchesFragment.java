@@ -3,9 +3,6 @@ package com.app_republic.kora.fragment;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.drawable.RippleDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -23,16 +20,21 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.activity.MatchActivity;
+import com.app_republic.kora.activity.NewsItemActivity;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Match;
+import com.app_republic.kora.model.News;
 import com.app_republic.kora.model.TeamInfo;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.UnifiedNativeAdViewHolder;
 import com.app_republic.kora.utils.Utils;
 import com.facebook.shimmer.ShimmerFrameLayout;
+import com.google.android.gms.ads.InterstitialAd;
+
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
+
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -49,8 +51,8 @@ import retrofit2.Response;
 
 import static android.view.View.GONE;
 import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
-import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS;
 import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_MATCHES;
+import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
 public class MatchesFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
@@ -59,13 +61,13 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
     List<Match> matches = new ArrayList<>();
     List<Object> list = new ArrayList<>();
-
-    Adapter matches_adapter;
-    RecyclerView matches_recycler;
+    InterstitialAd interstitialAd;
+    private Adapter matches_adapter;
+    private RecyclerView matches_recycler;
 
     Calendar calendar;
 
-    ImageView IV_next, IV_previous;
+    View IV_next, IV_previous;
     TextView TV_date, TV_day;
 
     LinearLayout LL_choose_date, LL_date_layout;
@@ -77,6 +79,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     Runnable runnable;
     long timeDifference;
 
+    TextView TV_empty;
     ShimmerFrameLayout shimmerFrameLayout;
 
     TeamInfo teamInfo;
@@ -130,10 +133,11 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                 calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
 
-        if (teamInfo != null) {
+        if (teamInfo != null && teamInfo.getRecentMatches() != null) {
             LL_date_layout.setVisibility(GONE);
 
             matches.addAll(teamInfo.getRecentMatches());
+
             Collections.sort(matches, (o, t1) -> {
                 Match match = o;
                 Match match1 = t1;
@@ -149,8 +153,14 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                     return 0;
             });
             list.addAll(matches);
-            AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_adapter,
-                    matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
+
+            if (matches.size() == 0)
+                AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
+                        matches_adapter, matches, list, 1);
+            else
+                AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
+                        matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
+
             matches_adapter.notifyDataSetChanged();
             shimmerFrameLayout.hideShimmer();
             shimmerFrameLayout.setVisibility(GONE);
@@ -162,13 +172,13 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
         } else {
 
             handler = new Handler();
-            runnable = () -> {
-                getMatches();
-            };
+            runnable = this::getMatches;
             getMatches();
             displayDate();
 
         }
+
+        getLatestNews();
 
 
         return view;
@@ -179,6 +189,8 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
         LL_choose_date = view.findViewById(R.id.choose_date);
         LL_date_layout = view.findViewById(R.id.date_layout);
+
+        TV_empty = view.findViewById(R.id.empty);
 
         IV_next = view.findViewById(R.id.arrow_next);
         IV_previous = view.findViewById(R.id.arrow_previous);
@@ -192,20 +204,6 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
         shimmerFrameLayout = view.findViewById(R.id.shimmer_view_container);
         shimmerFrameLayout.showShimmer(true);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            RippleDrawable rippledImage;
-
-            rippledImage = new
-                    RippleDrawable(ColorStateList.valueOf(getResources().getColor(R.color.gray_200)),
-                    getResources().getDrawable(R.drawable.arrow_left), null);
-            IV_next.setImageDrawable(rippledImage);
-            rippledImage = new
-                    RippleDrawable(ColorStateList.valueOf(getResources().getColor(R.color.gray_200)),
-                    getResources().getDrawable(R.drawable.arrow_right), null);
-            IV_previous.setImageDrawable(rippledImage);
-
-
-        }
     }
 
     private void displayDate() {
@@ -285,6 +283,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                     UnifiedNativeAd nativeAd = (UnifiedNativeAd) list.get(i);
                     UnifiedNativeAdViewHolder.populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) viewHolder).getAdView());
                     break;
+
                 case CONTENT_ITEM_VIEW_TYPE:
                     ContenetViewHolder viewHolder1 = (ContenetViewHolder) viewHolder;
 
@@ -299,7 +298,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                     viewHolder1.state.setBackground(getResources()
                             .getDrawable(R.drawable.bac_match_state));
                     viewHolder1.state.setTextColor(getResources()
-                            .getColor(android.R.color.white));
+                            .getColor(R.color.blue_9));
 
                     if (difference > 0) {
 
@@ -355,63 +354,68 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     if (!match.getTeamLogoA().isEmpty()) {
                         picasso.cancelRequest(viewHolder1.logo1);
-                        picasso.load(match.getTeamLogoA()).into(viewHolder1.logo1);
+                        picasso.load(match.getTeamLogoA()).fit().into(viewHolder1.logo1);
                     }
 
                     if (!match.getTeamLogoB().isEmpty()) {
                         picasso.cancelRequest(viewHolder1.logo2);
-                        picasso.load(match.getTeamLogoB()).into(viewHolder1.logo2);
+                        picasso.load(match.getTeamLogoB()).fit().into(viewHolder1.logo2);
                     }
 
 
-                    if (teamInfo != null || player_id != null) {
-                        Match previousMatch;
+                    try {
+                        if (teamInfo != null || player_id != null) {
+                            Match previousMatch;
 
-                        viewHolder1.department.setVisibility(View.VISIBLE);
-                        viewHolder1.department.setText(match.getLiveDep());
+                            viewHolder1.department.setVisibility(View.VISIBLE);
+                            viewHolder1.department.setText(match.getLiveDep());
 
-                        if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
-                            viewHolder1.section.setText(match.getState());
-                            viewHolder1.V_section_layout.setVisibility(View.VISIBLE);
-                        } else {
-
-                            if (i == 1)
-                                previousMatch = (Match) list.get(i - 1);
-                            else
-                                previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
-                                        : (Match) list.get(i - 2);
-
-                            if (!match.getState().equals((previousMatch).getState())) {
+                            if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
                                 viewHolder1.section.setText(match.getState());
                                 viewHolder1.V_section_layout.setVisibility(View.VISIBLE);
-                            } else
-                                viewHolder1.V_section_layout.setVisibility(GONE);
+                            } else {
 
-                        }
+                                if (i == 1)
+                                    previousMatch = (Match) list.get(i - 1);
+                                else
+                                    previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
+                                            : (Match) list.get(i - 2);
 
-                    } else {
-                        Match previousMatch;
-                        if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
-                            viewHolder1.department.setText(match.getLiveDep());
-                            viewHolder1.department.setVisibility(View.VISIBLE);
+                                if (!match.getState().equals((previousMatch).getState())) {
+                                    viewHolder1.section.setText(match.getState());
+                                    viewHolder1.V_section_layout.setVisibility(View.VISIBLE);
+                                } else
+                                    viewHolder1.V_section_layout.setVisibility(GONE);
+
+                            }
+
                         } else {
-                            ;
-                            if (i == 1)
-                                previousMatch = (Match) list.get(i - 1);
-                            else
-                                previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
-                                        : (Match) list.get(i - 2);
-
-                            if (!(previousMatch).getDepId().equals(match.getDepId())) {
+                            Match previousMatch;
+                            if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
                                 viewHolder1.department.setText(match.getLiveDep());
                                 viewHolder1.department.setVisibility(View.VISIBLE);
-                            } else
-                                viewHolder1.department.setVisibility(GONE);
+                            } else {
+                                if (i == 1)
+                                    previousMatch = (Match) list.get(i - 1);
+                                else
+                                    previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
+                                            : (Match) list.get(i - 2);
 
+                                if (!(previousMatch).getDepId().equals(match.getDepId())) {
+                                    viewHolder1.department.setText(match.getLiveDep());
+                                    viewHolder1.department.setVisibility(View.VISIBLE);
+                                } else
+                                    viewHolder1.department.setVisibility(GONE);
+
+                            }
                         }
+                    } catch (ClassCastException e) {
+                        e.printStackTrace();
                     }
 
-                    if (i % 2 == 0)
+
+
+                    /*if (i % 2 == 0)
                         viewHolder1.V_root
                                 .setBackgroundColor(getResources()
                                         .getColor(R.color.gray_200));
@@ -419,7 +423,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                         viewHolder1.V_root
                                 .setBackgroundColor(getResources()
-                                        .getColor(R.color.light_blue_0));
+                                        .getColor(R.color.light_blue_0));*/
 
                     break;
             }
@@ -466,9 +470,15 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                 V_root.setOnClickListener(view -> {
 
-                    Intent intent = new Intent(context, MatchActivity.class);
-                    intent.putExtra(StaticConfig.MATCH, (Match) list.get(getAdapterPosition()));
-                    context.startActivity(intent);
+                    Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","match", getContext(), () -> {
+                        Intent intent = new Intent(context, MatchActivity.class);
+                        if (getAdapterPosition() != -1) {
+                            intent.putExtra(StaticConfig.MATCH, (Match) list.get(getAdapterPosition()));
+                            context.startActivity(intent);
+                        }
+
+                    });
+
                 });
 
 
@@ -498,6 +508,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     timeDifference = currentServerTime > currentClientTime ?
                             currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
 
                     JSONArray items = new JSONArray(gson.toJson(object.getItems()));
@@ -524,6 +535,11 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                             liveMatches = true;
                     }
 
+                    if (matches.isEmpty())
+                        TV_empty.setVisibility(View.VISIBLE);
+                    else
+                        TV_empty.setVisibility(View.GONE);
+
 
                     if (liveMatches)
                         handler.postDelayed(runnable, 60 * 1000);
@@ -537,8 +553,14 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     list.addAll(matches);
 
-                    AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds,
-                            matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
+
+                    if (matches.size() == 0)
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
+                                matches_adapter, matches, list, 1);
+                    else
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
+                                matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
+
 
                     matches_adapter.notifyItemRangeInserted(0, list.size());
                     shimmerFrameLayout.hideShimmer();
@@ -547,6 +569,8 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 
@@ -558,6 +582,20 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                 call.cancel();
             }
         });
+    }
+    public void getLatestNews() {
+        if (getActivity().getIntent().getExtras() != null) {
+            News article = gson.fromJson(getActivity().getIntent().getExtras().getString("article"), News.class);
+            if (article != null) {
+                getActivity().getIntent().removeExtra("article");
+                Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","news", getContext(), () -> {
+                    Intent intent = new Intent(getActivity(), NewsItemActivity.class);
+                    intent.putExtra(StaticConfig.NEWS, article);
+                    startActivity(intent);
+                });
+            }
+        }
+
     }
 
     public void getPlayerMatches() {
@@ -578,7 +616,9 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     timeDifference = currentServerTime > currentClientTime ?
                             currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
@@ -610,8 +650,12 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     list.addAll(matches);
 
-                    AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds,
-                            matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
+                    if (matches.size() == 0)
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
+                                matches_adapter, matches, list, 1);
+                    else
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
+                                matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
 
 
                     matches_adapter.notifyItemRangeInserted(0, list.size());
@@ -622,6 +666,8 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 

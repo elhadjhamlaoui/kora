@@ -1,36 +1,48 @@
 package com.app_republic.kora.activity;
 
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.widget.TextView;
 
-import com.app_republic.kora.R;
-import com.app_republic.kora.fragment.DepartmentsFragment;
-import com.app_republic.kora.fragment.GamesFragment;
-import com.app_republic.kora.utils.StaticConfig;
-
-import androidx.fragment.app.Fragment;
-
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
-import com.google.android.gms.ads.MobileAds;
-import com.google.android.material.navigation.NavigationView;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.FrameLayout;
-
+import com.app_republic.kora.BuildConfig;
+import com.app_republic.kora.R;
+import com.app_republic.kora.fragment.ChatFragment;
+import com.app_republic.kora.fragment.DepartmentsFragment;
+import com.app_republic.kora.fragment.GamesFragment;
 import com.app_republic.kora.fragment.MatchesFragment;
 import com.app_republic.kora.fragment.NewsFragment;
+import com.app_republic.kora.model.User;
+import com.app_republic.kora.utils.AppSingleton;
+import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.Utils;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+import de.hdodenhof.circleimageview.CircleImageView;
 
+public class MainActivity extends AppCompatActivity
+        implements NavigationView.OnNavigationItemSelectedListener, FirebaseAuth.AuthStateListener {
+
+    AppSingleton appSingleton;
+    DrawerLayout drawer;
+    NavigationView navigationView;
+    CircleImageView IV_photo;
+    TextView TV_title;
+    User user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +50,14 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
 
 
-        MobileAds.initialize(this, StaticConfig.ADMOB_APP_ID);
+        AppCompatActivity appCompatActivity = this;
 
+        appSingleton = AppSingleton.getInstance(appCompatActivity);
+
+        MobileAds.initialize(this, appSingleton.ADMOB_APP_ID);
+
+
+        drawer = findViewById(R.id.drawer_layout);
 
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -51,22 +69,19 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
-        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setItemIconTintList(null);
 
 
-        replaceFragment(MatchesFragment.newInstance());
-
-        AdView mAdView = new AdView(this);
-
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.invalidate();
-        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
-        mAdView.setAdSize(AdSize.SMART_BANNER);
-        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
-        mAdView.loadAd(adRequest);
-
+        if (appSingleton.MAIN_SCREEN.equals("news")) {
+            replaceFragment(NewsFragment.newInstance());
+            setTitle(getString(R.string.news));
+        } else {
+            replaceFragment(MatchesFragment.newInstance());
+            setTitle(getString(R.string.app_name));
+        }
+        Utils.loadBannerAd(this, "main");
 
 
     }
@@ -84,8 +99,11 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appSingleton.getInterstitialAd().loadAd(new AdRequest.Builder().build());
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -95,8 +113,9 @@ public class MainActivity extends AppCompatActivity
 
         switch (id) {
             case R.id.nav_matches:
-                replaceFragment(MatchesFragment.newInstance());
-                setTitle(getString(R.string.app_name));
+
+                    replaceFragment(MatchesFragment.newInstance());
+                    setTitle(getString(R.string.app_name));
 
                 break;
             case R.id.nav_news:
@@ -122,6 +141,12 @@ public class MainActivity extends AppCompatActivity
 
                 break;
 
+            case R.id.nav_chat:
+                replaceFragment(ChatFragment.newInstance());
+                setTitle(getString(R.string.chat));
+                break;
+
+
             case R.id.nav_games:
                 Fragment gamesFragment = GamesFragment.newInstance();
 
@@ -130,10 +155,59 @@ public class MainActivity extends AppCompatActivity
 
                 break;
 
+            case R.id.nav_login:
+                if (appSingleton.getUserLocalStore().isLoggedIn()) {
+                    appSingleton.getFirebaseAuth().signOut();
+                    navigationView.getMenu().findItem(R.id.nav_login).setTitle(getString(R.string.login_user));
+                    appSingleton.getUserLocalStore().clearUserData();
+                    appSingleton.getUserLocalStore().setUserLoggedIn(false);
+                    LoginManager.getInstance().logOut();
+                    IV_photo.setImageResource(R.mipmap.ic_launcher);
+                    TV_title.setText(getString(R.string.app_name));
+                } else {
+                    finish();
+                    startActivity(new Intent(this, LoginActivity.class));
+                }
+
+                break;
+
+            case R.id.nav_facebook:
+                startActivity(Utils.getOpenFacebookIntent(this, appSingleton.FACEBOOK_PAGE));
+                break;
+
+            case R.id.nav_website:
+                try {
+                    Intent browserIntent2 = new Intent(Intent.ACTION_VIEW, Uri.parse(appSingleton.WEBSITE_URL));
+                    startActivity(browserIntent2);
+                }catch (ActivityNotFoundException e) {
+                    e.printStackTrace();
+                }
+
+                break;
+
+            case R.id.nav_share:
+                Intent sendIntent = new Intent();
+                sendIntent.setAction(Intent.ACTION_SEND);
+                sendIntent.putExtra(Intent.EXTRA_TEXT,
+                        "Download " + getString(R.string.app_name)
+                                + " : https://play.google.com/store/apps/details?id="
+                                + BuildConfig.APPLICATION_ID);
+                sendIntent.setType("text/plain");
+                startActivity(sendIntent);
+                break;
+
+            case R.id.nav_rate_app:
+
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW,
+                        Uri.parse("https://play.google.com/store/apps/details?id="
+                                + BuildConfig.APPLICATION_ID));
+                startActivity(browserIntent);
+                break;
+
+
 
         }
 
-        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -142,6 +216,40 @@ public class MainActivity extends AppCompatActivity
 
         getSupportFragmentManager().beginTransaction()
 
-                .replace(R.id.container,fragment).commitNow();
+                .replace(R.id.container, fragment).commitNow();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        appSingleton.getFirebaseAuth().addAuthStateListener(this);
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        appSingleton.getFirebaseAuth().removeAuthStateListener(this);
+
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+        if (firebaseAuth.getCurrentUser() != null && appSingleton.getUserLocalStore().isLoggedIn()) {
+            user = appSingleton.getUserLocalStore().getLoggedInUser();
+            IV_photo = navigationView.getHeaderView(0).findViewById(R.id.user_photo);
+            TV_title = navigationView.getHeaderView(0).findViewById(R.id.title);
+            navigationView.getMenu().findItem(R.id.nav_login).setTitle(getString(R.string.logout));
+            if (!user.getPhoto().isEmpty())
+                appSingleton.getPicasso().load(user.getPhoto()).into(IV_photo);
+            TV_title.setText(user.getName());
+        }
+
     }
 }

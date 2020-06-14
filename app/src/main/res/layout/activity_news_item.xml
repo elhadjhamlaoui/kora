@@ -34,6 +34,17 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
+                    <FrameLayout
+                        android:id="@+id/adViewNative"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                    </FrameLayout>
+
                     <TextView
                         android:id="@+id/time"
                         android:layout_width="wrap_content"
@@ -42,7 +53,7 @@
                         android:layout_marginEnd="15dp"
                         android:text="TextView"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        app:layout_constraintTop_toBottomOf="@+id/adViewNative" />
 
                     <TextView
                         android:id="@+id/title"
@@ -53,7 +64,8 @@
                         android:layout_marginBottom="15dp"
                         android:maxLines="2"
                         android:text="TextView"
-                        android:textSize="18sp"
+                        android:textColor="@color/cardview_dark_background"
+                        android:textSize="24sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toBottomOf="@id/time" />
@@ -67,8 +79,7 @@
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="20dp"
                     android:text="TextView"
-                    android:textColor="@color/cardview_dark_background"
-                    android:textSize="24sp"
+                    android:textSize="18sp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -134,7 +145,7 @@
                         android:layout_marginEnd="15dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_share" />
+                        app:srcCompat="@drawable/ic_menu_share_white" />
 
                     <ImageView
                         android:id="@+id/back"

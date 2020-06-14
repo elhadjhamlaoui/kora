@@ -26,6 +26,11 @@ public class TrendingTeam implements Parcelable {
     @SerializedName("term_id")
     private String mTermId;
 
+    public TrendingTeam(String mDepId) {
+        this.mDepId = mDepId;
+
+    }
+
     protected TrendingTeam(Parcel in) {
         mDepId = in.readString();
         mHasPlayers = in.readString();

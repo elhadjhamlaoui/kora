@@ -2,6 +2,7 @@ package com.app_republic.kora.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,8 +25,10 @@ import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.UnifiedNativeAdViewHolder;
 import com.app_republic.kora.utils.Utils;
+
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
+
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
@@ -40,7 +43,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
-import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_MATCHES;
 import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
@@ -57,6 +59,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     RecyclerView news_recycler, teams_recycler;
     long timeDifference;
     Gson gson;
+
     public NewsFragment() {
         // Required empty public constructor
     }
@@ -98,7 +101,6 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         teams_recycler.setLayoutManager(layoutManager);
 
 
-
         getLatestNews();
         getTrendingTeams();
 
@@ -112,14 +114,12 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     }
 
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
 
         }
     }
-
 
 
     class NewsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -144,6 +144,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                             parent.getContext()).inflate(R.layout.ad_unified_news,
                             parent, false);
                     return new UnifiedNativeAdViewHolder(unifiedNativeLayoutView);
+
                 case CONTENT_ITEM_VIEW_TYPE:
                     View ContentLayoutView = LayoutInflater.from(parent.getContext())
                             .inflate(R.layout.item_news, parent, false);
@@ -167,12 +168,16 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                     News news_item = (News) list.get(i);
 
 
-
-                    if (!news_item.getPostImage().isEmpty()) {
-                        picasso.cancelRequest(newsViewHolder.icon);
-                        picasso.load(news_item.getImageThumb())
-                                .placeholder(R.drawable.ic_news_large)
-                                .into(newsViewHolder.icon);
+                    if (!news_item.getImageThumb().isEmpty()) {
+                        try {
+                            picasso.cancelRequest(newsViewHolder.icon);
+                            picasso.load(news_item.getImageThumb())
+                                    .fit()
+                                    .placeholder(R.drawable.ic_news_large)
+                                    .into(newsViewHolder.icon);
+                        } catch (OutOfMemoryError e) {
+                            e.printStackTrace();
+                        }
                     }
 
 
@@ -180,7 +185,6 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                     newsViewHolder.time.setText(news_item.getPostDate());
                     break;
             }
-
 
 
         }
@@ -208,9 +212,12 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                             makeSceneTransitionAnimation(getActivity(),
                                     icon, StaticConfig.NEWS);
 
-                    Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.NEWS, (News) list.get(getAdapterPosition()));
-                    context.startActivity(intent, options.toBundle());
+                    Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","news", getContext(), () -> {
+                        Intent intent = new Intent(context, NewsItemActivity.class);
+                        intent.putExtra(StaticConfig.NEWS, (News) list.get(getAdapterPosition()));
+                        context.startActivity(intent, options.toBundle());
+                    });
+
                 });
             }
         }
@@ -252,9 +259,22 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
             TrendingTeam trendingTeam = list.get(i);
 
 
-            Picasso.get().load(trendingTeam.getTeamLogo())
-                    .placeholder(R.drawable.ic_ball)
-                    .into(viewHolder.icon);
+            if (!trendingTeam.getDepId().equals("global")) {
+                try {
+                    Picasso.get().load(trendingTeam.getTeamLogo())
+                            .placeholder(R.drawable.ic_ball)
+                            .into(viewHolder.icon);
+                } catch (Resources.NotFoundException e) {
+                    e.printStackTrace();
+                    Picasso.get().load(trendingTeam.getTeamLogo())
+                            .into(viewHolder.icon);
+                }
+            } else {
+                viewHolder.icon.setImageResource(R.drawable.ic_ball_small);
+            }
+
+
+
 
         }
 
@@ -274,20 +294,98 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                 V_root = itemView.findViewById(R.id.root);
 
                 V_root.setOnClickListener(view -> {
-                    /* Intent intent = new Intent(context, NewsItemActivity.class);
-                    intent.putExtra(StaticConfig.TEAM, list.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                    */
+                    if (!list.get(getAdapterPosition()).getDepId().equals("global")) {
+                        getTeamNews(list.get(getAdapterPosition()).getTeamId());
+                    } else {
+                        getLatestNews();
+                    }
+
+
                 });
             }
         }
     }
 
 
+    public void getTeamNews(String team_id) {
 
+
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("1",
+                "", StaticConfig.TEAM, team_id);
+        call1.enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+                try {
+
+
+                    ApiResponse response = apiResponse.body();
+                    String current_date = response.getCurrentDate();
+                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
+
+                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
+
+                    timeDifference = currentServerTime > currentClientTime ?
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
+
+                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+
+                    list.clear();
+                    news.clear();
+                    news_adapter.notifyDataSetChanged();
+
+                    for (int i = 0; i < items.length(); i++) {
+                        String jsonString = items.getJSONObject(i).toString();
+                        News news_item;
+
+                        news_item = gson.fromJson(jsonString, News.class);
+                        news.add(news_item);
+                    }
+                    list.addAll(news);
+
+
+                    if (news.size() == 0)
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_recycler, news_adapter,
+                                news, list, 1);
+                    else
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_recycler, news_adapter,
+                                news, list, NUMBER_OF_NATIVE_ADS_NEWS);
+
+                    news_adapter.notifyItemRangeInserted(0, news.size());
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
+
+    }
 
 
     public void getLatestNews() {
+        if (getActivity().getIntent().getExtras() != null) {
+            News article = gson.fromJson(getActivity().getIntent().getExtras().getString("article"), News.class);
+            if (article != null) {
+                getActivity().getIntent().removeExtra("article");
+                Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","news", getContext(), () -> {
+                    Intent intent = new Intent(getActivity(), NewsItemActivity.class);
+                    intent.putExtra(StaticConfig.NEWS, article);
+                    startActivity(intent);
+                });
+            }
+        }
+
 
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("1",
@@ -306,6 +404,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
                     timeDifference = currentServerTime > currentClientTime ?
                             currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
@@ -316,23 +415,30 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                     for (int i = 0; i < items.length(); i++) {
                         String jsonString = items.getJSONObject(i).toString();
                         News news_item;
-                        ;
                         news_item = gson.fromJson(jsonString, News.class);
                         news.add(news_item);
                     }
                     list.addAll(news);
 
 
-                    AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_adapter,
-                            news,list, NUMBER_OF_NATIVE_ADS_NEWS);
 
+                    if (news.size() == 0)
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_recycler, news_adapter,
+                            news, list, 1);
+                    else
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_recycler, news_adapter,
+                                news, list, NUMBER_OF_NATIVE_ADS_NEWS);
 
 
                     news_adapter.notifyItemRangeInserted(0, news.size());
 
+
+
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
             }
@@ -345,6 +451,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         });
 
     }
+
 
     public void getTrendingTeams() {
 
@@ -366,8 +473,12 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
                     timeDifference = currentServerTime > currentClientTime ?
                             currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+
+                    TrendingTeam global = new TrendingTeam("global");
+                    trendingTeams.add(global);
 
                     for (int i = 0; i < items.length(); i++) {
                         String jsonString = items.getJSONObject(i).toString();
@@ -383,6 +494,8 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 

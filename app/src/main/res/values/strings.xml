@@ -34,9 +34,10 @@
     <array name="match_tabs">
         <item>أحداث المبارات</item>
         <item>التفاصيل</item>
+        <item>المدرجات</item>
+        <item>فيديو</item>
         <item>الأخبار</item>
         <item>الترتيب</item>
-
         <item>الهدافون</item>
     </array>
 
@@ -89,6 +90,39 @@
     <string name="goals_against">أهداف في مرماه</string>
     <string name="year">سنة</string>
     <string name="games">ألعاب</string>
+    <string name="comments">تعليقات</string>
+    <string name="field_required">هذا الحقل اجباري</string>
+    <string name="password_error">كلمة المرور يجب أن تحتوي 6 أحرف على الأقل</string>
+    <string name="password_error_repeat">كلمة السر غير مطابقة</string>
+    <string name="email_error">الاميل غير صحيح</string>
+    <string name="signed_up_success">تم التسجيل بنجاح</string>
+    <string name="login_now">الدخول</string>
+    <string name="password_repeat">اعادة كلمة المرور</string>
+    <string name="password">كلمة المرور</string>
+    <string name="user_name">اسم المستخدم</string>
+    <string name="email">البريد الالكتروني</string>
+    <string name="signup">التسجيل</string>
+    <string name="facebook">الدخول بواسطة فيسبوك</string>
+    <string name="google">الدخول بواسطة جوجل</string>
+    <string name="login">الدخول</string>
+    <string name="new_account">حساب جديد</string>
+    <string name="uploading_photo">جاري تحميل الصورة</string>
+    <string name="login_user">تسجيل الدخول</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="continu">continue</string>
+
+    <string name="facebook_app_id" translatable="false">1403270009852922</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb1403270009852922</string>
+    <string name="google_login_app_id" translatable="false">1000558491875-3jhsc9on8c7obbei47egg8mqi04bv8dr.apps.googleusercontent.com</string>
+    <string name="have_to_login">يجب عليك تسجيل الدخول</string>
+    <string name="facebook_page">صفحة الفيسبوك</string>
+    <string name="website">الموقع الالكتروني</string>
+    <string name="chat">chat دردشة</string>
+    <string name="add_comment">أضف تعليق</string>
+    <string name="default_notification_channel_id" translatable="false">main_channel</string>
+    <string name="predict_result">توقع الفائز</string>
+    <string name="live_stream">الفيديو</string>
+    <string name="group">المجموعة</string>
 
 
 </resources>

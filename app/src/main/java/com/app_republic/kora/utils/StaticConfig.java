@@ -2,16 +2,31 @@ package com.app_republic.kora.utils;
 
 public class StaticConfig {
     public static final APIInterface apiInterface = APIClient.getClient().create(APIInterface.class);
+    public static final String COMMENT = "comment";
+    public static final String SUB_COMMENT = "sub_comment";
+    public static final String TARGET_TYPE = "target_type";
+    public static final String TARGET_ID = "target_id";
+    public static final String USER = "user";
+    public static final String RESULT_DONE = "result_done";
+    public static final String CHAT = "chat";
+    public static final String FRAGMENT_COMMENTS = "fragment_comments";
+    public static final String COUNTRY = "country";
+    public static final String PREDICTION = "prediction";
+    public static final String MATCH_LIVE_URL = "matvh_live_url";
+    public static final String IS_LIVE = "is_live";
 
 
-    public static String ADMOB_NATIVE_UNIT_ID = "";
-    public static String ADMOB_BANNER_UNIT_ID = "";
-    public static String ADMOB_APP_ID = "";
+    public static String API_BASE = "https://yalla-group.com/api-v3.4.520/api/";
 
-    public static final String API_BASE = "https://yalla-group.com/api-v3.4.520/api/";
     public static final String API_GET_MATCHES = "getMatches";
     public static final String API_GET_MATCH_INFO = "getMatchInfo";
     public static final String API_GET_TEAM_INFO = "getTeamInfo";
+    public static final String API_GET_MATCH_VIDEOS = "getVideos";
+    public static final String ADVERT = "advert";
+    public static final int REQUEST_INTER_AD = 112;
+
+
+    public static long TIME_DIFFERENCE;
 
     public static final String API_GET_DEPS_STANDINGS = "getDepsWithStandings";
     public static final String API_GET_DEPS_PLAYERS = "getDepsWithPlayers";
@@ -21,6 +36,8 @@ public class StaticConfig {
     public static final int NUMBER_OF_NATIVE_ADS = 2;
     public static final int NUMBER_OF_NATIVE_ADS_MATCHES = 2;
     public static final int NUMBER_OF_NATIVE_ADS_NEWS = 5;
+    public static final int NUMBER_OF_NATIVE_ADS_VIDEOS = 1;
+
 
 
     public static final int CONTENT_ITEM_VIEW_TYPE = 0;

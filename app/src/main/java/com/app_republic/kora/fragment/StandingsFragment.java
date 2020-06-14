@@ -1,6 +1,5 @@
 package com.app_republic.kora.fragment;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,11 +14,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
-import com.app_republic.kora.activity.MatchActivity;
-import com.app_republic.kora.activity.TeamInfoActivity;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Standing;
-import com.app_republic.kora.request.GetDepStandings;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
@@ -28,7 +24,6 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,7 +32,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import static com.app_republic.kora.utils.StaticConfig.DEP_STANDINGS_REQUEST;
 import static com.app_republic.kora.utils.StaticConfig.PARAM_TEAM_ID;
 
 public class StandingsFragment extends Fragment {
@@ -120,7 +114,7 @@ public class StandingsFragment extends Fragment {
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
                     timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
@@ -143,6 +137,8 @@ public class StandingsFragment extends Fragment {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
                     e.printStackTrace();
                 }
 
@@ -196,7 +192,26 @@ public class StandingsFragment extends Fragment {
 
             if (!standing.getTeamLogo().isEmpty()) {
                 picasso.cancelRequest(viewHolder.icon);
-                picasso.load(standing.getTeamLogo()).into(viewHolder.icon);
+                picasso.load(standing.getTeamLogo()).fit()
+                        .into(viewHolder.icon);
+            }
+
+            if (standing.getHasGroups().equals("1")) {
+                if (i == 0) {
+                    viewHolder.group.setText(getString(R.string.group) + " " +
+                            standing.getGroupNo());
+                    viewHolder.V_group.setVisibility(View.VISIBLE);
+                } else {
+                    Standing previousStanding = list.get(i - 1);
+
+                    if (!previousStanding.getGroupNo().equals(standing.getGroupNo())) {
+                        viewHolder.group.setText(getString(R.string.group) + " " +
+                                standing.getGroupNo());
+                        viewHolder.V_group.setVisibility(View.VISIBLE);
+                    } else
+                        viewHolder.V_group.setVisibility(View.GONE);
+                }
+
             }
 
             if (team_id.equals(standing.getTeamId()) || team_id_a.equals(standing.getTeamId())
@@ -230,7 +245,8 @@ public class StandingsFragment extends Fragment {
             ImageView icon;
 
             LinearLayout V_root;
-            TextView points, dep_for, against, goals_diff, lose, win, draw, play, name, standing;
+            View V_group;
+            TextView points, dep_for, against, goals_diff, lose, win, draw, play, name, standing, group;
 
             private StandingsViewHolder(@NonNull View itemView) {
                 super(itemView);
@@ -247,14 +263,15 @@ public class StandingsFragment extends Fragment {
                 play = itemView.findViewById(R.id.play);
                 name = itemView.findViewById(R.id.name);
                 standing = itemView.findViewById(R.id.standing);
+                V_group = itemView.findViewById(R.id.group_layout);
+                group = itemView.findViewById(R.id.group);
 
                 V_root.setOnClickListener(view -> {
                     String current_team_id = list.get(getAdapterPosition()).getTeamId();
                     if (!current_team_id.equals(team_id)) {
-                        Intent intent = new Intent(getActivity(), TeamInfoActivity.class);
-                        intent.putExtra(StaticConfig.PARAM_TEAM_ID,
+                        Utils.startTeamActivity(getActivity(),
+                                getActivity().getSupportFragmentManager(),
                                 list.get(getAdapterPosition()).getTeamId());
-                        startActivity(intent);
                     }
 
                 });

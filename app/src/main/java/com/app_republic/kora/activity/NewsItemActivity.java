@@ -7,7 +7,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.text.Html;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -15,9 +14,7 @@ import com.app_republic.kora.R;
 import com.app_republic.kora.model.News;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.AdSize;
-import com.google.android.gms.ads.AdView;
+import com.app_republic.kora.utils.Utils;
 import com.squareup.picasso.Picasso;
 
 public class NewsItemActivity extends AppCompatActivity implements View.OnClickListener {
@@ -26,23 +23,24 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
     TextView TV_title, TV_body, TV_time;
     News news;
     Picasso picasso;
+    AppSingleton appSingleton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_news_item);
 
-        picasso = AppSingleton.getInstance(this).getPicasso();
+
+        appSingleton = AppSingleton.getInstance(this);
+
+        picasso = appSingleton.getPicasso();
 
         news = getIntent().getParcelableExtra(StaticConfig.NEWS);
         initialiseViews();
 
-        AdView mAdView = new AdView(this);
-        AdRequest adRequest = new AdRequest.Builder().build();
-        mAdView.setAdUnitId(StaticConfig.ADMOB_BANNER_UNIT_ID);
-        mAdView.setAdSize(AdSize.SMART_BANNER);
-        ((FrameLayout) findViewById(R.id.adView)).addView(mAdView);
-        mAdView.loadAd(adRequest);
+        Utils.loadBannerAd(this, "news");
+        AppSingleton.getInstance(this).loadNativeAd(findViewById(R.id.adViewNative));
+
 
     }
 
@@ -64,6 +62,7 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
 
         if (!news.getPostImage().isEmpty())
             picasso.load(news.getPostImage())
+                    .fit()
                     .placeholder(R.drawable.ic_news_large)
                     .into(IV_thumb);
         TV_title.setText(news.getPostTitle());
@@ -87,7 +86,10 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT,
-                        news.getPostTitle() + "\n" + Html.fromHtml(news.getPostContent()));
+                        news.getPostTitle() + "\n\n" + Html.fromHtml(news.getPostContent())
+                                + "\n\n" + getString(R.string.app_name) + "\n\n" +
+                                getString(R.string.play_store_link)
+                );
 
                 sendIntent.setType("text/plain");
 
@@ -95,5 +97,20 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
                 startActivity(shareIntent);
                 break;
         }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 }

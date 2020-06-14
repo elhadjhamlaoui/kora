@@ -1,16 +1,11 @@
 package com.app_republic.kora.fragment;
 
-import android.app.DatePickerDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.DatePicker;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -19,27 +14,14 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
-import com.app_republic.kora.activity.MatchActivity;
 import com.app_republic.kora.model.Match;
 import com.app_republic.kora.model.MatchDetail;
-import com.app_republic.kora.request.GetMatches;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
-import com.google.gson.Gson;
-import com.squareup.picasso.Picasso;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.HashMap;
-
-import static android.view.View.GONE;
-import static com.app_republic.kora.utils.StaticConfig.MATCHES_REQUEST;
 
 public class MatchDetailsFragment extends Fragment implements View.OnClickListener {
 
@@ -83,7 +65,8 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
 
         match = getArguments().getParcelable(StaticConfig.MATCH);
 
-        long time = match.getLocalTime().isEmpty() ? 0 : Long.parseLong(match.getLocalTime());
+        long time = Utils.
+                getMillisFromMatchDate(match.getFullDatetimeSpaces()) - StaticConfig.TIME_DIFFERENCE;
 
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(time);
@@ -105,6 +88,7 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
 
         details_adapter.notifyDataSetChanged();
 
+        AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView));
         return view;
     }
 

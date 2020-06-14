@@ -2,6 +2,7 @@ package com.app_republic.kora.activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -39,9 +40,13 @@ public class GoToVideoActivity extends AppCompatActivity implements View.OnClick
                 break;
 
             case R.id.video:
-                startActivity(new Intent(Intent.ACTION_VIEW,
-                        Uri.parse(getIntent().getStringExtra(StaticConfig.VIDEO_URI))));
-                finish();
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW,
+                            Uri.parse(getIntent().getStringExtra(StaticConfig.VIDEO_URI))));
+                    finish();
+                } catch (ActivityNotFoundException e) {
+                    e.printStackTrace();
+                }
                 break;
         }
     }

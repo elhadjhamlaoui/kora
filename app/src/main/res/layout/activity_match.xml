@@ -23,8 +23,10 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/root"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="?attr/actionBarSize">
+                android:layout_height="132dp"
+                android:layout_marginTop="?attr/actionBarSize"
+                android:paddingStart="10dp"
+                android:paddingEnd="10dp">
 
                 <TextView
                     android:id="@+id/scoreTeamA"
@@ -50,7 +52,7 @@
                     android:id="@+id/state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bac_match_state_red"
+                    android:background="@drawable/bac_match_state_white"
                     android:padding="10dp"
                     android:textColor="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="@+id/logoTeamA"
@@ -147,7 +149,8 @@
                         android:layout_marginEnd="15dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
-                        app:srcCompat="@drawable/ic_share" />
+                        app:srcCompat="@drawable/ic_menu_share_white" />
+
 
                     <ImageView
                         android:id="@+id/back"
@@ -164,17 +167,23 @@
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
 
+        <View
+            android:id="@+id/divider9"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/almost_black" />
+
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/blue_9"
+            android:background="@color/blue_10"
             app:tabIndicatorColor="@android:color/holo_orange_dark"
+            app:tabMode="scrollable"
+            app:tabRippleColor="@color/ripple_blue"
             app:tabSelectedTextColor="@android:color/holo_orange_dark"
             app:tabTextColor="@android:color/white" />
     </com.google.android.material.appbar.AppBarLayout>
-
-
 
 
     <LinearLayout
@@ -182,24 +191,22 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:orientation="vertical"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
         <androidx.viewpager.widget.ViewPager
             android:id="@+id/view_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            />
-         <FrameLayout
-        android:id="@+id/adView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0"
-        >
+            android:layout_weight="1" />
 
-    </FrameLayout>
+        <FrameLayout
+            android:id="@+id/adView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0">
+
+        </FrameLayout>
 
     </LinearLayout>
 

@@ -4,8 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="30dp"
-    android:layout_marginBottom="30dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginBottom="10dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     android:orientation="vertical"
     card_view:cardCornerRadius="@dimen/cardview_default_radius"
     card_view:cardElevation="@dimen/cardview_default_elevation"
@@ -113,12 +116,12 @@
 
                     <com.google.android.gms.ads.formats.MediaView
                         android:id="@+id/ad_media"
-                        android:layout_width="60dp"
-                        android:layout_height="50dp"
+                        android:layout_width="200dp"
+                        android:layout_height="100dp"
                         android:layout_gravity="center_horizontal"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginBottom="10dp"
-                        card_view:layout_constraintBottom_toBottomOf="parent"
+                        android:layout_marginStart="64dp"
+                        android:layout_marginTop="8dp"
+                        android:visibility="gone"
                         card_view:layout_constraintStart_toStartOf="parent"
                         card_view:layout_constraintTop_toBottomOf="@+id/ad_body" />
 
@@ -126,15 +129,14 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="end"
-                        android:layout_marginStart="10dp"
                         android:layout_marginEnd="5dp"
                         android:orientation="horizontal"
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
-                        card_view:layout_constraintBottom_toBottomOf="@+id/ad_media"
                         card_view:layout_constraintEnd_toEndOf="parent"
-                        card_view:layout_constraintStart_toEndOf="@+id/ad_media"
-                        card_view:layout_constraintTop_toTopOf="@+id/ad_media">
+                        card_view:layout_constraintHorizontal_bias="0.841"
+                        card_view:layout_constraintStart_toStartOf="parent"
+                        card_view:layout_constraintTop_toBottomOf="@+id/ad_media">
 
                         <TextView
                             android:id="@+id/ad_price"
@@ -156,17 +158,15 @@
                             android:paddingRight="5dp"
                             android:textSize="12sp" />
 
+
                         <Button
                             android:id="@+id/ad_call_to_action"
-                            style="@style/Widget.AppCompat.Button.Colored"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:clickable="true"
-                            android:foreground="?attr/selectableItemBackground"
+                            android:background="@drawable/bac_but_blue"
                             android:gravity="center"
                             android:textColor="@android:color/white"
-                            android:textSize="12sp"
-                            android:theme="@style/RedButtonLightTheme" />
+                            android:textSize="12sp" />
                     </LinearLayout>
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </LinearLayout>

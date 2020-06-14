@@ -8,6 +8,7 @@ import android.webkit.WebView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.Utils;
 
 public class GameActivity extends AppCompatActivity {
     private String GAME_BASE_URL = "https://html5games.com";
@@ -26,6 +27,9 @@ public class GameActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        Utils.loadBannerAd(this, "game");
+
     }
 
     @Override
