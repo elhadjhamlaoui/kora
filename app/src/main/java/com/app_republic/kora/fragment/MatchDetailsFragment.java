@@ -1,6 +1,7 @@
 package com.app_republic.kora.fragment;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,6 +90,8 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
         details_adapter.notifyDataSetChanged();
 
         AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView));
+        AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView2));
+
         return view;
     }
 
@@ -133,7 +136,13 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
 
             viewHolder.label.setText(detail.getLabel());
             viewHolder.content.setText(detail.getContent());
-            viewHolder.icon.setImageDrawable(context.getResources().getDrawable(detail.getIcon()));
+
+            try {
+                viewHolder.icon.setImageDrawable(context.getResources().getDrawable(detail.getIcon()));
+
+            } catch (Exception e) {
+
+            }
 
 
         }

@@ -98,7 +98,7 @@
     <string name="website">الموقع الالكتروني</string>
     <string name="add_comment">أضف تعليق</string>
     <string name="predict_result">توقع الفائز</string>
-    <string name="live_stream">الفيديو</string>
+    <string name="live_stream">فيديو</string>
     <string name="group">المجموعة</string>
 
 </resources>

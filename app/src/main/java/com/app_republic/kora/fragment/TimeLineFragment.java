@@ -86,6 +86,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
         getTimeLine();
 
         AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView));
+        AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView2));
 
         return view;
     }

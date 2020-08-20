@@ -454,6 +454,7 @@ public class CommentsFragment extends Fragment implements FirebaseAuth.AuthState
             if (firstRead) {
                 firstRead = false;
                 getFeelings();
+               // getVote();
             }
 
         };

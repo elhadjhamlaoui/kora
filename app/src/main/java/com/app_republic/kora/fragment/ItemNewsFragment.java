@@ -160,10 +160,19 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
                     if (!news_item.getImageThumb().isEmpty()) {
                         try {
                             picasso.cancelRequest(newsViewHolder.icon);
-                            picasso.load(news_item.getImageThumb())
-                                    .fit()
-                                    .placeholder(R.drawable.ic_news_large)
-                                    .into(newsViewHolder.icon);
+
+                            try {
+                                picasso.load(news_item.getImageThumb())
+                                        .fit()
+                                        .placeholder(R.drawable.ic_news_large)
+                                        .into(newsViewHolder.icon);
+                            } catch (Exception e) {
+                                picasso.load(news_item.getImageThumb())
+                                        .fit()
+                                        .into(newsViewHolder.icon);
+                            }
+
+
                         } catch (OutOfMemoryError e) {
                             e.printStackTrace();
                         }
@@ -265,7 +274,7 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
 
                     if (news.size() == 0)
                         AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_recycler, news_adapter,
-                                news, list, 1);
+                                news, list, 3);
                     else
                         AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, news_recycler, news_adapter,
                                 news, list, NUMBER_OF_NATIVE_ADS_NEWS);

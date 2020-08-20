@@ -1,40 +1,56 @@
 package com.app_republic.kora.activity;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateUtils;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.app_republic.kora.R;
+import com.app_republic.kora.model.LiveVideo;
 import com.app_republic.kora.model.Match;
+import com.app_republic.kora.model.Video;
 import com.app_republic.kora.utils.AppSingleton;
+import com.app_republic.kora.utils.InterstitialAdListener;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.TouchyWebView;
 import com.app_republic.kora.utils.Utils;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 public class VideoActivity extends AppCompatActivity {
 
     Match match;
-    String match_url;
     AppSingleton appSingleton;
     WebView webView;
     Handler handler;
+    Button BT_hide_ad;
     Runnable runnable;
-    boolean isToday, isLive;
+    boolean isToday;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,29 +59,27 @@ public class VideoActivity extends AppCompatActivity {
         appSingleton = AppSingleton.getInstance(this);
 
         match = getIntent().getParcelableExtra(StaticConfig.MATCH);
-        match_url = getIntent().getStringExtra(StaticConfig.MATCH_LIVE_URL);
 
-        isLive = getIntent().getBooleanExtra(StaticConfig.IS_LIVE, false);
 
         String VIDEO_URL;
 
         isToday = DateUtils.isToday(Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces()));
 
-        if (!match.getState().equals(getString(R.string.match_state_finished)) && isLive) {
-            VIDEO_URL = "http://www.yalla-shoot.com/" + match_url;
-        } else {
-            VIDEO_URL = appSingleton.VIDEO_BASE_URL + match.getLiveId();
-        }
+        VIDEO_URL = appSingleton.VIDEO_BASE_URL + match.getLiveId();
+
+
 
         String MyUA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36";
 
         webView = findViewById(R.id.webView);
-        webView.clearCache(true);
-        webView.clearHistory();
+        BT_hide_ad = findViewById(R.id.hide_ad);
+
+        //webView.clearCache(true);
+        //webView.clearHistory();
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
         webView.getSettings().setAppCacheEnabled(true);
-        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(false);
+        webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
         webView.getSettings().setUserAgentString(MyUA);
 
@@ -73,7 +87,58 @@ public class VideoActivity extends AppCompatActivity {
         webView.setWebChromeClient(new MyChrome());
 
 
-        webView.loadUrl(VIDEO_URL);
+
+       /* webView.getSettings().setJavaScriptEnabled(true);
+        webView.getSettings().setSupportZoom(true);
+        webView.getSettings().setBuiltInZoomControls(true);
+        webView.getSettings().setPluginState(WebSettings.PluginState.ON);
+        webView.getSettings().setSupportMultipleWindows(true);
+
+        webView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                view.loadUrl(url);
+                return true;
+            }
+        });*/
+
+        if (match.getState().equals(getString(R.string.match_state_finished))) {
+            webView.loadUrl(VIDEO_URL);
+        } else {
+            AsyncTask.execute(() -> loadLiveVideos());
+        }
+
+
+       /* FirebaseDatabase.getInstance().getReference()
+                .child("lives")
+                .orderByChild("date")
+                .equalTo(getDate())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        for (DataSnapshot live : snapshot.getChildren()) {
+                            String team1 = live.child("team1").getValue().toString();
+                            String team2 = live.child("team2").getValue().toString();
+
+                            if (match.getLiveTeam1().equals(team1) || match.getLiveTeam1().equals(team2)) {
+                                String link = live.child("href").getValue().toString();
+                                if (link.contains("link=")) {
+                                    link = link.split("link=")[1];
+                                }
+                               webView.loadUrl(link);
+                                Intent intent = new Intent(VideoActivity.this, GoToVideoActivity.class);
+                                intent.putExtra(StaticConfig.VIDEO_URI, live.child("href").getValue().toString());
+                                startActivity(intent);
+
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                }); */
 
 
         //AsyncTask.execute(() -> loadLiveVideos());
@@ -85,13 +150,34 @@ public class VideoActivity extends AppCompatActivity {
 
 
         handler = new Handler();
+
+        FrameLayout frameLayout = findViewById(R.id.adView_native);
         runnable = () -> {
-            appSingleton.loadNativeAdBig(findViewById(R.id.adView_native));
-            handler.postDelayed(runnable, 40 * 1000);
+            appSingleton.loadNativeAdSmall(frameLayout, () -> {
+                BT_hide_ad.setVisibility(View.VISIBLE);
+            });
+            handler.postDelayed(runnable, 60 * 1 * 1000);
         };
+
+        BT_hide_ad.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Button button = view.findViewById(R.id.ad_call_to_action);
+                frameLayout.setVisibility(View.GONE);
+                BT_hide_ad.setVisibility(View.GONE);
+            }
+        });
 
     }
 
+    private String getDate() {
+        Date c = Calendar.getInstance().getTime();
+        System.out.println("Current time => " + c);
+
+        SimpleDateFormat df = new SimpleDateFormat("yyy-MM-dd");
+        String formattedDate = df.format(c);
+        return formattedDate;
+    }
     @Override
     protected void onResume() {
         super.onResume();
@@ -139,10 +225,7 @@ public class VideoActivity extends AppCompatActivity {
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
 
-            view.loadUrl("javascript:(function() { " +
-                    "document.querySelector('.ui-content>center>div>center').innerHTML = \"\";" +
-                    "document.querySelector('.ui-header').style.display = \"none\"" +
-                    " })()");
+            //view.loadUrl("javascript:void(0)");
 
         }
 
@@ -202,12 +285,34 @@ public class VideoActivity extends AppCompatActivity {
 
     private void loadLiveVideos() {
 
-        String url = "http://www.yalla-shoot.com/live/" + match_url;
+        String url = "https://www.as-goal.com/2019/09/live-match-today.html";
         Document doc = null;
         try {
             doc = Jsoup.connect(url).get();
-            Element element = doc.select(".live_box_pop").first();
-            handler.post(() -> webView.loadData(element.html(), "text/html", "UTF-8"));
+            Elements elements = doc.select("a.ElGadwl");
+            for (Element element : elements) {
+                LiveVideo liveVideo = new LiveVideo();
+
+                liveVideo.setHref(element.attr("href"));
+                liveVideo.setTeam1(element.select("div.Fareeq-r > span").first().html());
+                liveVideo.setTeam2(element.select("div.Fareeq-l > span").first().html());
+
+                if (match.getLiveTeam1().equals(liveVideo.getTeam1()) ||
+                        match.getLiveTeam1().equals(liveVideo.getTeam2())
+                || match.getLiveTeam2().equals(liveVideo.getTeam1())
+                        || match.getLiveTeam2().equals(liveVideo.getTeam2())
+                ) {
+
+                    handler.post(() -> webView.loadUrl(liveVideo.getHref()));
+
+
+
+                    break;
+
+                }
+
+            }
+           // handler.post(() -> webView.loadData(element.html(), "text/html", "UTF-8"));
         } catch (IOException e) {
             e.printStackTrace();
         }

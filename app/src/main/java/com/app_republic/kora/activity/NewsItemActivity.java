@@ -40,6 +40,7 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
 
         Utils.loadBannerAd(this, "news");
         AppSingleton.getInstance(this).loadNativeAd(findViewById(R.id.adViewNative));
+        AppSingleton.getInstance(this).loadNativeAd(findViewById(R.id.adViewNative2));
 
 
     }
@@ -61,10 +62,17 @@ public class NewsItemActivity extends AppCompatActivity implements View.OnClickL
         }
 
         if (!news.getPostImage().isEmpty())
-            picasso.load(news.getPostImage())
-                    .fit()
-                    .placeholder(R.drawable.ic_news_large)
-                    .into(IV_thumb);
+            try {
+                picasso.load(news.getPostImage())
+                        .fit()
+                        .placeholder(R.drawable.ic_news_large)
+                        .into(IV_thumb);
+            } catch (Exception e) {
+                picasso.load(news.getPostImage())
+                        .fit()
+                        .into(IV_thumb);
+            }
+
         TV_title.setText(news.getPostTitle());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.model.Advert;
+import com.app_republic.kora.model.News;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
@@ -107,8 +108,24 @@ public class InterstitialCustomAd extends DialogFragment {
             editor.putBoolean(advert.getId(), true);
             editor.apply();
 
-            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(advert.getUrl()));
-            startActivity(browserIntent);
+            if (advert.getUrl().equals("news")) {
+                News article = new News();
+
+                article.setID(advert.getContent());
+                article.setImageThumb(advert.getImage());
+                article.setPostImage(advert.getImage());
+                article.setPostContent(advert.getContent());
+                article.setPostTitle(advert.getText());
+                article.setPostDate("الآن");
+
+                Intent intent = new Intent(getActivity(), NewsItemActivity.class);
+                intent.putExtra(StaticConfig.NEWS, article);
+                startActivity(intent);
+            } else {
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(advert.getUrl()));
+                startActivity(browserIntent);
+            }
+
 
         });
 

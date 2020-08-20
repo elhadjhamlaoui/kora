@@ -40,6 +40,9 @@ public class News implements Parcelable {
         mPostTitle = in.readString();
     }
 
+    public News() {
+    }
+
     public static final Creator<News> CREATOR = new Creator<News>() {
         @Override
         public News createFromParcel(Parcel in) {

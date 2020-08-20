@@ -107,6 +107,9 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
 
         getVideos();
 
+        AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView));
+        AppSingleton.getInstance(getActivity()).loadNativeAd(view.findViewById(R.id.adView2));
+
         return view;
     }
 
@@ -219,13 +222,6 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
                         } else {
                             Intent intent = new Intent(getActivity(), VideoActivity.class);
                             intent.putExtra(MATCH, match);
-                            intent.putExtra(StaticConfig.MATCH_LIVE_URL,
-                                    Utils.getElementContainString(matches, match.getLiveId()));
-
-                            if (!Utils.getElementContainString(matches, match.getLiveId()).isEmpty())
-                                intent.putExtra(IS_LIVE, true);
-                            else
-                                intent.putExtra(IS_LIVE, false);
 
                             startActivity(intent);
                         }
@@ -291,7 +287,7 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
 
                     videos_adapter.notifyItemRangeInserted(0, videos.size());
 
-                    AsyncTask.execute(() -> loadLiveMatches());
+                    loadLiveMatches();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -314,6 +310,14 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
 
     private void loadLiveMatches() {
 
+        Video video1 = new Video(match.getLiveId(),"-1",
+                "","",getString(R.string.live_stream));
+        videos.add(video1);
+        list.add(video1);
+
+        videos_adapter.notifyDataSetChanged();
+
+        /*
 
         String url = "http://www.yalla-shoot.com/live/index.php";
         Document doc = null;
@@ -324,11 +328,6 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
                 String match_url = element.attr("href");
                 matches.add(match_url);
             }
-            Video video1 = new Video(match.getLiveId(),"-1",
-                    "","",getString(R.string.live_stream));
-            videos.add(video1);
-            list.add(video1);
-            handler.post(() -> videos_adapter.notifyDataSetChanged());
 
 
         } catch (IOException e) {
@@ -336,7 +335,7 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
         } catch (IllegalStateException e) {
             e.printStackTrace();
         }
-
+*/
 
 
     }

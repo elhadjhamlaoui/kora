@@ -14,6 +14,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -29,6 +30,12 @@ import com.app_republic.kora.model.Feeling;
 import com.app_republic.kora.model.Player;
 import com.app_republic.kora.model.Prediction;
 import com.app_republic.kora.model.User;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.DrawableImageViewTarget;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -50,6 +57,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+
+import pl.droidsonroids.gif.GifImageView;
 
 public class Utils {
 
@@ -454,28 +463,33 @@ public class Utils {
 
     public static void uploadBitmap(Context context, Bitmap bitmap, String uid) {
 
-        OnImageUpload imageUploadInterface = (OnImageUpload) context;
+        try {
+            OnImageUpload imageUploadInterface = (OnImageUpload) context;
 
-        StorageReference storageReference = AppSingleton.getInstance(context).getFirebaseStorage()
-                .getReference();
+            StorageReference storageReference = AppSingleton.getInstance(context).getFirebaseStorage()
+                    .getReference();
 
-        StorageReference reference = storageReference.child("users").child("photos")
-                .child(uid);
+            StorageReference reference = storageReference.child("users").child("photos")
+                    .child(uid);
 
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos);
-        byte[] data = baos.toByteArray();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 60, baos);
+            byte[] data = baos.toByteArray();
 
-        UploadTask uploadTask = reference.putBytes(data);
-        uploadTask.addOnFailureListener(exception -> {
-            // Handle unsuccessful uploads
-        }).addOnSuccessListener(taskSnapshot -> {
-            reference.getDownloadUrl().addOnSuccessListener(uri -> {
-                imageUploadInterface.imageUploaded(uri);
-            }).addOnFailureListener(exception -> {
-                imageUploadInterface.failed();
-            });
-        }).addOnFailureListener(e -> imageUploadInterface.failed());
+            UploadTask uploadTask = reference.putBytes(data);
+            uploadTask.addOnFailureListener(exception -> {
+                // Handle unsuccessful uploads
+            }).addOnSuccessListener(taskSnapshot -> {
+                reference.getDownloadUrl().addOnSuccessListener(uri -> {
+                    imageUploadInterface.imageUploaded(uri);
+                }).addOnFailureListener(exception -> {
+                    imageUploadInterface.failed();
+                });
+            }).addOnFailureListener(e -> imageUploadInterface.failed());
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+        }
+
 
 
     }
@@ -541,145 +555,100 @@ public class Utils {
     }
 
     public static void loadBannerAd(AppCompatActivity context, String screen) {
-        AppSingleton appSingleton = AppSingleton.getInstance(context);
-        int index = getAdvertIndex(appSingleton.banner_adverts, screen, "banner");
+        try {
+            AppSingleton appSingleton = AppSingleton.getInstance(context);
+            int index = getAdvertIndex(appSingleton.banner_adverts, screen, "banner");
 
-        if (index != -1 && appSingleton.banner_adverts.get(index) != null) {
-            Advert advert = appSingleton.banner_adverts.get(index);
-            View view = LayoutInflater.from(context).inflate(R.layout.advert_banner, null);
-            ImageView imageView = view.findViewById(R.id.image);
-            if (!advert.getImage().isEmpty())
-                appSingleton.getPicasso().load(advert.getImage()).into(imageView);
-            imageView.setOnClickListener(view1 -> {
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(advert.getUrl()));
-                context.startActivity(browserIntent);
-            });
-            ((FrameLayout) context.findViewById(R.id.adView)).addView(view);
-        } else {
+            if (index != -1 && appSingleton.banner_adverts.get(index) != null) {
+                Advert advert = appSingleton.banner_adverts.get(index);
+                View view = LayoutInflater.from(context).inflate(R.layout.advert_banner, null);
+                GifImageView imageView = view.findViewById(R.id.image);
+                if (!advert.getImage().isEmpty()) {
+                    DrawableImageViewTarget imageViewPreview = new DrawableImageViewTarget(imageView);
+                    Glide
+                            .with(context)
+                            .load(advert.getImage())
+                            .into(imageViewPreview);
+                   /* if(advert.isGif()) {
 
-
-            /*MoPubView moPubView = new MoPubView(context);
-            moPubView.setAdSize(MoPubView.MoPubAdSize.HEIGHT_50);
-            moPubView.setAdUnitId(appSingleton.MOPUB_BANNER_UNIT_ID);
-
-
-            moPubView.setBannerAdListener(new MoPubView.BannerAdListener() {
-                @Override
-                public void onBannerLoaded(MoPubView banner) {
-
-
+                    } else {
+                        appSingleton.getPicasso().load(advert.getImage()).into(imageView);
+                    }*/
                 }
+                imageView.setOnClickListener(view1 -> {
+                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(advert.getUrl()));
+                    context.startActivity(browserIntent);
+                });
+                ((FrameLayout) context.findViewById(R.id.adView)).addView(view);
+            } else {
 
-                @Override
-                public void onBannerFailed(MoPubView banner, MoPubErrorCode errorCode) {
-                    errorCode.toString();
-                }
+                AdView mAdView = new AdView(context);
 
-                @Override
-                public void onBannerClicked(MoPubView banner) {
+                AdRequest adRequest = new AdRequest.Builder().build();
+                mAdView.invalidate();
+                mAdView.setAdUnitId(appSingleton.ADMOB_BANNER_UNIT_ID);
+                mAdView.setAdSize(AdSize.SMART_BANNER);
 
-                }
-
-                @Override
-                public void onBannerExpanded(MoPubView banner) {
-
-                }
-
-                @Override
-                public void onBannerCollapsed(MoPubView banner) {
-
-                }
-            });
-            moPubView.loadAd();*/
-
-            AdView mAdView = new AdView(context);
-
-            AdRequest adRequest = new AdRequest.Builder().build();
-            mAdView.invalidate();
-            mAdView.setAdUnitId(appSingleton.ADMOB_BANNER_UNIT_ID);
-            mAdView.setAdSize(AdSize.SMART_BANNER);
-
-            mAdView.loadAd(adRequest);
+                mAdView.loadAd(adRequest);
 
 
-            ((FrameLayout) context.findViewById(R.id.adView)).removeAllViews();
-            ((FrameLayout) context.findViewById(R.id.adView)).addView(mAdView);
+                ((FrameLayout) context.findViewById(R.id.adView)).removeAllViews();
+                ((FrameLayout) context.findViewById(R.id.adView)).addView(mAdView);
+            }
+        } catch (Exception e) {
+
         }
+
     }
 
     public static void loadInterstitialAd(FragmentManager fragmentManager, String type, String screen, Context context, InterstitialAdListener interstitialAdListener) {
 
-        AppSingleton appSingleton = AppSingleton.getInstance(context);
+        try {
+            AppSingleton appSingleton = AppSingleton.getInstance(context);
 
-        int index = getAdvertIndex(appSingleton.inter_adverts, screen, "inter");
-        SharedPreferences sharedPreferences = context.getSharedPreferences("custom_ads", Context.MODE_PRIVATE);
-        boolean clicked = false;
+            int index = getAdvertIndex(appSingleton.inter_adverts, screen, "inter");
+            SharedPreferences sharedPreferences = context.getSharedPreferences("custom_ads", Context.MODE_PRIVATE);
+            boolean clicked = false;
 
-        if (index != -1) clicked = sharedPreferences.getBoolean(appSingleton.inter_adverts.get(index).getId(), false);
+            if (index != -1) clicked = sharedPreferences.getBoolean(appSingleton.inter_adverts.get(index).getId(), false);
 
-        if (index != -1 && appSingleton.inter_adverts.get(index) != null && !clicked) {
-            Advert advert = appSingleton.inter_adverts.get(index);
+            if (index != -1 && appSingleton.inter_adverts.get(index) != null && !clicked) {
+                Advert advert = appSingleton.inter_adverts.get(index);
 
-            InterstitialCustomAd interstitialCustomAd = new InterstitialCustomAd(() -> {
+                InterstitialCustomAd interstitialCustomAd = new InterstitialCustomAd(() -> {
+                    interstitialAdListener.done();
+                });
+
+                Bundle args = new Bundle();
+                args.putParcelable(StaticConfig.ADVERT, advert);
+                interstitialCustomAd.setArguments(args);
+                interstitialCustomAd.show(fragmentManager,
+                        StaticConfig.ADVERT);
+
+
+            } else  if (type.equals("any")) {
+
+                if (appSingleton.getInterstitialAd().isLoaded()) {
+                    appSingleton.getInterstitialAd().show();
+                    appSingleton.getInterstitialAd().setAdListener(new AdListener(){
+                        @Override
+                        public void onAdClosed() {
+                            super.onAdClosed();
+                            interstitialAdListener.done();
+                        }
+                    });
+                }
+                else
+                    interstitialAdListener.done();
+
+
+            } else {
                 interstitialAdListener.done();
-            });
-
-            Bundle args = new Bundle();
-            args.putParcelable(StaticConfig.ADVERT, advert);
-            interstitialCustomAd.setArguments(args);
-            interstitialCustomAd.show(fragmentManager,
-                    StaticConfig.ADVERT);
-
-
-        } else  if (type.equals("any")) {
-            /*if (appSingleton.getInterstitialAd().isReady()) {
-                appSingleton.getInterstitialAd().show();
-                appSingleton.getInterstitialAd().setInterstitialAdListener(new MoPubInterstitial.InterstitialAdListener() {
-
-
-
-                    @Override
-                    public void onInterstitialLoaded(MoPubInterstitial interstitial) {
-
-                    }
-
-                    @Override
-                    public void onInterstitialFailed(MoPubInterstitial interstitial, MoPubErrorCode errorCode) {
-
-                    }
-
-                    @Override
-                    public void onInterstitialShown(MoPubInterstitial interstitial) {
-
-                    }
-
-                    @Override
-                    public void onInterstitialClicked(MoPubInterstitial interstitial) {
-                    }
-
-                    @Override
-                    public void onInterstitialDismissed(MoPubInterstitial interstitial) {
-                        interstitialAdListener.done();
-                    }
-                });
-            }*/
-
-            if (appSingleton.getInterstitialAd().isLoaded()) {
-                appSingleton.getInterstitialAd().show();
-                appSingleton.getInterstitialAd().setAdListener(new AdListener(){
-                    @Override
-                    public void onAdClosed() {
-                        super.onAdClosed();
-                        interstitialAdListener.done();
-                    }
-                });
             }
-            else
-                interstitialAdListener.done();
 
-
-        } else {
+        } catch (Exception e) {
             interstitialAdListener.done();
+
         }
 
     }
@@ -698,6 +667,7 @@ public class Utils {
     }
 
     private static int getAdvertIndex(ArrayList<Advert> list, String screen, String type) {
+
         if (list != null)
             for (Advert advert : list)
                 if (advert.getScreen().equals(screen) && advert.getType().equals(type))

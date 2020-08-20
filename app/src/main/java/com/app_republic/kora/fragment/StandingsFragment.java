@@ -15,10 +15,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.kora.R;
 import com.app_republic.kora.model.ApiResponse;
+import com.app_republic.kora.model.News;
 import com.app_republic.kora.model.Standing;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.UnifiedNativeAdViewHolder;
 import com.app_republic.kora.utils.Utils;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -27,17 +30,23 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
+import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.PARAM_TEAM_ID;
+import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
 public class StandingsFragment extends Fragment {
 
     ArrayList<Standing> standings = new ArrayList<>();
-    ;
+    List<Object> list = new ArrayList<>();
+
+    List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
 
     StandingsAdapter standingsAdapter;
     RecyclerView standingsRecyclerView;
@@ -76,7 +85,7 @@ public class StandingsFragment extends Fragment {
         initialiseViews(view);
 
 
-        standingsAdapter = new StandingsAdapter(standings);
+        standingsAdapter = new StandingsAdapter(list);
 
 
         standingsRecyclerView.setAdapter(standingsAdapter);
@@ -118,6 +127,7 @@ public class StandingsFragment extends Fragment {
 
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
+                    list.clear();
                     standings.clear();
                     standingsAdapter.notifyDataSetChanged();
 
@@ -129,6 +139,16 @@ public class StandingsFragment extends Fragment {
                         standing = gson.fromJson(jsonString, Standing.class);
                         standings.add(standing);
                     }
+
+                    list.addAll(standings);
+
+
+                    if (standings.size() == 0)
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, standingsRecyclerView, standingsAdapter,
+                                standings, list, 3);
+                    else
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, standingsRecyclerView, standingsAdapter,
+                                standings, list, NUMBER_OF_NATIVE_ADS_NEWS);
 
 
                     standingsAdapter.notifyItemRangeInserted(0, standings.size());
@@ -154,12 +174,12 @@ public class StandingsFragment extends Fragment {
 
     }
 
-    class StandingsAdapter extends RecyclerView.Adapter<StandingsAdapter.StandingsViewHolder> {
+    class StandingsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        ArrayList<Standing> list;
+        List<Object> list;
         Picasso picasso;
 
-        private StandingsAdapter(ArrayList<Standing> list) {
+        private StandingsAdapter(List<Object> list) {
             this.list = list;
             picasso = AppSingleton.getInstance(getActivity()).getPicasso();
 
@@ -167,72 +187,108 @@ public class StandingsFragment extends Fragment {
 
         @NonNull
         @Override
-        public StandingsAdapter.StandingsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getContext())
-                    .inflate(R.layout.item_standing, viewGroup, false);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
 
-            return new StandingsAdapter.StandingsViewHolder(view);
+            switch (i) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    View unifiedNativeLayoutView = LayoutInflater.from(
+                            viewGroup.getContext()).inflate(R.layout.ad_unified,
+                            viewGroup, false);
+                    return new UnifiedNativeAdViewHolder(unifiedNativeLayoutView);
+
+                case CONTENT_ITEM_VIEW_TYPE:
+                    View ContentLayoutView = LayoutInflater.from(viewGroup.getContext())
+                            .inflate(R.layout.item_standing, viewGroup, false);
+                    return new StandingsViewHolder(ContentLayoutView);
+            }
+            return null;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull StandingsAdapter.StandingsViewHolder viewHolder, int i) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
 
-            Standing standing = list.get(i);
+            int viewType = getItemViewType(i);
+            switch (viewType) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    UnifiedNativeAd nativeAd = (UnifiedNativeAd) list.get(i);
+                    UnifiedNativeAdViewHolder.populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) holder).getAdView());
+                    break;
+                case CONTENT_ITEM_VIEW_TYPE:
 
-            viewHolder.standing.setText(String.valueOf(i + 1));
-            viewHolder.points.setText(standing.getPoints());
-            viewHolder.goals_diff.setText(standing.getGoalsDiff());
-            viewHolder.against.setText(standing.getAgainst());
-            viewHolder.dep_for.setText(standing.getDepFor());
-            viewHolder.lose.setText(standing.getLose());
-            viewHolder.draw.setText(standing.getDraw());
-            viewHolder.win.setText(standing.getWin());
-            viewHolder.play.setText(standing.getPlay());
-            viewHolder.name.setText(standing.getTeamName());
+                    StandingsViewHolder viewHolder = (StandingsViewHolder) holder;
 
-            if (!standing.getTeamLogo().isEmpty()) {
-                picasso.cancelRequest(viewHolder.icon);
-                picasso.load(standing.getTeamLogo()).fit()
-                        .into(viewHolder.icon);
+                    Standing standing = (Standing) list.get(i);
+
+                    //viewHolder.standing.setText(String.valueOf(i + 1));
+                    viewHolder.standing.setText(String.valueOf(standings.indexOf(standing) + 1));
+
+                    viewHolder.points.setText(standing.getPoints());
+                    viewHolder.goals_diff.setText(standing.getGoalsDiff());
+                    viewHolder.against.setText(standing.getAgainst());
+                    viewHolder.dep_for.setText(standing.getDepFor());
+                    viewHolder.lose.setText(standing.getLose());
+                    viewHolder.draw.setText(standing.getDraw());
+                    viewHolder.win.setText(standing.getWin());
+                    viewHolder.play.setText(standing.getPlay());
+                    viewHolder.name.setText(standing.getTeamName());
+
+                    if (!standing.getTeamLogo().isEmpty()) {
+                        picasso.cancelRequest(viewHolder.icon);
+                        picasso.load(standing.getTeamLogo()).fit()
+                                .into(viewHolder.icon);
+                    }
+
+                    if (standing.getHasGroups().equals("1")) {
+                        if (i == 0) {
+                            viewHolder.group.setText(getString(R.string.group) + " " +
+                                    standing.getGroupNo());
+                            viewHolder.V_group.setVisibility(View.VISIBLE);
+                        } else {
+                            Standing previousStanding = (Standing) list.get(i - 1);
+
+                            if (!previousStanding.getGroupNo().equals(standing.getGroupNo())) {
+                                viewHolder.group.setText(getString(R.string.group) + " " +
+                                        standing.getGroupNo());
+                                viewHolder.V_group.setVisibility(View.VISIBLE);
+                            } else
+                                viewHolder.V_group.setVisibility(View.GONE);
+                        }
+
+                    }
+
+                    if (team_id.equals(standing.getTeamId()) || team_id_a.equals(standing.getTeamId())
+                            || team_id_b.equals(standing.getTeamId())
+                    ) {
+                        viewHolder.V_root
+                                .setBackgroundColor(getResources()
+                                        .getColor(android.R.color.holo_orange_light));
+                    } else {
+                        if (i % 2 == 0)
+                            viewHolder.V_root
+                                    .setBackgroundColor(getResources()
+                                            .getColor(R.color.gray_200));
+                        else
+
+                            viewHolder.V_root
+                                    .setBackgroundColor(getResources()
+                                            .getColor(android.R.color.transparent));
+                    }
+
+
+                    break;
             }
 
-            if (standing.getHasGroups().equals("1")) {
-                if (i == 0) {
-                    viewHolder.group.setText(getString(R.string.group) + " " +
-                            standing.getGroupNo());
-                    viewHolder.V_group.setVisibility(View.VISIBLE);
-                } else {
-                    Standing previousStanding = list.get(i - 1);
 
-                    if (!previousStanding.getGroupNo().equals(standing.getGroupNo())) {
-                        viewHolder.group.setText(getString(R.string.group) + " " +
-                                standing.getGroupNo());
-                        viewHolder.V_group.setVisibility(View.VISIBLE);
-                    } else
-                        viewHolder.V_group.setVisibility(View.GONE);
-                }
 
+        }
+        @Override
+        public int getItemViewType(int position) {
+
+            Object recyclerViewItem = list.get(position);
+            if (recyclerViewItem instanceof UnifiedNativeAd) {
+                return UNIFIED_NATIVE_AD_VIEW_TYPE;
             }
-
-            if (team_id.equals(standing.getTeamId()) || team_id_a.equals(standing.getTeamId())
-                    || team_id_b.equals(standing.getTeamId())
-            ) {
-                viewHolder.V_root
-                        .setBackgroundColor(getResources()
-                                .getColor(android.R.color.holo_orange_light));
-            } else {
-                if (i % 2 == 0)
-                    viewHolder.V_root
-                            .setBackgroundColor(getResources()
-                                    .getColor(R.color.gray_200));
-                else
-
-                    viewHolder.V_root
-                            .setBackgroundColor(getResources()
-                                    .getColor(android.R.color.transparent));
-            }
-
-
+            return CONTENT_ITEM_VIEW_TYPE;
         }
 
         @Override
@@ -244,7 +300,7 @@ public class StandingsFragment extends Fragment {
 
             ImageView icon;
 
-            LinearLayout V_root;
+            View V_root;
             View V_group;
             TextView points, dep_for, against, goals_diff, lose, win, draw, play, name, standing, group;
 
@@ -267,11 +323,12 @@ public class StandingsFragment extends Fragment {
                 group = itemView.findViewById(R.id.group);
 
                 V_root.setOnClickListener(view -> {
-                    String current_team_id = list.get(getAdapterPosition()).getTeamId();
+                    Standing standing = (Standing)list.get(getAdapterPosition());
+                    String current_team_id = standing.getTeamId();
                     if (!current_team_id.equals(team_id)) {
                         Utils.startTeamActivity(getActivity(),
                                 getActivity().getSupportFragmentManager(),
-                                list.get(getAdapterPosition()).getTeamId());
+                                standing.getTeamId());
                     }
 
                 });

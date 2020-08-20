@@ -14,6 +14,8 @@ import com.app_republic.kora.model.Advert;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
 import com.app_republic.kora.utils.Utils;
+import com.facebook.FacebookSdk;
+import com.facebook.appevents.AppEventsLogger;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -34,7 +36,8 @@ public class SplashActivity extends AppCompatActivity {
     public static final String SETTINGS_TITLE = "settings";
     public static final String SETTING_ALREADY_SUBSCRIBED = "already_subscribed";
     public static final String SETTING_ALREADY_SUBSCRIBED_new_topic = "already_subscribed2";
-
+    long current_time, last_read;
+    Source source;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,15 +61,19 @@ public class SplashActivity extends AppCompatActivity {
         editor = prefs.edit();
 
         subscribeToMessaging();
-        long current_time = System.currentTimeMillis();
+        current_time = System.currentTimeMillis();
 
-        long last_read = prefs.getLong("last_read", current_time);
-        Source source;
+        last_read = prefs.getLong("last_read", current_time);
         if ((last_read + 1000 * 60 * 60 * 12) < current_time || last_read == current_time) {
             source = Source.SERVER;
         } else {
             source = Source.CACHE;
         }
+        getSettings(source);
+
+    }
+
+    private void getSettings(Source source) {
         db.collection("settings")
                 .get(source).addOnSuccessListener(queryDocumentSnapshots -> {
 
@@ -137,37 +144,36 @@ public class SplashActivity extends AppCompatActivity {
                                 });
 
                     }).addOnFailureListener(e -> {
+                getSettings(Source.CACHE);
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-
             });
 
         }).addOnFailureListener(e -> {
+            getSettings(Source.CACHE);
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         });
-
-
     }
 
     private void subscribeToMessaging() {
 
-        boolean alreadySubscribed = prefs.getBoolean(SETTING_ALREADY_SUBSCRIBED_new_topic, false);
-        if (!alreadySubscribed) {
-            FirebaseMessaging.getInstance().subscribeToTopic("global.5.3.1").addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    FirebaseMessaging.getInstance().subscribeToTopic("lite.5.3.1").addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            editor.putBoolean(SETTING_ALREADY_SUBSCRIBED_new_topic, true);
+        try {
+            boolean alreadySubscribed = prefs.getBoolean(SETTING_ALREADY_SUBSCRIBED_new_topic, false);
+            if (!alreadySubscribed) {
+                FirebaseMessaging.getInstance().subscribeToTopic("global.5.3.1")
+                        .addOnSuccessListener(aVoid ->
+                                FirebaseMessaging.getInstance().subscribeToTopic("lite.5.3.1")
+                                        .addOnSuccessListener(aVoid1 -> {
+                                            editor.putBoolean(SETTING_ALREADY_SUBSCRIBED_new_topic, true);
 
-                            editor.apply();
-                        }
-                    });
-                }
-            });
+                                            editor.apply();
+                                        }));
 
+
+            }
+        } catch (Exception e) {
 
         }
+
     }
 
 }

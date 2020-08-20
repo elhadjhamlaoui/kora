@@ -2,6 +2,7 @@ package com.app_republic.kora.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.app_republic.kora.R;
 import com.app_republic.kora.activity.PlayerActivity;
 import com.app_republic.kora.model.ApiResponse;
+import com.app_republic.kora.model.Department;
 import com.app_republic.kora.model.Player;
 import com.app_republic.kora.model.PlayerDepartment;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.UnifiedNativeAdViewHolder;
 import com.app_republic.kora.utils.Utils;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -31,16 +35,25 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
+import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.PLAYER_INFO;
+import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
 public class ItemPlayersFragment extends Fragment {
 
     ArrayList<Player> players = new ArrayList<>();
+
+    List<Object> list = new ArrayList<>();
+
+    List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
+
     Gson gson;
     ArrayList<PlayerDepartment> departments = new ArrayList<>();
 
@@ -84,7 +97,7 @@ public class ItemPlayersFragment extends Fragment {
         initialiseViews(view);
 
 
-        playersAdapter = new PlayersAdapter(players, getActivity());
+        playersAdapter = new PlayersAdapter(list, getActivity());
         departmentsAdapter = new DepartmentsAdapter(departments, getActivity());
 
 
@@ -156,6 +169,8 @@ public class ItemPlayersFragment extends Fragment {
                     JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
                     players.clear();
+                    list.clear();
+
                     playersAdapter.notifyDataSetChanged();
 
 
@@ -166,6 +181,16 @@ public class ItemPlayersFragment extends Fragment {
                         player = gson.fromJson(jsonString, Player.class);
                         players.add(player);
                     }
+
+                    list.addAll(players);
+
+
+                    if (players.size() == 0)
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, playersRecyclerView, playersAdapter,
+                                players, list, 3);
+                    else
+                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, playersRecyclerView, playersAdapter,
+                                players, list, NUMBER_OF_NATIVE_ADS_NEWS);
 
 
                     playersAdapter.notifyItemRangeInserted(0, players.size());
@@ -190,13 +215,13 @@ public class ItemPlayersFragment extends Fragment {
 
     }
 
-    class PlayersAdapter extends RecyclerView.Adapter<PlayersAdapter.PlayersViewHolder> {
+    class PlayersAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-        ArrayList<Player> list;
+        List<Object> list;
         Picasso picasso;
         Context context;
 
-        private PlayersAdapter(ArrayList<Player> list, Context context) {
+        private PlayersAdapter(List<Object> list, Context context) {
             this.context = context;
             this.list = list;
             picasso = AppSingleton.getInstance(getActivity()).getPicasso();
@@ -204,52 +229,87 @@ public class ItemPlayersFragment extends Fragment {
 
         @NonNull
         @Override
-        public PlayersAdapter.PlayersViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getContext())
-                    .inflate(R.layout.item_player, viewGroup, false);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            switch (i) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    View unifiedNativeLayoutView = LayoutInflater.from(
+                            viewGroup.getContext()).inflate(R.layout.ad_unified,
+                            viewGroup, false);
+                    return new UnifiedNativeAdViewHolder(unifiedNativeLayoutView);
 
-            return new PlayersAdapter.PlayersViewHolder(view);
+                case CONTENT_ITEM_VIEW_TYPE:
+                    View ContentLayoutView = LayoutInflater.from(viewGroup.getContext())
+                            .inflate(R.layout.item_player, viewGroup, false);
+                    return new PlayersViewHolder(ContentLayoutView);
+            }
+            return null;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull PlayersAdapter.PlayersViewHolder viewHolder, int i) {
-
-            Player player = list.get(i);
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
 
 
-            viewHolder.name.setText(player.getName());
-            viewHolder.standing.setText(String.valueOf(i + 1));
-            viewHolder.goals.setText(player.getGoals());
-            viewHolder.scored_penalty.setText(player.getScoredPenalty());
-            viewHolder.missed_penalty.setText(player.getMissedPenalty());
+            int viewType = getItemViewType(i);
+            switch (viewType) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    UnifiedNativeAd nativeAd = (UnifiedNativeAd) list.get(i);
+                    UnifiedNativeAdViewHolder.populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) holder).getAdView());
+                    break;
+                case CONTENT_ITEM_VIEW_TYPE:
 
-            if (item_type.equals(StaticConfig.PARAM_ITEM_TYPE_TEAM))
-                viewHolder.extra.setText(player.getPlace());
-            else
-                viewHolder.extra.setText(player.getTeamName());
+                    PlayersViewHolder viewHolder = (PlayersViewHolder) holder;
+
+                    Player player = (Player) list.get(i);
 
 
-            if (!player.getPlayerImage().isEmpty()) {
-                picasso.cancelRequest(viewHolder.icon);
-                picasso.load(player.getPlayerImage()).fit().into(viewHolder.icon);
+                    viewHolder.name.setText(player.getName());
+                    //viewHolder.standing.setText(String.valueOf(i + 1));
+                    viewHolder.standing.setText(String.valueOf(players.indexOf(player) + 1));
+                    viewHolder.goals.setText(player.getGoals());
+                    viewHolder.scored_penalty.setText(player.getScoredPenalty());
+                    viewHolder.missed_penalty.setText(player.getMissedPenalty());
+
+                    if (item_type.equals(StaticConfig.PARAM_ITEM_TYPE_TEAM))
+                        viewHolder.extra.setText(player.getPlace());
+                    else
+                        viewHolder.extra.setText(player.getTeamName());
+
+
+                    if (!player.getPlayerImage().isEmpty()) {
+                        picasso.cancelRequest(viewHolder.icon);
+                        picasso.load(player.getPlayerImage()).fit().into(viewHolder.icon);
+                    }
+
+                    if (team_id_a.equals(player.getTeamId()) || team_id_b.equals(player.getTeamId())) {
+                        viewHolder.V_root
+                                .setBackgroundColor(getResources()
+                                        .getColor(android.R.color.holo_orange_light));
+                    } else {
+                        if (i % 2 == 0)
+                            viewHolder.V_root
+                                    .setBackgroundColor(getResources()
+                                            .getColor(R.color.gray_200));
+                        else
+
+                            viewHolder.V_root
+                                    .setBackgroundColor(getResources()
+                                            .getColor(android.R.color.transparent));
+                    }
+
+
+                    break;
             }
 
-            if (team_id_a.equals(player.getTeamId()) || team_id_b.equals(player.getTeamId())) {
-                viewHolder.V_root
-                        .setBackgroundColor(getResources()
-                                .getColor(android.R.color.holo_orange_light));
-            } else {
-                if (i % 2 == 0)
-                    viewHolder.V_root
-                            .setBackgroundColor(getResources()
-                                    .getColor(R.color.gray_200));
-                else
+        }
 
-                    viewHolder.V_root
-                            .setBackgroundColor(getResources()
-                                    .getColor(android.R.color.transparent));
+        @Override
+        public int getItemViewType(int position) {
+
+            Object recyclerViewItem = list.get(position);
+            if (recyclerViewItem instanceof UnifiedNativeAd) {
+                return UNIFIED_NATIVE_AD_VIEW_TYPE;
             }
-
+            return CONTENT_ITEM_VIEW_TYPE;
         }
 
         @Override
@@ -277,14 +337,13 @@ public class ItemPlayersFragment extends Fragment {
                 missed_penalty = itemView.findViewById(R.id.missed_penalty);
 
                 V_root.setOnClickListener(view -> {
-                    if (player == null || !list.get(getAdapterPosition())
-                            .getPlayerId().equals(player.getPlayerId())) {
+                    Player clickedPlayer = (Player) list.get(getAdapterPosition());
+                    if (player == null || !player
+                            .getPlayerId().equals(clickedPlayer.getPlayerId())) {
 
                         Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","player", getContext(), () -> {
                             Intent intent = new Intent(context, PlayerActivity.class);
-                            Player player = list.get(getAdapterPosition());
-
-                            intent.putExtra(StaticConfig.PLAYER, player);
+                            intent.putExtra(StaticConfig.PLAYER, clickedPlayer);
                             context.startActivity(intent);
                         });
 

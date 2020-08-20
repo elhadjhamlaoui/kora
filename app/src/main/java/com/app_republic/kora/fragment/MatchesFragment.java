@@ -51,7 +51,6 @@ import retrofit2.Response;
 
 import static android.view.View.GONE;
 import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
-import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_MATCHES;
 import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
 import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
@@ -65,6 +64,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     private Adapter matches_adapter;
     private RecyclerView matches_recycler;
 
+    private final int NUMBER_OF_NATIVE_ADS_MATCHES = 4;
     Calendar calendar;
 
     View IV_next, IV_previous;
@@ -156,7 +156,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
             if (matches.size() == 0)
                 AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
-                        matches_adapter, matches, list, 1);
+                        matches_adapter, matches, list, 3);
             else
                 AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
                         matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
@@ -556,7 +556,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     if (matches.size() == 0)
                         AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
-                                matches_adapter, matches, list, 1);
+                                matches_adapter, matches, list, 2);
                     else
                         AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
                                 matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
@@ -652,7 +652,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     if (matches.size() == 0)
                         AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
-                                matches_adapter, matches, list, 1);
+                                matches_adapter, matches, list, 3);
                     else
                         AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
                                 matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);

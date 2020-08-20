@@ -34,9 +34,9 @@ public class StaticConfig {
     public static final String API_GET_PLAYER_MATCHES = "getPlayerMatches";
 
     public static final int NUMBER_OF_NATIVE_ADS = 2;
-    public static final int NUMBER_OF_NATIVE_ADS_MATCHES = 2;
-    public static final int NUMBER_OF_NATIVE_ADS_NEWS = 5;
-    public static final int NUMBER_OF_NATIVE_ADS_VIDEOS = 1;
+    public static final int NUMBER_OF_NATIVE_ADS_MATCHES = 4;
+    public static final int NUMBER_OF_NATIVE_ADS_NEWS = 8;
+    public static final int NUMBER_OF_NATIVE_ADS_VIDEOS = 3;
 
 
 

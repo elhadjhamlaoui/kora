@@ -289,8 +289,13 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         MatchActivity.this.match.setFullTime(match_time);
 
         if (difference > 0) {
-            TV_scoreTeamA.setText(match.getLiveRe1());
-            TV_scoreTeamB.setText(match.getLiveRe2());
+            TV_scoreTeamA.setText((match.getLivePe1().equals("0") ? "" : "("
+                    + match.getLivePe1() + ") ")
+                    + match.getLiveRe1()
+            );
+            TV_scoreTeamB.setText(match.getLiveRe2() +
+                    (match.getLivePe2().equals("0") ? "" : " (" + match.getLiveRe2() + ")"));
+
             TV_extra.setText("");
 
             int minutes = Integer.parseInt(match.getActualMinutes());

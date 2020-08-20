@@ -89,8 +89,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
 
         if (remoteMessage.getNotification() != null) {
-            sendNotification(remoteMessage.getData(), remoteMessage.getNotification().getBody(),
-                    remoteMessage.getNotification().getImageUrl());
+            try {
+                sendNotification(remoteMessage.getData(), remoteMessage.getNotification().getBody(),
+                        remoteMessage.getNotification().getImageUrl());
+            } catch (Exception e) {
+
+            }
+
 
         }
 
@@ -178,7 +183,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             intent = new Intent(this, MainActivity.class);
 
 
-        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0 /* Request code */, intent,
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), data.get("body").hashCode() /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
 
         String channelId = getString(R.string.default_notification_channel_id);
@@ -211,13 +216,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                     notificationBuilder.setStyle(new NotificationCompat.BigPictureStyle()
                             .bigPicture(bitmap));
-                    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+                    notificationManager.notify(data.get("body").hashCode() /* ID of notification */, notificationBuilder.build());
 
                 }
 
                 @Override
                 public void onBitmapFailed(Exception e, Drawable errorDrawable) {
-                    notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+                    notificationManager.notify(data.get("body").hashCode() /* ID of notification */, notificationBuilder.build());
                 }
 
 
@@ -229,7 +234,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             uiHandler.post(() -> Picasso.get().load(image).into(target));
 
         } else {
-            notificationManager.notify(0 /* ID of notification */, notificationBuilder.build());
+            notificationManager.notify(data.get("body").hashCode() /* ID of notification */, notificationBuilder.build());
 
         }
 

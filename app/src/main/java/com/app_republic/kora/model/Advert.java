@@ -4,12 +4,14 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Advert implements Parcelable {
-    private String id, text, image, url, type, screen, webView, body;
+
+    private String id, text, image, url, type, screen, webView, body, content;
+    private boolean isGif;
 
     public Advert() {
     }
 
-    public Advert(String id, String text, String image, String url, String type, String screen, String webView, String body) {
+    public Advert(String id, String text, String image, String url, String type, String screen, String webView, String body, boolean isGif, String content) {
         this.id = id;
         this.text = text;
         this.image = image;
@@ -18,7 +20,11 @@ public class Advert implements Parcelable {
         this.screen = screen;
         this.webView = webView;
         this.body = body;
+        this.isGif = isGif;
+        this.content = content;
+
     }
+
 
     protected Advert(Parcel in) {
         id = in.readString();
@@ -29,6 +35,8 @@ public class Advert implements Parcelable {
         screen = in.readString();
         webView = in.readString();
         body = in.readString();
+        content = in.readString();
+        isGif = in.readByte() != 0;
     }
 
     public static final Creator<Advert> CREATOR = new Creator<Advert>() {
@@ -42,6 +50,14 @@ public class Advert implements Parcelable {
             return new Advert[size];
         }
     };
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
 
     public String getId() {
         return id;
@@ -107,6 +123,15 @@ public class Advert implements Parcelable {
         this.body = body;
     }
 
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
+    }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -122,5 +147,7 @@ public class Advert implements Parcelable {
         parcel.writeString(screen);
         parcel.writeString(webView);
         parcel.writeString(body);
+        parcel.writeString(content);
+        parcel.writeByte((byte) (isGif ? 1 : 0));
     }
 }

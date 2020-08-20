@@ -46,11 +46,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
 
+
         AppCompatActivity appCompatActivity = this;
+
+
+
 
         appSingleton = AppSingleton.getInstance(appCompatActivity);
 
@@ -75,13 +80,18 @@ public class MainActivity extends AppCompatActivity
 
 
         if (appSingleton.MAIN_SCREEN.equals("news")) {
-            replaceFragment(NewsFragment.newInstance());
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, NewsFragment.newInstance())
+                    .commit();
             setTitle(getString(R.string.news));
         } else {
-            replaceFragment(MatchesFragment.newInstance());
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.container, MatchesFragment.newInstance())
+                    .commit();
             setTitle(getString(R.string.app_name));
         }
         Utils.loadBannerAd(this, "main");
+
 
 
     }
@@ -114,12 +124,12 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_matches:
 
-                    replaceFragment(MatchesFragment.newInstance());
+                    replaceFragment(MatchesFragment.newInstance(), getString(R.string.app_name));
                     setTitle(getString(R.string.app_name));
 
                 break;
             case R.id.nav_news:
-                replaceFragment(NewsFragment.newInstance());
+                replaceFragment(NewsFragment.newInstance(), getString(R.string.news));
                 setTitle(getString(R.string.news));
 
                 break;
@@ -128,7 +138,7 @@ public class MainActivity extends AppCompatActivity
                 Bundle args = new Bundle();
                 args.putString(StaticConfig.PARAM_DEPS_TYPE, StaticConfig.DEPS_TYPE_STANDINGS);
                 fragment.setArguments(args);
-                replaceFragment(fragment);
+                replaceFragment(fragment, getString(R.string.departments));
                 setTitle(getString(R.string.departments));
                 break;
             case R.id.nav_players:
@@ -136,13 +146,13 @@ public class MainActivity extends AppCompatActivity
                 Bundle args1 = new Bundle();
                 args1.putString(StaticConfig.PARAM_DEPS_TYPE, StaticConfig.DEPS_TYPE_PLAYERS);
                 fragment1.setArguments(args1);
-                replaceFragment(fragment1);
+                replaceFragment(fragment1, getString(R.string.players));
                 setTitle(getString(R.string.players));
 
                 break;
 
             case R.id.nav_chat:
-                replaceFragment(ChatFragment.newInstance());
+                replaceFragment(ChatFragment.newInstance(), getString(R.string.chat));
                 setTitle(getString(R.string.chat));
                 break;
 
@@ -150,7 +160,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_games:
                 Fragment gamesFragment = GamesFragment.newInstance();
 
-                replaceFragment(gamesFragment);
+                replaceFragment(gamesFragment, getString(R.string.games));
                 setTitle(getString(R.string.games));
 
                 break;
@@ -212,11 +222,12 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    void replaceFragment(Fragment fragment) {
+    void replaceFragment(Fragment fragment, String name) {
 
         getSupportFragmentManager().beginTransaction()
-
-                .replace(R.id.container, fragment).commitNow();
+                .addToBackStack(name)
+                .replace(R.id.container, fragment)
+                .commit();
     }
 
     @Override

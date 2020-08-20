@@ -17,9 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.app_republic.kora.R;
 import com.app_republic.kora.model.ApiResponse;
 import com.app_republic.kora.model.Department;
+import com.app_republic.kora.model.Standing;
 import com.app_republic.kora.utils.AppSingleton;
 import com.app_republic.kora.utils.StaticConfig;
+import com.app_republic.kora.utils.UnifiedNativeAdViewHolder;
 import com.app_republic.kora.utils.Utils;
+import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -28,15 +31,22 @@ import org.json.JSONException;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.app_republic.kora.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
+import static com.app_republic.kora.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
+import static com.app_republic.kora.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
+
 public class DepartmentsFragment extends Fragment {
 
     ArrayList<Department> departments = new ArrayList<>();
-    ;
+    List<Object> list = new ArrayList<>();
+
+    List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
 
     DepartmentsAdapter departmentsAdapter;
     RecyclerView depsRecyclerView;
@@ -70,7 +80,7 @@ public class DepartmentsFragment extends Fragment {
         initialiseViews(view);
 
 
-        departmentsAdapter = new DepartmentsAdapter(getActivity(), departments);
+        departmentsAdapter = new DepartmentsAdapter(getActivity(), list);
 
 
         depsRecyclerView.setAdapter(departmentsAdapter);
@@ -149,6 +159,7 @@ public class DepartmentsFragment extends Fragment {
             JSONArray items = new JSONArray(gson.toJson(response.getItems()));
 
             departments.clear();
+            list.clear();
 
             departmentsAdapter.notifyDataSetChanged();
 
@@ -158,6 +169,15 @@ public class DepartmentsFragment extends Fragment {
                 department = gson.fromJson(jsonString, Department.class);
                 departments.add(department);
             }
+            list.addAll(departments);
+
+            if (departments.size() == 0)
+                AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, depsRecyclerView, departmentsAdapter,
+                        departments, list, 3);
+            else
+                AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, depsRecyclerView, departmentsAdapter,
+                        departments, list, NUMBER_OF_NATIVE_ADS_NEWS);
+
 
 
             departmentsAdapter.notifyItemRangeInserted(0, departments.size());
@@ -172,13 +192,13 @@ public class DepartmentsFragment extends Fragment {
 
     }
 
-    class DepartmentsAdapter extends RecyclerView.Adapter<DepartmentsAdapter.DepsViewHolder> {
+    class DepartmentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         Context context;
-        ArrayList<Department> list;
+        List<Object> list;
         Picasso picasso;
 
-        public DepartmentsAdapter(Context context, ArrayList<Department> list) {
+        public DepartmentsAdapter(Context context, List<Object> list) {
             this.context = context;
             this.list = list;
             picasso = AppSingleton.getInstance(getActivity()).getPicasso();
@@ -187,40 +207,74 @@ public class DepartmentsFragment extends Fragment {
 
         @NonNull
         @Override
-        public DepartmentsAdapter.DepsViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-            View view = LayoutInflater.from(getActivity())
-                    .inflate(R.layout.item_department, viewGroup, false);
+        public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+            switch (i) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    View unifiedNativeLayoutView = LayoutInflater.from(
+                            viewGroup.getContext()).inflate(R.layout.ad_unified_news,
+                            viewGroup, false);
+                    return new UnifiedNativeAdViewHolder(unifiedNativeLayoutView);
 
-            return new DepartmentsAdapter.DepsViewHolder(view);
+                case CONTENT_ITEM_VIEW_TYPE:
+                    View ContentLayoutView = LayoutInflater.from(viewGroup.getContext())
+                            .inflate(R.layout.item_department, viewGroup, false);
+                    return new DepsViewHolder(ContentLayoutView);
+            }
+            return null;
         }
 
         @Override
-        public void onBindViewHolder(@NonNull DepartmentsAdapter.DepsViewHolder viewHolder, int i) {
+        public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
 
-            Department department = list.get(i);
+            int viewType = getItemViewType(i);
+            switch (viewType) {
+                case UNIFIED_NATIVE_AD_VIEW_TYPE:
+                    UnifiedNativeAd nativeAd = (UnifiedNativeAd) list.get(i);
+                    UnifiedNativeAdViewHolder.populateNativeAdView(nativeAd, ((UnifiedNativeAdViewHolder) holder).getAdView());
+                    break;
+                case CONTENT_ITEM_VIEW_TYPE:
+
+                    Department department = (Department) list.get(i);
+
+                    DepsViewHolder viewHolder = (DepsViewHolder) holder;
 
 
-            viewHolder.name.setText(department.getDepName());
+                    viewHolder.name.setText(department.getDepName());
 
-            if (!department.getDepLogo().isEmpty()) {
-                picasso.cancelRequest(viewHolder.icon);
+                    if (!department.getDepLogo().isEmpty()) {
+                        picasso.cancelRequest(viewHolder.icon);
 
 
-                try {
-                    picasso.load(department.getDepLogo())
-                            .fit()
-                            .placeholder(R.drawable.ic_ball)
-                            .into(viewHolder.icon);
-                } catch (Resources.NotFoundException e) {
-                    e.printStackTrace();
-                    picasso.load(department.getDepLogo())
-                            .fit()
-                            .into(viewHolder.icon);
-                }
+                        try {
+                            picasso.load(department.getDepLogo())
+                                    .fit()
+                                    .placeholder(R.drawable.ic_ball)
+                                    .into(viewHolder.icon);
+                        } catch (Resources.NotFoundException e) {
+                            e.printStackTrace();
+                            picasso.load(department.getDepLogo())
+                                    .fit()
+                                    .into(viewHolder.icon);
+                        }
+                    }
+
+
+
+                    break;
             }
 
 
 
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+
+            Object recyclerViewItem = list.get(position);
+            if (recyclerViewItem instanceof UnifiedNativeAd) {
+                return UNIFIED_NATIVE_AD_VIEW_TYPE;
+            }
+            return CONTENT_ITEM_VIEW_TYPE;
         }
 
         @Override
