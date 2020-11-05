@@ -319,7 +319,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     public void getTeamNews(String team_id) {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("0",
                 "", StaticConfig.TEAM, team_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -397,7 +397,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("0",
                 "");
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -466,7 +466,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
         trendingTeams.clear();
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTrendingTeams("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTrendingTeams("0",
                 "");
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

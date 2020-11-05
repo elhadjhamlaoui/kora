@@ -108,7 +108,7 @@ public class DepartmentsFragment extends Fragment {
     private void getDepartmentsWithStandings() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithStandings("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithStandings("0",
                 "");
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -128,7 +128,7 @@ public class DepartmentsFragment extends Fragment {
 
     private void getDepartmentsWithPlayers() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithPlayers("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithPlayers("0",
                 "");
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

@@ -247,7 +247,7 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
     public void getVideos() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getVideos("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getVideos("0",
                 "", match.getLiveId());
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

@@ -115,7 +115,7 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
 
     public void getTeamInfo() {
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTeamInfo("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTeamInfo("0",
                 "", team_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

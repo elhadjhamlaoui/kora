@@ -15,6 +15,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 
+import com.ap.ApNotification;
 import com.app_republic.kora.BuildConfig;
 import com.app_republic.kora.R;
 import com.app_republic.kora.fragment.ChatFragment;
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity
             setTitle(getString(R.string.app_name));
         }
         Utils.loadBannerAd(this, "main");
-
+        ApNotification.start(MainActivity.this);
 
 
     }

@@ -492,7 +492,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
         dateString = Utils.getReadableDate(calendar);
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatches("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatches("0",
                 "", dateString);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -600,7 +600,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
     public void getPlayerMatches() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getPlayerMatches("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getPlayerMatches("0",
                 "", player_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

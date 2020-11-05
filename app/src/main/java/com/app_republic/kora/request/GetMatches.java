@@ -39,7 +39,7 @@ public class GetMatches extends StringRequest {
     @Override
     public Map<String, String> getHeaders(){
         Map<String, String> headers = new HashMap<String, String>();
-        headers.put("User-agent", "okhttp/3.3.0");
+        headers.put("User-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0");
         return headers;
     }
 

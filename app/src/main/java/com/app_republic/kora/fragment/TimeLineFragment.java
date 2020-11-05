@@ -276,7 +276,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTimeline("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTimeline("0",
                 "", match.getLiveId());
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

@@ -115,7 +115,7 @@ public class InterstitialCustomAd extends DialogFragment {
                 article.setImageThumb(advert.getImage());
                 article.setPostImage(advert.getImage());
                 article.setPostContent(advert.getContent());
-                article.setPostTitle(advert.getText());
+                article.setPostTitle(advert.getTitle());
                 article.setPostDate("الآن");
 
                 Intent intent = new Intent(getActivity(), NewsItemActivity.class);

@@ -5,23 +5,10 @@ import android.os.Parcelable;
 
 public class Advert implements Parcelable {
 
-    private String id, text, image, url, type, screen, webView, body, content;
+    private String id, text, image, url, type, screen, webView, body, content, title;
     private boolean isGif;
 
     public Advert() {
-    }
-
-    public Advert(String id, String text, String image, String url, String type, String screen, String webView, String body, boolean isGif, String content) {
-        this.id = id;
-        this.text = text;
-        this.image = image;
-        this.url = url;
-        this.type = type;
-        this.screen = screen;
-        this.webView = webView;
-        this.body = body;
-        this.isGif = isGif;
-        this.content = content;
 
     }
 
@@ -36,6 +23,7 @@ public class Advert implements Parcelable {
         webView = in.readString();
         body = in.readString();
         content = in.readString();
+        title = in.readString();
         isGif = in.readByte() != 0;
     }
 
@@ -50,6 +38,14 @@ public class Advert implements Parcelable {
             return new Advert[size];
         }
     };
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
     public String getContent() {
         return content;
@@ -131,7 +127,6 @@ public class Advert implements Parcelable {
         isGif = gif;
     }
 
-
     @Override
     public int describeContents() {
         return 0;
@@ -148,6 +143,7 @@ public class Advert implements Parcelable {
         parcel.writeString(webView);
         parcel.writeString(body);
         parcel.writeString(content);
+        parcel.writeString(title);
         parcel.writeByte((byte) (isGif ? 1 : 0));
     }
 }

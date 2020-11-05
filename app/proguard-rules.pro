@@ -34,6 +34,13 @@
     @retrofit.http.* <methods>;
 }
 
+-keep class com.ap.* {*;}
+
+-keepattributes InnerClasses
+ -keep class *.R
+ -keep class **.R$* {
+    <fields>;
+}
 
 -keepattributes Signature
 -keepattributes *Annotation*

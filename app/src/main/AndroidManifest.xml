@@ -34,7 +34,7 @@
         <activity android:name="com.mopub.mobileads.MraidActivity" android:configChanges="keyboardHidden|orientation|screenSize"/>
 
         -->
-
+        
         <activity
             android:name="com.ap.ApActivity"
         android:configChanges="orientation|keyboardHidden|screenSize"

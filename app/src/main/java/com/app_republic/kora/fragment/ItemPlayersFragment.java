@@ -149,7 +149,7 @@ public class ItemPlayersFragment extends Fragment {
     private void getPlayers() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemPlayersDetailed("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemPlayersDetailed("0",
                 "", item_type, item_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

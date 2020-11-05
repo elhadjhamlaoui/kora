@@ -108,7 +108,7 @@ public class StandingsFragment extends Fragment {
 
     private void getStandings() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepStandings("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepStandings("0",
                 "", dep_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override

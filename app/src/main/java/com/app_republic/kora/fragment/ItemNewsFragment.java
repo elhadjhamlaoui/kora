@@ -238,7 +238,7 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
     public void getNews() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("1",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("0",
                 "", item_type, item_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
