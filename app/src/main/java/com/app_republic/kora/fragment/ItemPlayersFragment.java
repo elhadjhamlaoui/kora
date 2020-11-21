@@ -64,6 +64,7 @@ public class ItemPlayersFragment extends Fragment {
     long timeDifference;
     String item_id, item_type, team_id_a, team_id_b;
     Player player;
+    private AppSingleton appSingleton;
 
     public ItemPlayersFragment() {
         // Required empty public constructor
@@ -78,6 +79,7 @@ public class ItemPlayersFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gson = AppSingleton.getInstance(getActivity()).getGson();
+        appSingleton = AppSingleton.getInstance(getActivity());
 
     }
 
@@ -150,7 +152,7 @@ public class ItemPlayersFragment extends Fragment {
 
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemPlayersDetailed("0",
-                "", item_type, item_id);
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, item_type, item_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {

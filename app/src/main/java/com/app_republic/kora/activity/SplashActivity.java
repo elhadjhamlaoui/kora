@@ -113,6 +113,7 @@ public class SplashActivity extends AppCompatActivity {
                                     StaticConfig.API_BASE = documentSnapshot1.get("url_base").toString();
                                     appSingleton.VIDEO_BASE_URL = documentSnapshot1.get("video_base").toString();
                                     appSingleton.MAIN_SCREEN = documentSnapshot1.get("main_screen").toString();
+                                    appSingleton.JWS = documentSnapshot1.get("jws").toString();
 
                                 } else if (documentSnapshot1.getId().equals("links")) {
                                     appSingleton.FACEBOOK_PAGE = documentSnapshot1.get("facebook").toString();

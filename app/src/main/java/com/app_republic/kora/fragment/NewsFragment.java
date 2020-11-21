@@ -59,6 +59,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     RecyclerView news_recycler, teams_recycler;
     long timeDifference;
     Gson gson;
+    private AppSingleton appSingleton;
 
     public NewsFragment() {
         // Required empty public constructor
@@ -73,6 +74,8 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gson = AppSingleton.getInstance(getActivity()).getGson();
+        appSingleton = AppSingleton.getInstance(getActivity());
+
 
     }
 
@@ -320,7 +323,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("0",
-                "", StaticConfig.TEAM, team_id);
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, StaticConfig.TEAM, team_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -398,7 +401,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("0",
-                "");
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -467,7 +470,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
         trendingTeams.clear();
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getTrendingTeams("0",
-                "");
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {

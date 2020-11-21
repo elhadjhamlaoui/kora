@@ -68,6 +68,8 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
     Gson gson;
     Match match;
     Handler handler;
+    private AppSingleton appSingleton;
+
     public VideosFragment() {
         // Required empty public constructor
     }
@@ -81,6 +83,7 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gson = AppSingleton.getInstance(getActivity()).getGson();
+        appSingleton = AppSingleton.getInstance(getActivity());
 
     }
 
@@ -248,7 +251,7 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
 
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getVideos("0",
-                "", match.getLiveId());
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, match.getLiveId());
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {

@@ -36,6 +36,7 @@ public class AppSingleton {
     public String ADMOB_INTER_UNIT_ID = "";
     public String VIDEO_BASE_URL = "";
     public String MAIN_SCREEN = "";
+    public String JWS = "";
 
     public String MOPUB_NATIVE_UNIT_ID = "";
     public String MOPUB_BANNER_UNIT_ID = "";

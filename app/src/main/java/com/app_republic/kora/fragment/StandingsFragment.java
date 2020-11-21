@@ -55,6 +55,7 @@ public class StandingsFragment extends Fragment {
     String dep_id;
     String team_id, team_id_a, team_id_b;
     Gson gson;
+    private AppSingleton appSingleton;
 
     public StandingsFragment() {
         // Required empty public constructor
@@ -69,6 +70,8 @@ public class StandingsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gson = AppSingleton.getInstance(getActivity()).getGson();
+        appSingleton = AppSingleton.getInstance(getActivity());
+
     }
 
     @Override
@@ -109,7 +112,7 @@ public class StandingsFragment extends Fragment {
     private void getStandings() {
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepStandings("0",
-                "", dep_id);
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, dep_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {

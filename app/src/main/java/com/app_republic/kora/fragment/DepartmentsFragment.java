@@ -54,6 +54,7 @@ public class DepartmentsFragment extends Fragment {
     long timeDifference;
 
     String type;
+    private AppSingleton appSingleton;
 
     public DepartmentsFragment() {
         // Required empty public constructor
@@ -68,6 +69,7 @@ public class DepartmentsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gson = AppSingleton.getInstance(getActivity()).getGson();
+        appSingleton = AppSingleton.getInstance(getActivity());
 
     }
 
@@ -109,7 +111,7 @@ public class DepartmentsFragment extends Fragment {
 
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithStandings("0",
-                "");
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -129,7 +131,7 @@ public class DepartmentsFragment extends Fragment {
     private void getDepartmentsWithPlayers() {
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithPlayers("0",
-                "");
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {

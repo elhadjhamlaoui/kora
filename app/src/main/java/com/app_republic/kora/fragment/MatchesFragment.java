@@ -85,6 +85,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     TeamInfo teamInfo;
     String player_id;
     Gson gson;
+    private AppSingleton appSingleton;
 
     public MatchesFragment() {
         // Required empty public constructor
@@ -99,6 +100,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         gson = AppSingleton.getInstance(getActivity()).getGson();
+        appSingleton = AppSingleton.getInstance(getActivity());
 
     }
 
@@ -493,11 +495,12 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
         dateString = Utils.getReadableDate(calendar);
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatches("0",
-                "", dateString);
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, dateString);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
                 try {
+
 
 
                     ApiResponse object = apiResponse.body();
@@ -601,7 +604,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     public void getPlayerMatches() {
 
         Call<ApiResponse> call1 = StaticConfig.apiInterface.getPlayerMatches("0",
-                "", player_id);
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, player_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {

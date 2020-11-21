@@ -233,8 +233,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
     public void getMatchInfo() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatchInfo("1",
-                "", match.getLiveId());
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatchInfo("0",
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, match.getLiveId());
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
