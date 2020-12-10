@@ -39,7 +39,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1000558491875:android:f7abf755f147a0b6",
         "android_client_info": {
-          "package_name": "com.app_republic.kora"
+          "package_name": "com.app_republic.shoot"
         }
       },
       "oauth_client": [
@@ -47,7 +47,7 @@
           "client_id": "1000558491875-136qa4lcjmi0hm5pdcj5nc4e2jjqjoo7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.app_republic.kora",
+            "package_name": "com.app_republic.shoot",
             "certificate_hash": "e9432e6bd7cbc830550f78d4b428c0dea1778a30"
           }
         },
@@ -55,7 +55,7 @@
           "client_id": "1000558491875-dp26rcfhh51jsm09iv1c2m3kquf40o57.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.app_republic.kora",
+            "package_name": "com.app_republic.shoot",
             "certificate_hash": "b343fa6907c3c96bf2d94f999b71575289e38526"
           }
         },
@@ -63,7 +63,7 @@
           "client_id": "1000558491875-ces302mnn33chnjfnhblvn114s3lmmmr.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.app_republic.kora",
+            "package_name": "com.app_republic.shoot",
             "certificate_hash": "3d56a42a6f228c422796e0e398a971ec07bc1ae4"
           }
         },

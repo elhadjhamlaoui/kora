@@ -33,10 +33,6 @@
 
     </style>
 
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
-
-    </style>
-
     <style name="DefaultTextViewStyle" parent="android:Widget.TextView">
         <item name="android:fontFamily">@font/jozoor</item>
     </style>
@@ -45,6 +41,9 @@
 
     </style>
 
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light">
+
+    </style>
 
     <style name="NewsItemTheme" parent="AppTheme.NoActionBar"></style>
 
