@@ -77,7 +77,7 @@
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-4204018388191302~2628308431" />
+            android:value="ca-app-pub-5411690074381837~1111970223" />
 
         <activity
             android:name="com.app_republic.kora.activity.GoToVideoActivity"

@@ -631,6 +631,37 @@ public class Utils {
                 if (appSingleton.getInterstitialAd().isLoaded()) {
                     appSingleton.getInterstitialAd().show();
                     appSingleton.getInterstitialAd().setAdListener(new AdListener(){
+
+                        @Override
+                        public void onAdFailedToLoad(int i) {
+                            super.onAdFailedToLoad(i);
+                        }
+
+                        @Override
+                        public void onAdLeftApplication() {
+                            super.onAdLeftApplication();
+                        }
+
+                        @Override
+                        public void onAdOpened() {
+                            super.onAdOpened();
+                        }
+
+                        @Override
+                        public void onAdLoaded() {
+                            super.onAdLoaded();
+                        }
+
+                        @Override
+                        public void onAdClicked() {
+                            super.onAdClicked();
+                        }
+
+                        @Override
+                        public void onAdImpression() {
+                            super.onAdImpression();
+                        }
+
                         @Override
                         public void onAdClosed() {
                             super.onAdClosed();

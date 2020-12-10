@@ -80,6 +80,7 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics:17.2.1'
 
+
     implementation 'com.crashlytics.sdk.android:crashlytics:2.10.1'
 
     implementation 'com.github.bumptech.glide:glide:4.11.0'
@@ -89,9 +90,10 @@ dependencies {
 
 
 
-    /*
+
 
     implementation 'com.google.android.gms:play-services-ads:18.3.0'
+    /*
     implementation 'com.mopub.mediation:admob:18.3.0.2'
 
     // Facebook Audience Network
@@ -101,6 +103,7 @@ dependencies {
     implementation('com.mopub:mopub-sdk:+@aar') {
         transitive = true
     }
+    
     implementation 'com.google.ads.mediation:mopub:+'
 
 
@@ -123,8 +126,8 @@ dependencies {
     implementation('com.mopub:mopub-sdk-native-video:+@aar') {
         transitive = true
     }
+*/
 
-    */
 
 
 }

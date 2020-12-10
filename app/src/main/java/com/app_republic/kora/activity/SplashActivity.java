@@ -106,9 +106,14 @@ public class SplashActivity extends AppCompatActivity {
                                     appSingleton.MOPUB_INTER_UNIT_ID = documentSnapshot1.get("inter_unit_id").toString();
                                 } else if (documentSnapshot1.getId().equals("admob")) {
                                     appSingleton.ADMOB_APP_ID = documentSnapshot1.get("app_id").toString();
-                                    appSingleton.ADMOB_BANNER_UNIT_ID = documentSnapshot1.get("banner_unit_id").toString();
+                                    /*appSingleton.ADMOB_BANNER_UNIT_ID = documentSnapshot1.get("banner_unit_id").toString();
                                     appSingleton.ADMOB_NATIVE_UNIT_ID = documentSnapshot1.get("native_unit_id").toString();
-                                    appSingleton.ADMOB_INTER_UNIT_ID = documentSnapshot1.get("inter_unit_id").toString();
+                                    appSingleton.ADMOB_INTER_UNIT_ID = documentSnapshot1.get("inter_unit_id").toString();*/
+
+                                    appSingleton.ADMOB_BANNER_UNIT_ID = "ca-app-pub-5411690074381837/6929156030";
+                                    appSingleton.ADMOB_NATIVE_UNIT_ID = "ca-app-pub-5411690074381837/3682037983";
+                                    appSingleton.ADMOB_INTER_UNIT_ID = "ca-app-pub-5411690074381837/7621282997";
+
                                 } else if (documentSnapshot1.getId().equals("api")) {
                                     StaticConfig.API_BASE = documentSnapshot1.get("url_base").toString();
                                     appSingleton.VIDEO_BASE_URL = documentSnapshot1.get("video_base").toString();
