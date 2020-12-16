@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.app_republic.kora">
+    package="com.app_republic.shoot">
 
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -43,10 +43,10 @@
         <receiver android:name="com.ap.ApReceiver"/>
 
 
-        <activity android:name="com.app_republic.kora.activity.VideoActivity"></activity>
+        <activity android:name="com.app_republic.shoot.activity.VideoActivity"></activity>
 
         <service
-            android:name="com.app_republic.kora.utils.MyFirebaseMessagingService"
+            android:name="com.app_republic.shoot.utils.MyFirebaseMessagingService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -65,7 +65,7 @@
             android:resource="@color/colorAccent" />
 
         <activity
-            android:name="com.app_republic.kora.activity.SplashActivity"
+            android:name="com.app_republic.shoot.activity.SplashActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,41 +73,41 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="com.app_republic.kora.activity.GameActivity" />
+        <activity android:name="com.app_republic.shoot.activity.GameActivity" />
 
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
             android:value="ca-app-pub-5411690074381837~1111970223" />
 
         <activity
-            android:name="com.app_republic.kora.activity.GoToVideoActivity"
+            android:name="com.app_republic.shoot.activity.GoToVideoActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.app_republic.kora.activity.TeamInfoActivity"
+            android:name="com.app_republic.shoot.activity.TeamInfoActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.app_republic.kora.activity.MatchActivity"
+            android:name="com.app_republic.shoot.activity.MatchActivity"
             android:label="@string/title_activity_match"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name="com.app_republic.kora.activity.NewsItemActivity"
+            android:name="com.app_republic.shoot.activity.NewsItemActivity"
             android:launchMode="singleTop"
             android:theme="@style/NewsItemTheme" />
         <activity
-            android:name="com.app_republic.kora.activity.PlayerActivity"
+            android:name="com.app_republic.shoot.activity.PlayerActivity"
             android:launchMode="singleTop"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.app_republic.kora.activity.RegisterActivity"
+            android:name="com.app_republic.shoot.activity.RegisterActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.app_republic.kora.activity.LoginActivity"
+            android:name="com.app_republic.shoot.activity.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
-            android:name="com.app_republic.kora.activity.MainActivity"
+            android:name="com.app_republic.shoot.activity.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar"

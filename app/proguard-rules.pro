@@ -44,7 +44,7 @@
 
 -keepattributes Signature
 -keepattributes *Annotation*
--keep class com.app_republic.kora.model.* { *; }
+-keep class com.app_republic.shoot.model.* { *; }
 
 -keep class flagkit.* {*;}
 -dontwarn flagkit.**

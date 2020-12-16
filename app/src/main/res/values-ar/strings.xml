@@ -47,7 +47,7 @@
     <string name="tab_text_1">Tab 1</string>
     <string name="tab_text_2">Tab 2</string>
     <string name="title_activity_match_acitivity">MatchAcitivity</string>
-    <string name="play_store_link">https://play.google.com/store/apps/details?id=com.app_republic.kora</string>
+    <string name="play_store_link">https://play.google.com/store/apps/details?id=com.app_republic.shoot</string>
 
     <string name="department">البطولة</string>
     <string name="role">الجولة</string>
@@ -98,7 +98,7 @@
     <string name="website">الموقع الالكتروني</string>
     <string name="add_comment">أضف تعليق</string>
     <string name="predict_result">توقع الفائز</string>
-    <string name="live_stream">فيديو</string>
+    <string name="live_stream">الفيديو</string>
     <string name="group">المجموعة</string>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.app_republic.kora;
+package com.app_republic.shoot;
 
 import org.junit.Test;
 
