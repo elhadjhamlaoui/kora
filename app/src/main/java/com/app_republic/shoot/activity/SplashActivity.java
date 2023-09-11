@@ -2,21 +2,16 @@ package com.app_republic.shoot.activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.app_republic.shoot.BuildConfig;
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Advert;
+import com.app_republic.shoot.model.general.Advert;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
-import com.facebook.FacebookSdk;
-import com.facebook.appevents.AppEventsLogger;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -25,6 +20,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -36,7 +35,7 @@ public class SplashActivity extends AppCompatActivity {
     public static final String SETTINGS_TITLE = "settings";
     public static final String SETTING_ALREADY_SUBSCRIBED = "already_subscribed";
     public static final String SETTING_ALREADY_SUBSCRIBED_new_topic = "already_subscribed2";
-    long current_time, last_read;
+    long current_time, last_read, last_read_leagues;
     Source source;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,9 +70,87 @@ public class SplashActivity extends AppCompatActivity {
         }
         getSettings(source);
 
+        last_read_leagues = prefs.getLong("last_read_leagues", current_time);
+        if ((last_read_leagues + 1000 * 60 * 60 * 12) < current_time || last_read_leagues == current_time) {
+            source = Source.SERVER;
+        } else {
+            source = Source.CACHE;
+        }
+        getLeagues(source);
+
     }
 
+    private void getLeagues(Source source) {
+        db.collection("leagues")
+                .document("leagues")
+                .get(source).addOnSuccessListener(document -> {
+                    appSingleton.leagues = new ArrayList<>();
+                    appSingleton.leagueNames = new ArrayList<>();
+
+                    for (Long longValue : (ArrayList<Long>) document.get("leagues")) {
+                        appSingleton.leagues.add(longValue.intValue());
+                    }
+
+                    appSingleton.leagueNames.addAll((ArrayList<String>) document.get("names"));
+
+
+                    String orderString = (String) document.get("order");
+
+                    String[] stringArray = orderString.split(",");
+
+                    List<Integer> order = new ArrayList<>();
+
+                    for (String str : stringArray) {
+                        try {
+                            int num = Integer.parseInt(str);
+                            order.add(num);
+                        } catch (NumberFormatException e) {
+                            System.err.println("Unable to parse: " + str);
+                        }
+                    }
+
+                    Comparator<Integer> customComparator = (id1, id2) -> {
+                        int index1 = order.indexOf(appSingleton.leagues.indexOf(id1));
+                        int index2 = order.indexOf(appSingleton.leagues.indexOf(id2));
+                        if (index1 != -1 && index2 != -1) {
+                            return Integer.compare(index1, index2);
+                        } else if (index1 != -1) {
+                            return -1;
+                        } else if (index2 != -1) {
+                            return 1;
+                        } else {
+                            return Integer.compare(appSingleton.leagues.indexOf(id1), appSingleton.leagues.indexOf(id2));
+                        }
+                    };
+
+                    Collections.sort(appSingleton.leagues, customComparator);
+
+                    Comparator<String> customComparator2 = (id1, id2) -> {
+                        int index1 = order.indexOf(appSingleton.leagueNames.indexOf(id1));
+                        int index2 = order.indexOf(appSingleton.leagueNames.indexOf(id2));
+                        if (index1 != -1 && index2 != -1) {
+                            return Integer.compare(index1, index2);
+                        } else if (index1 != -1) {
+                            return -1;
+                        } else if (index2 != -1) {
+                            return 1;
+                        } else {
+                            return Integer.compare(appSingleton.leagueNames.indexOf(id1), appSingleton.leagueNames.indexOf(id2));
+                        }
+                    };
+
+                    Collections.sort(appSingleton.leagueNames, customComparator2);
+
+
+                    editor.putLong("last_read_leagues", current_time);
+                    editor.apply();
+                }).addOnFailureListener(e -> {
+                    getLeagues(Source.CACHE);
+                    Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
     private void getSettings(Source source) {
+
         db.collection("settings")
                 .get(source).addOnSuccessListener(queryDocumentSnapshots -> {
 

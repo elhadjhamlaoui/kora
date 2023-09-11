@@ -1,7 +1,6 @@
 package com.app_republic.shoot.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +14,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.activity.GoToVideoActivity;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.Match;
-import com.app_republic.shoot.model.TimeLine;
+import com.app_republic.shoot.model.Events.Event;
+import com.app_republic.shoot.model.Events.EventsResponse;
+import com.app_republic.shoot.model.general.Match;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.facebook.shimmer.ShimmerFrameLayout;
@@ -39,7 +37,7 @@ import static android.view.View.GONE;
 public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
 
-    ArrayList<TimeLine> list = new ArrayList<>();
+    ArrayList<Event> list = new ArrayList<>();
 
     TimeLineAdapter timeLineAdapter;
     RecyclerView recyclerView;
@@ -111,9 +109,9 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
     class TimeLineAdapter extends RecyclerView.Adapter<TimeLineAdapter.viewHolder> {
 
         Context context;
-        ArrayList<TimeLine> list;
+        ArrayList<Event> list;
 
-        public TimeLineAdapter(Context context, ArrayList<TimeLine> list) {
+        public TimeLineAdapter(Context context, ArrayList<Event> list) {
             this.context = context;
             this.list = list;
         }
@@ -138,38 +136,53 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
         @Override
         public void onBindViewHolder(@NonNull viewHolder viewHolder, int i) {
 
-            TimeLine item = list.get(i);
+            Event item = list.get(i);
 
-            int type = Integer.parseInt(item.getType()) - 1;
+            viewHolder.time.setText(String.valueOf(item.getTime().getElapsed()));
 
+            viewHolder.player.setText(item.getPlayer().getName());
 
-            viewHolder.time.setText(item.getTime());
-            viewHolder.title.setText(item.getText());
-
-
-            if (type == 1)
-                viewHolder.video.setVisibility(View.GONE);
-            else
-                viewHolder.video.setVisibility(View.VISIBLE);
+            if (item.getAssist().getName() != null) {
+                viewHolder.assist.setVisibility(View.VISIBLE);
 
 
-            if (item.getVideoItem() != null) {
+                if (item.getType().equals("subst")) {
+                    viewHolder.assist.setText(item.getAssist().getName());
+
+                    viewHolder.player.setBackgroundResource(R.drawable.bac_round_red);
+                    viewHolder.player
+                            .setTextColor(getResources()
+                                    .getColor(R.color.white));
+
+                    viewHolder.assist.setBackgroundResource(R.drawable.bac_round_blue);
+
+                    viewHolder.assist
+                            .setTextColor(getResources()
+                                    .getColor(R.color.white));
+                } else {
+                    viewHolder.assist.setText(getResources().getString(R.string.player_assist) + " " + item.getAssist().getName());
+                }
+            } else {
+                viewHolder.assist.setVisibility(GONE);
+            }
+
+            /*if (item.getVideoItem() != null) {
                 viewHolder.video.setText(context.getResources()
                         .getStringArray(R.array.timeline_types)[type]);
                 viewHolder.video.
                         setCompoundDrawablesWithIntrinsicBounds(context.getResources()
                                         .getDrawable(R.drawable.ic_play_white),
                                 null, null, null);
-            }
+            }*/
 
-            else {
+            /*else {
                 viewHolder.video.setText(context.getResources()
                         .getStringArray(R.array.timeline_types)[type]);
 
                 viewHolder.video.
                         setCompoundDrawablesWithIntrinsicBounds(
                                 null, null, null, null);
-            }
+            }*/
 
 
             if (i == (list.size() - 1)) {
@@ -183,8 +196,8 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 viewHolder.end.setText(context.getString(R.string.end_match));
             } else {
 
-                int mins = Integer.parseInt(item.getTime());
-                int previousMins = Integer.parseInt(list.get(i - 1).getTime());
+                int mins = item.getTime().getElapsed();
+                int previousMins = list.get(i - 1).getTime().getElapsed();
 
 
 
@@ -195,29 +208,43 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                     viewHolder.end.setVisibility(View.GONE);
                 }
             }
-            switch (Integer.parseInt(item.getType())) {
-                case 1:
+            switch (item.getType()) {
+                case "Goal":
                     viewHolder.icon.setImageResource(R.drawable.ic_goal);
-                    break;
-                case 2:
-                    viewHolder.icon.setImageResource(R.drawable.ic_streaming);
-                    break;
-                case 3:
-                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
-                    break;
-                case 4:
-                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
-                    break;
-                case 5:
-                    viewHolder.icon.setImageResource(R.drawable.ic_goal);
-                    break;
-                case 6:
-                    viewHolder.icon.setImageResource(R.drawable.ic_yellow_card);
-                    break;
-                case 7:
-                    viewHolder.icon.setImageResource(R.drawable.ic_red_card);
-                    break;
 
+                    if (item.getDetail().equals("Normal Goal")) {
+                        viewHolder.title.setText(getResources().getString(R.string.goal));
+                    } else if(item.getDetail().equals("Own Goal")) {
+                        viewHolder.title.setText(getResources().getString(R.string.own_goal));
+                    } else if (item.getDetail().equals("Penalty")) {
+                        viewHolder.title.setText(getResources().getString(R.string.penalty));
+                        viewHolder.assist.setVisibility(GONE);
+                    } else if (item.getDetail().equals("Missed Penalty")) {
+                        viewHolder.title.setText(getResources().getString(R.string.missed_penalty2));
+                        viewHolder.assist.setVisibility(GONE);
+                    }
+                    break;
+                case "Var":
+                    if (item.getDetail().equals("Goal cancelled")) {
+                        viewHolder.title.setText(getResources().getString(R.string.goal_cancelled));
+                    } else if(item.getDetail().equals("Penalty confirmed")) {
+                        viewHolder.title.setText(getResources().getString(R.string.penalty_confirmed));
+                    }
+                    viewHolder.icon.setImageResource(R.drawable.ic_var);
+                    break;
+                case "Card":
+                    if (item.getDetail().equals("Yellow Card")) {
+                        viewHolder.title.setText(getResources().getString(R.string.yellow_card));
+                        viewHolder.icon.setImageResource(R.drawable.ic_yellow_card);
+                    } else {
+                        viewHolder.title.setText(getResources().getString(R.string.red_card));
+                        viewHolder.icon.setImageResource(R.drawable.ic_red_card);
+                    }
+                    break;
+                case "subst":
+                    viewHolder.title.setText(getResources().getString(R.string.subst));
+                    viewHolder.icon.setImageResource(R.drawable.ic_switch);
+                    break;
             }
 
         }
@@ -229,19 +256,16 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
         @Override
         public int getItemViewType(int position) {
-            switch (Integer.parseInt(list.get(position).getTeam())) {
-                case 1:
-                    return ITEM_TYPE_TEAM1;
-
-                case 2:
-                    return ITEM_TYPE_TEAM2;
+            if (list.get(position).getTeam().getId() == match.getTeams().getHome().getId()) {
+                return ITEM_TYPE_TEAM1;
+            } else {
+                return ITEM_TYPE_TEAM2;
             }
-            return 1;
         }
 
         class viewHolder extends RecyclerView.ViewHolder {
 
-            TextView title, video, time, end;
+            TextView title, player, assist, time, end;
             ImageView icon, watch;
             View V_root;
 
@@ -249,7 +273,8 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 super(itemView);
                 title = itemView.findViewById(R.id.title);
                 time = itemView.findViewById(R.id.time);
-                video = itemView.findViewById(R.id.video);
+                player = itemView.findViewById(R.id.player);
+                assist = itemView.findViewById(R.id.assist);
                 end = itemView.findViewById(R.id.end);
 
                 icon = itemView.findViewById(R.id.icon);
@@ -257,12 +282,12 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
                 V_root = itemView.findViewById(R.id.card);
 
                 V_root.setOnClickListener(view -> {
-                    if (list.get(getAdapterPosition()).getVideoItem() != null) {
+                    /*if (list.get(getAdapterPosition()).getVideoItem() != null) {
                         Intent intent = new Intent(context, GoToVideoActivity.class);
                         intent.putExtra(StaticConfig.VIDEO_URI,
                                 list.get(getAdapterPosition()).getVideoItem().getVideoCode());
                         startActivity(intent);
-                    }
+                    }*/
 
                 });
 
@@ -278,23 +303,22 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
 
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTimeline("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, match.getLiveId());
-        call1.enqueue(new Callback<ApiResponse>() {
+        Call<EventsResponse> call1 = StaticConfig.apiInterface.getTimeline(String.valueOf(match.getFixture().getId()));
+        call1.enqueue(new Callback<EventsResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+            public void onResponse(Call<EventsResponse> call, Response<EventsResponse> apiResponse) {
                 try {
 
 
-                    ApiResponse response = apiResponse.body();
+                    EventsResponse response = apiResponse.body();
 
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     for (int i = 0; i < items.length(); i++) {
                         String jsonString = items.getJSONObject(i).toString();
-                        TimeLine timeLine;
-                        ;
-                        timeLine = gson.fromJson(jsonString, TimeLine.class);
+                        Event timeLine;
+
+                        timeLine = gson.fromJson(jsonString, Event.class);
                         list.add(timeLine);
                     }
 
@@ -315,7 +339,7 @@ public class TimeLineFragment extends Fragment implements View.OnClickListener {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<EventsResponse> call, Throwable t) {
                 t.printStackTrace();
                 call.cancel();
             }

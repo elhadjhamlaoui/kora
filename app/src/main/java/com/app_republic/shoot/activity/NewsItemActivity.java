@@ -11,7 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.News;
+import com.app_republic.shoot.model.general.News;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;

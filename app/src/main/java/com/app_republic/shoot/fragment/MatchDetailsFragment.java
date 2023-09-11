@@ -1,7 +1,6 @@
 package com.app_republic.shoot.fragment;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,14 +14,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Match;
-import com.app_republic.shoot.model.MatchDetail;
+import com.app_republic.shoot.model.general.Match;
+import com.app_republic.shoot.model.general.MatchDetail;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 
 public class MatchDetailsFragment extends Fragment implements View.OnClickListener {
 
@@ -66,25 +64,25 @@ public class MatchDetailsFragment extends Fragment implements View.OnClickListen
 
         match = getArguments().getParcelable(StaticConfig.MATCH);
 
-        long time = Utils.
-                getMillisFromMatchDate(match.getFullDatetimeSpaces()) - StaticConfig.TIME_DIFFERENCE;
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(time);
-
-        details.add(new MatchDetail(getString(R.string.department), match.getLiveDep(),
+        details.add(new MatchDetail(getString(R.string.department), match.getLeague().getName(),
                 R.drawable.ic_cup));
-        details.add(new MatchDetail(getString(R.string.role), match.getLiveRole(),
+        details.add(new MatchDetail(getString(R.string.role), match.getLeague().getRound(),
                 R.drawable.ic_tournament));
-        details.add(new MatchDetail(getString(R.string.stadium), match.getLiveStad(),
+        details.add(new MatchDetail(getString(R.string.stadium), match.getFixture().getVenue().getName(),
                 R.drawable.ic_field));
-        details.add(new MatchDetail(getString(R.string.channel), match.getLiveTv(),
-                R.drawable.ic_streaming));
-        details.add(new MatchDetail(getString(R.string.commentator), match.getLiveComm(),
-                R.drawable.ic_horn));
-        details.add(new MatchDetail(getString(R.string.match_time), Utils.getFullTime(time),
+        /*details.add(new MatchDetail(getString(R.string.channel), "",
+                R.drawable.ic_streaming));*/
+        /*details.add(new MatchDetail(getString(R.string.commentator), "",
+                R.drawable.ic_horn));*/
+        if (match.getFixture().getStatus().equals("TBD"))
+            details.add(new MatchDetail(getString(R.string.match_time), getString(R.string.tobedefined),
                 R.drawable.ic_stopwatch));
-        details.add(new MatchDetail(getString(R.string.match_date), Utils.getReadableDate(calendar),
+        else
+            details.add(new MatchDetail(getString(R.string.match_time), Utils.getReadableTime(match.getFixture().getTimestamp() * 1000L),
+                    R.drawable.ic_stopwatch));
+
+        details.add(new MatchDetail(getString(R.string.match_date), Utils.getReadableDate(match.getFixture().getTimestamp() * 1000L),
                 R.drawable.ic_calendar));
 
         details_adapter.notifyDataSetChanged();

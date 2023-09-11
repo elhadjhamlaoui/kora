@@ -20,8 +20,10 @@ import com.app_republic.shoot.fragment.ItemNewsFragment;
 import com.app_republic.shoot.fragment.ItemPlayersFragment;
 import com.app_republic.shoot.fragment.MatchesFragment;
 import com.app_republic.shoot.fragment.StandingsFragment;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.TeamInfo;
+import com.app_republic.shoot.fragment.TeamPlayersFragment;
+import com.app_republic.shoot.model.TeamInfos.ResponseItem;
+import com.app_republic.shoot.model.TeamInfos.TeamInfos;
+import com.app_republic.shoot.model.TeamInfos.TeamInfosResponse;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
@@ -42,12 +44,15 @@ import retrofit2.Response;
 public class TeamInfoActivity extends AppCompatActivity implements View.OnClickListener {
 
     ConstraintLayout Layout_root;
-    TeamInfo teamInfo;
+    TeamInfos teamInfo;
 
     TextView TV_name, TV_country;
     ImageView IV_logo, IV_back;
 
     String team_id;
+
+    String league_id;
+
     long timeDifference;
     AppSingleton appSingleton;
     Gson gson;
@@ -60,6 +65,7 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
         gson = appSingleton.getGson();
 
         team_id = getIntent().getStringExtra(StaticConfig.PARAM_TEAM_ID);
+        league_id = getIntent().getStringExtra(StaticConfig.PARAM_DEP_ID);
 
 
 
@@ -115,29 +121,20 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
 
     public void getTeamInfo() {
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTeamInfo("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, team_id);
-        call1.enqueue(new Callback<ApiResponse>() {
+        Call<TeamInfosResponse> call1 = StaticConfig.apiInterface.getTeamInfos(team_id);
+        call1.enqueue(new Callback<TeamInfosResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+            public void onResponse(Call<TeamInfosResponse> call, Response<TeamInfosResponse> apiResponse) {
 
                 try {
 
 
-                    ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
+                    TeamInfosResponse response = apiResponse.body();
 
-                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-                    StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     String jsonString = items.getJSONObject(0).toString();
-                    teamInfo = gson.fromJson(jsonString, TeamInfo.class);
+                    teamInfo = gson.fromJson(jsonString, ResponseItem.class).getTeam();
 
                     updateUI(teamInfo);
 
@@ -151,7 +148,7 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<TeamInfosResponse> call, Throwable t) {
                 t.printStackTrace();
                 call.cancel();
             }
@@ -160,21 +157,21 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
     }
 
-    private void updateUI(TeamInfo teamInfo) {
+    private void updateUI(TeamInfos teamInfo) {
 
         Picasso picasso = appSingleton.getPicasso();
 
-        TV_name.setText(teamInfo.getTeamName());
-        TV_country.setText(teamInfo.getTeamCountry());
+        TV_name.setText(teamInfo.getName());
+        TV_country.setText(teamInfo.getCountry());
 
         try {
-            picasso.load(teamInfo.getTeamLogo())
+            picasso.load(teamInfo.getLogo())
                     .fit()
                     .placeholder(R.drawable.ic_ball_small)
                     .into(IV_logo);
         } catch (Resources.NotFoundException e) {
             e.printStackTrace();
-            picasso.load(teamInfo.getTeamLogo())
+            picasso.load(teamInfo.getLogo())
                     .fit()
                     .into(IV_logo);
         }
@@ -184,7 +181,7 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
                 getSupportFragmentManager());
         ViewPager viewPager = findViewById(R.id.view_pager);
 
-        viewPager.setOffscreenPageLimit(4);
+        viewPager.setOffscreenPageLimit(3);
         viewPager.setAdapter(sectionsPagerAdapter);
         TabLayout tabs = findViewById(R.id.tabs);
         tabs.setupWithViewPager(viewPager);
@@ -227,13 +224,15 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
             Fragment fragment = null;
             switch (position) {
                 case 0:
-                    fragment = ItemPlayersFragment.newInstance();
+                    fragment = TeamPlayersFragment.newInstance();
                     Bundle args0 = new Bundle();
 
                     args0.putString(StaticConfig.PARAM_ITEM_TYPE,
                             StaticConfig.PARAM_ITEM_TYPE_TEAM);
                     args0.putString(StaticConfig.PARAM_ITEM_ID,
-                            teamInfo.getTeamId());
+                            String.valueOf(teamInfo.getId()));
+                    args0.putString(StaticConfig.PARAM_TEAM_ID_A,
+                            String.valueOf(teamInfo.getId()));
 
                     fragment.setArguments(args0);
 
@@ -243,10 +242,13 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
                     fragment = StandingsFragment.newInstance();
                     Bundle args1 = new Bundle();
 
-                    args1.putString(StaticConfig.PARAM_DEP_ID,
-                            teamInfo.getDepId());
                     args1.putString(StaticConfig.PARAM_TEAM_ID,
-                            teamInfo.getTeamId());
+                            String.valueOf(teamInfo.getId()));
+
+                    args1.putString(StaticConfig.PARAM_DEP_ID,
+                            String.valueOf(league_id));
+                    args1.putString(StaticConfig.PARAM_TEAM_ID_A,
+                            String.valueOf(teamInfo.getId()));
 
 
                     fragment.setArguments(args1);
@@ -259,7 +261,7 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
                     args2.putString(StaticConfig.PARAM_ITEM_TYPE,
                             StaticConfig.PARAM_ITEM_TYPE_TEAM);
                     args2.putString(StaticConfig.PARAM_ITEM_ID,
-                            teamInfo.getTeamId());
+                            String.valueOf(teamInfo.getId()));
 
                     fragment.setArguments(args2);
 
@@ -270,7 +272,8 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
                     args3.putParcelable(StaticConfig.TEAM_INFO,
                             teamInfo);
-
+                    args3.putString(StaticConfig.PARAM_TEAM_ID,
+                            String.valueOf(team_id));
                     fragment.setArguments(args3);
 
                     break;
@@ -288,8 +291,8 @@ public class TeamInfoActivity extends AppCompatActivity implements View.OnClickL
 
         @Override
         public int getCount() {
-            // Show 5 total pages.
-            return 4;
+            // Show 3 total pages.
+            return 3;
         }
     }
 }

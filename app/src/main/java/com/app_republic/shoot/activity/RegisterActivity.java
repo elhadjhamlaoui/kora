@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.User;
+import com.app_republic.shoot.model.general.User;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.Utils;
 import com.google.firebase.auth.FirebaseAuth;

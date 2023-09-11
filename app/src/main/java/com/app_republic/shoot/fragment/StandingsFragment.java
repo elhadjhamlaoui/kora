@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -14,9 +13,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.News;
-import com.app_republic.shoot.model.Standing;
+import com.app_republic.shoot.model.LeagueStandingResponse.League;
+import com.app_republic.shoot.model.LeagueStandingResponse.LeagueStandingResponse;
+import com.app_republic.shoot.model.LeagueStandingResponse.Standing;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
@@ -56,6 +55,7 @@ public class StandingsFragment extends Fragment {
     String team_id, team_id_a, team_id_b;
     Gson gson;
     private AppSingleton appSingleton;
+    private League league;
 
     public StandingsFragment() {
         // Required empty public constructor
@@ -111,50 +111,45 @@ public class StandingsFragment extends Fragment {
 
     private void getStandings() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepStandings("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, dep_id);
-        call1.enqueue(new Callback<ApiResponse>() {
+        Call<LeagueStandingResponse> call1 = StaticConfig.apiInterface.getDepStandings(dep_id, Calendar.getInstance().get(Calendar.YEAR));
+        call1.enqueue(new Callback<LeagueStandingResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+            public void onResponse(Call<LeagueStandingResponse> call, Response<LeagueStandingResponse> apiResponse) {
                 try {
 
 
-                    ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
+                    LeagueStandingResponse response = apiResponse.body();
 
-                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
+                    if (response.getResponse().size() > 0) {
+                        league = response.getResponse().get(0).getLeague();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
+                        JSONArray items = new JSONArray(gson.toJson(league.getStandings().get(0)));
 
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
-
-                    list.clear();
-                    standings.clear();
-                    standingsAdapter.notifyDataSetChanged();
+                        list.clear();
+                        standings.clear();
+                        standingsAdapter.notifyDataSetChanged();
 
 
-                    for (int i = 0; i < items.length(); i++) {
-                        String jsonString = items.getJSONObject(i).toString();
-                        Standing standing;
-                        ;
-                        standing = gson.fromJson(jsonString, Standing.class);
-                        standings.add(standing);
+                        for (int i = 0; i < items.length(); i++) {
+                            String jsonString = items.getJSONObject(i).toString();
+                            Standing standing;
+                            standing = gson.fromJson(jsonString, Standing.class);
+                            standings.add(standing);
+                        }
+
+                        list.addAll(standings);
+
+
+                        if (standings.size() == 0)
+                            AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, standingsRecyclerView, standingsAdapter,
+                                    standings, list, 3);
+                        else
+                            AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, standingsRecyclerView, standingsAdapter,
+                                    standings, list, NUMBER_OF_NATIVE_ADS_NEWS);
+
+
+                        standingsAdapter.notifyItemRangeInserted(0, standings.size());
                     }
-
-                    list.addAll(standings);
-
-
-                    if (standings.size() == 0)
-                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, standingsRecyclerView, standingsAdapter,
-                                standings, list, 3);
-                    else
-                        AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, standingsRecyclerView, standingsAdapter,
-                                standings, list, NUMBER_OF_NATIVE_ADS_NEWS);
-
-
-                    standingsAdapter.notifyItemRangeInserted(0, standings.size());
 
 
                 } catch (JSONException e) {
@@ -168,7 +163,7 @@ public class StandingsFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<LeagueStandingResponse> call, Throwable t) {
                 t.printStackTrace();
                 call.cancel();
             }
@@ -225,33 +220,33 @@ public class StandingsFragment extends Fragment {
                     //viewHolder.standing.setText(String.valueOf(i + 1));
                     viewHolder.standing.setText(String.valueOf(standings.indexOf(standing) + 1));
 
-                    viewHolder.points.setText(standing.getPoints());
-                    viewHolder.goals_diff.setText(standing.getGoalsDiff());
-                    viewHolder.against.setText(standing.getAgainst());
-                    viewHolder.dep_for.setText(standing.getDepFor());
-                    viewHolder.lose.setText(standing.getLose());
-                    viewHolder.draw.setText(standing.getDraw());
-                    viewHolder.win.setText(standing.getWin());
-                    viewHolder.play.setText(standing.getPlay());
-                    viewHolder.name.setText(standing.getTeamName());
+                    viewHolder.points.setText(String.valueOf(standing.getPoints()));
+                    viewHolder.goals_diff.setText(String.valueOf(standing.getGoalsDiff()));
+                    viewHolder.against.setText(String.valueOf(standing.getAll().getGoals().getAgainst()));
+                    viewHolder.dep_for.setText(String.valueOf(standing.getAll().getGoals().getJsonMemberFor()));
+                    viewHolder.lose.setText(String.valueOf(standing.getAll().getLose()));
+                    viewHolder.draw.setText(String.valueOf(standing.getAll().getDraw()));
+                    viewHolder.win.setText(String.valueOf(standing.getAll().getWin()));
+                    viewHolder.play.setText(String.valueOf(standing.getAll().getPlayed()));
+                    viewHolder.name.setText(String.valueOf(standing.getTeam().getName()));
 
-                    if (!standing.getTeamLogo().isEmpty()) {
+                    if (!standing.getTeam().getLogo().isEmpty()) {
                         picasso.cancelRequest(viewHolder.icon);
-                        picasso.load(standing.getTeamLogo()).fit()
+                        picasso.load(standing.getTeam().getLogo()).fit()
                                 .into(viewHolder.icon);
                     }
 
-                    if (standing.getHasGroups().equals("1")) {
+                    if (!standing.getGroup().equals(league.getName())) {
                         if (i == 0) {
                             viewHolder.group.setText(getString(R.string.group) + " " +
-                                    standing.getGroupNo());
+                                    standing.getGroup());
                             viewHolder.V_group.setVisibility(View.VISIBLE);
                         } else {
                             Standing previousStanding = (Standing) list.get(i - 1);
 
-                            if (!previousStanding.getGroupNo().equals(standing.getGroupNo())) {
+                            if (!previousStanding.getGroup().equals(standing.getGroup())) {
                                 viewHolder.group.setText(getString(R.string.group) + " " +
-                                        standing.getGroupNo());
+                                        standing.getGroup());
                                 viewHolder.V_group.setVisibility(View.VISIBLE);
                             } else
                                 viewHolder.V_group.setVisibility(View.GONE);
@@ -259,8 +254,8 @@ public class StandingsFragment extends Fragment {
 
                     }
 
-                    if (team_id.equals(standing.getTeamId()) || team_id_a.equals(standing.getTeamId())
-                            || team_id_b.equals(standing.getTeamId())
+                    if (team_id.equals(String.valueOf(standing.getTeam().getId())) || team_id_a.equals(String.valueOf(standing.getTeam().getId()))
+                            || team_id_b.equals(String.valueOf(standing.getTeam().getId()))
                     ) {
                         viewHolder.V_root
                                 .setBackgroundColor(getResources()
@@ -327,11 +322,13 @@ public class StandingsFragment extends Fragment {
 
                 V_root.setOnClickListener(view -> {
                     Standing standing = (Standing)list.get(getAdapterPosition());
-                    String current_team_id = standing.getTeamId();
+                    String current_team_id = String.valueOf(standing.getTeam().getId());
                     if (!current_team_id.equals(team_id)) {
                         Utils.startTeamActivity(getActivity(),
                                 getActivity().getSupportFragmentManager(),
-                                standing.getTeamId());
+                                String.valueOf(standing.getTeam().getId()),
+                                String.valueOf(league.getId())
+                        );
                     }
 
                 });

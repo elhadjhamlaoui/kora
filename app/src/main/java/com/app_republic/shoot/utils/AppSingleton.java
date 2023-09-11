@@ -9,8 +9,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Advert;
-import com.app_republic.shoot.model.User;
+import com.app_republic.shoot.model.general.Advert;
+import com.app_republic.shoot.model.general.User;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdLoader;
 import com.google.android.gms.ads.AdRequest;
@@ -49,6 +49,10 @@ public class AppSingleton {
 
     public ArrayList<Advert> banner_adverts = new ArrayList<>();
     public ArrayList<Advert> inter_adverts = new ArrayList<>();
+
+    public ArrayList<Integer> leagues = new ArrayList<>();
+
+    public ArrayList<String> leagueNames = new ArrayList<>();
 
     private FirebaseStorage storage;
 

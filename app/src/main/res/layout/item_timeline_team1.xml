@@ -64,7 +64,7 @@
         app:layout_constraintTop_toBottomOf="@+id/end">
 
         <TextView
-            android:id="@+id/video"
+            android:id="@+id/player"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp"
@@ -79,6 +79,24 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/icon"
             app:layout_constraintTop_toBottomOf="@+id/title" />
+
+        <TextView
+            android:id="@+id/assist"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/bac_round"
+            android:gravity="center"
+            android:padding="5dp"
+            android:text="TextView"
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toEndOf="@+id/icon"
+            app:layout_constraintTop_toBottomOf="@+id/player" />
 
         <TextView
             android:id="@+id/title"
@@ -100,9 +118,9 @@
             android:layout_height="40dp"
             app:civ_border_color="@color/blue_8"
             app:civ_border_width="2dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/assist"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/player"
             app:srcCompat="@drawable/ic_ball_small" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

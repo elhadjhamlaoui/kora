@@ -22,7 +22,8 @@ import com.app_republic.shoot.R;
 import com.app_republic.shoot.fragment.ItemPlayersFragment;
 import com.app_republic.shoot.fragment.MatchesFragment;
 import com.app_republic.shoot.fragment.PlayerDetailsFragment;
-import com.app_republic.shoot.model.Player;
+import com.app_republic.shoot.model.PlayersResponse.Player;
+import com.app_republic.shoot.model.PlayersResponse.StatisticsItem;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
@@ -37,8 +38,11 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
     ImageView IV_photo, IV_back;
     ConstraintLayout Layout_root;
     Player player;
+    StatisticsItem statisticsItem;
     Picasso picasso;
     AppSingleton appSingleton;
+
+    String photo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +52,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
         appSingleton = AppSingleton.getInstance(this);
 
         player = getIntent().getParcelableExtra(StaticConfig.PLAYER);
+        statisticsItem = getIntent().getParcelableExtra(StaticConfig.PLAYER_STATISTIC);
+        photo = getIntent().getParcelableExtra(StaticConfig.PHOTO);
 
+        photo = "https://media-2.api-sports.io/football/players/" + player.getId() + ".png";
         picasso = appSingleton.getPicasso();
 
         SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(this,
@@ -92,14 +99,30 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
 
         TV_name.setText(player.getName());
-        TV_position.setText(player.getPlayerNo());
-        TV_country.setText(player.getNationalTeam());
-        TV_team.setText(player.getTeamName());
-        TV_age.setText(getString(R.string.year) + player.getPlayerAge());
+        TV_country.setText(player.getNationality());
+        TV_team.setText(statisticsItem.getTeam().getName());
+        TV_age.setText(getString(R.string.year) + player.getAge());
 
-        if (!player.getTeamImage().isEmpty()) {
+        switch (statisticsItem.getGames().getPosition()) {
+
+            case "Goalkeeper" :
+                TV_position.setText(getString(R.string.goalkeeper));
+                break;
+            case "Defender" :
+                TV_position.setText(getString(R.string.defender));
+                break;
+            case "Midfielder" :
+                TV_position.setText(getString(R.string.midfielder));
+                break;
+            case "Attacker" :
+                TV_position.setText(getString(R.string.attacker));
+                break;
+        }
+
+
+        if (!statisticsItem.getTeam().getLogo().isEmpty()) {
             try {
-                picasso.load(player.getTeamImage()).placeholder(R.drawable.ic_ball).into(new Target() {
+                picasso.load(statisticsItem.getTeam().getLogo()).placeholder(R.drawable.ic_ball).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         TV_team.setCompoundDrawablesWithIntrinsicBounds(
@@ -119,7 +142,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 });
             } catch (Resources.NotFoundException e) {
                 e.printStackTrace();
-                picasso.load(player.getTeamImage()).into(new Target() {
+                picasso.load(statisticsItem.getTeam().getLogo()).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         TV_team.setCompoundDrawablesWithIntrinsicBounds(
@@ -140,9 +163,9 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
 
-        if (!player.getNationalTeamImage().isEmpty()) {
+        if (statisticsItem != null) {
             try {
-                picasso.load(player.getNationalTeamImage()).placeholder(R.drawable.ic_ball).into(new Target() {
+                picasso.load(statisticsItem.getLeague().getFlag()).placeholder(R.drawable.ic_ball).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         TV_country.setCompoundDrawablesWithIntrinsicBounds(
@@ -162,7 +185,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 });
             } catch (Resources.NotFoundException e) {
                 e.printStackTrace();
-                picasso.load(player.getNationalTeamImage()).into(new Target() {
+                picasso.load(statisticsItem.getLeague().getFlag()).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         TV_country.setCompoundDrawablesWithIntrinsicBounds(
@@ -183,9 +206,9 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
 
-        if (!player.getPlayerImage().isEmpty()) {
+        if (!player.getPhoto().isEmpty()) {
             try {
-                picasso.load(player.getPlayerImage()).placeholder(R.drawable.ic_ball).into(new Target() {
+                picasso.load(photo).placeholder(R.drawable.ic_ball).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         IV_photo.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
@@ -203,7 +226,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 });
             } catch (Resources.NotFoundException e) {
                 e.printStackTrace();
-                picasso.load(player.getPlayerImage()).into(new Target() {
+                picasso.load(photo).into(new Target() {
                     @Override
                     public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
                         IV_photo.setImageDrawable(new BitmapDrawable(getResources(), bitmap));
@@ -252,10 +275,10 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                 onBackPressed();
                 break;
             case R.id.country:
-                Utils.startTeamActivity(this, getSupportFragmentManager(), player.getOtherTeamId());
+                //Utils.startTeamActivity(this, getSupportFragmentManager(), player.getOtherTeamId());
                 break;
             case R.id.team:
-                Utils.startTeamActivity(this, getSupportFragmentManager(), player.getTeamId());
+                Utils.startTeamActivity(this, getSupportFragmentManager(), String.valueOf(statisticsItem.getTeam().getId()), String.valueOf(statisticsItem.getLeague().getId()));
                 break;
         }
     }
@@ -287,7 +310,7 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                     args0.putString(StaticConfig.PARAM_ITEM_TYPE,
                             StaticConfig.PARAM_ITEM_TYPE_DEPARTMENT);
                     args0.putString(StaticConfig.PARAM_ITEM_ID,
-                            player.getPlayerId());
+                            String.valueOf(statisticsItem.getLeague().getId()));
                     args0.putParcelable(StaticConfig.PLAYER_INFO,
                             player);
 
@@ -300,7 +323,9 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
                     Bundle args1 = new Bundle();
 
                     args1.putString(StaticConfig.PARAM_PLAYER_ID,
-                            player.getPlayerId());
+                            String.valueOf(player.getId()));
+                    args1.putString(StaticConfig.PARAM_TEAM_ID,
+                            String.valueOf(statisticsItem.getTeam().getId()));
 
                     fragment.setArguments(args1);
 
@@ -312,7 +337,8 @@ public class PlayerActivity extends AppCompatActivity implements View.OnClickLis
 
                     args2.putParcelable(StaticConfig.PLAYER,
                             player);
-
+                    args2.putParcelable(StaticConfig.PLAYER_STATISTIC,
+                            statisticsItem);
                     fragment.setArguments(args2);
 
                     break;

@@ -23,7 +23,7 @@ import com.app_republic.shoot.fragment.DepartmentsFragment;
 import com.app_republic.shoot.fragment.GamesFragment;
 import com.app_republic.shoot.fragment.MatchesFragment;
 import com.app_republic.shoot.fragment.NewsFragment;
-import com.app_republic.shoot.model.User;
+import com.app_republic.shoot.model.general.User;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;

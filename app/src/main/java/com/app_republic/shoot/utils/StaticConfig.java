@@ -15,12 +15,25 @@ public class StaticConfig {
     public static final String MATCH_LIVE_URL = "matvh_live_url";
     public static final String IS_LIVE = "is_live";
 
+    public static final String[] MATCH_STATUS_ALL = {"TBD", "NS", "1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT", "FT", "AET", "PEN", "PST", "CAN", "ABD", "AWD", "WO", "LIVE"};
+    public static final String[] MATCH_STATUS_SHOW_SCORE = {"1H", "HT", "2H", "ET", "BT", "P", "INT", "FT", "AET", "PEN"};
+
+    public static final String[] MATCH_STATUS_CANCELED = {"CANC", "ABD", "AWD", "WO"};
+
+    public static final String[] MATCH_FINISHED = {"FT", "AET", "PEN"};
+
+    public static final String[] MATCH_STILL_PLAYING = {"1H", "HT", "2H", "ET", "BT", "P", "SUSP", "INT"};
+
+    public static final String[] MATCH_IS_PLAYING = {"1H", "HT", "2H", "ET", "BT", "P"};
+    public static final String PLAYER_STATISTIC = "player_statistic";
+    public static final String PHOTO = "photo";
+
 
     public static String API_BASE = "https://yalla-group.com/api-v3.4.520/api/";
 
-    public static final String API_GET_MATCHES = "getMatches";
+    public static final String API_GET_MATCHES = "fixtures";
     public static final String API_GET_MATCH_INFO = "getMatchInfo";
-    public static final String API_GET_TEAM_INFO = "getTeamInfo";
+    public static final String API_GET_TEAM_INFO = "teams";
     public static final String API_GET_MATCH_VIDEOS = "getVideos";
     public static final String ADVERT = "advert";
     public static final int REQUEST_INTER_AD = 112;
@@ -30,7 +43,10 @@ public class StaticConfig {
 
     public static final String API_GET_DEPS_STANDINGS = "getDepsWithStandings";
     public static final String API_GET_DEPS_PLAYERS = "getDepsWithPlayers";
-    public static final String API_GET_PLAYERS = "getItemPlayersDetailed";
+    public static final String API_GET_PLAYERS = "players/topscorers";
+
+    public static final String API_GET_PLAYER_STATISTICS = "players";
+
     public static final String API_GET_PLAYER_MATCHES = "getPlayerMatches";
 
     public static final int NUMBER_OF_NATIVE_ADS = 2;
@@ -48,9 +64,13 @@ public class StaticConfig {
 
     public static final String API_GET_LATEST_NEWS = "getLatestNews";
     public static final String API_GET_TRENDING_TEAMS = "getTrendingTeams";
-    public static final String API_GET_DEP_STANDINGS = "getDepStandings";
+    public static final String API_GET_DEP_STANDINGS = "standings";
     public static final String API_GET_ITEM_NEWS = "getItemNews";
-    public static final String API_GET_TIME_LINE = "getTimeline";
+
+    public static final String API_GET_LEAGUES = "leagues";
+
+    public static final String API_GET_TIME_LINE = "fixtures/events";
+    public static final String API_GET_PLAYER_SQUADS = "players/squads";
 
     public static final String NEWS = "news";
     public static final String TEAM = "team";

@@ -19,6 +19,20 @@
     <string name="players">ترتيب الهدافين</string>
     <string name="share_app">مشاركة التطبيق</string>
     <string name="rate_app">تقييم التطبيق</string>
+    <string name="player_assist">(مساعد)</string>
+    <string name="goal">هدف</string>
+    <string name="yellow_card">بطاقة صفراء</string>
+    <string name="red_card">بطاقة حمراء</string>
+    <string name="subst">استبدال</string>
+    <string name="goal_cancelled">إلغاء الهدف</string>
+    <string name="penalty_confirmed">ضربة جزاء</string>
+    <string name="normal_goal">هدف عادي</string>
+    <string name="own_goal">هدف في مرماه</string>
+    <string name="penalty">هدف (ضربة جزاء)</string>
+    <string name="missed_penalty2">ضربة جزاء ضائعة</string>
+    <string name="postponed">مباراة مؤجلة</string>
+    <string name="canceled">مباراة ملغاة</string>
+    <string name="tobedefined">الوقت غير محدد</string>
 
 
     <array name="days">
@@ -35,8 +49,8 @@
         <item>أحداث المبارات</item>
         <item>التفاصيل</item>
         <item>المدرجات</item>
-        <item>فيديو</item>
-        <item>الأخبار</item>
+        <!--<item>فيديو</item>-->
+        <!--<item>الأخبار</item>-->
         <item>الترتيب</item>
         <item>الهدافون</item>
     </array>
@@ -50,7 +64,6 @@
     <array name="team_info_tabs">
         <item>اللاعبون</item>
         <item>الترتيب</item>
-        <item>الأخبار</item>
         <item>المباريات</item>
     </array>
 
@@ -123,6 +136,14 @@
     <string name="predict_result">توقع الفائز</string>
     <string name="live_stream">الفيديو</string>
     <string name="group">المجموعة</string>
+
+    <string name="goals_assist">مساعدة لتسجيل هدف</string>
+
+
+    <string name="defender">مدافع</string>
+    <string name="goalkeeper">حارس مرمى</string>
+    <string name="midfielder">لاعب خط وسط</string>
+    <string name="attacker">مهاجم</string>
 
 
 </resources>

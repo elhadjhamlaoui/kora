@@ -2,7 +2,6 @@ package com.app_republic.shoot.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,10 +17,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.PlayerActivity;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.Department;
-import com.app_republic.shoot.model.Player;
-import com.app_republic.shoot.model.PlayerDepartment;
+import com.app_republic.shoot.model.PlayersResponse.Player;
+import com.app_republic.shoot.model.PlayersResponse.PlayersResponse;
+import com.app_republic.shoot.model.PlayersResponse.ResponseItem;
+import com.app_republic.shoot.model.PlayersResponse.StatisticsItem;
+import com.app_republic.shoot.model.general.PlayerDepartment;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
@@ -48,7 +48,7 @@ import static com.app_republic.shoot.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_T
 
 public class ItemPlayersFragment extends Fragment {
 
-    ArrayList<Player> players = new ArrayList<>();
+    ArrayList<ResponseItem> players = new ArrayList<>();
 
     List<Object> list = new ArrayList<>();
 
@@ -63,7 +63,7 @@ public class ItemPlayersFragment extends Fragment {
 
     long timeDifference;
     String item_id, item_type, team_id_a, team_id_b;
-    Player player;
+    Player selectedPlayer;
     private AppSingleton appSingleton;
 
     public ItemPlayersFragment() {
@@ -114,9 +114,9 @@ public class ItemPlayersFragment extends Fragment {
         departmentsRecyclerView.setLayoutManager(linearLayoutManager);
 
 
-        player = getArguments().getParcelable(PLAYER_INFO);
+        selectedPlayer = getArguments().getParcelable(PLAYER_INFO);
 
-        if (player != null) {
+        /*if (player != null) {
             departments.clear();
             item_id = player.getDepId();
             departments.add(new PlayerDepartment(player.getDepName(),
@@ -131,9 +131,11 @@ public class ItemPlayersFragment extends Fragment {
                 }
 
             departmentsAdapter.notifyDataSetChanged();
-        }
+        }*/
+
 
         getPlayers();
+
 
 
 
@@ -150,25 +152,17 @@ public class ItemPlayersFragment extends Fragment {
 
     private void getPlayers() {
 
-
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemPlayersDetailed("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, item_type, item_id);
-        call1.enqueue(new Callback<ApiResponse>() {
+        Call<PlayersResponse> call1 = StaticConfig.apiInterface.getPlayersByLeague(item_id, Calendar.getInstance().get(Calendar.YEAR));
+        call1.enqueue(new Callback<PlayersResponse>() {
             @Override
-            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
+            public void onResponse(Call<PlayersResponse> call, Response<PlayersResponse> apiResponse) {
                 try {
 
 
-                    ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
+                    PlayersResponse response = apiResponse.body();
 
-                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     players.clear();
                     list.clear();
@@ -178,9 +172,8 @@ public class ItemPlayersFragment extends Fragment {
 
                     for (int i = 0; i < items.length(); i++) {
                         String jsonString = items.getJSONObject(i).toString();
-                        Player player;
-                        ;
-                        player = gson.fromJson(jsonString, Player.class);
+                        ResponseItem player;
+                        player = gson.fromJson(jsonString, ResponseItem.class);
                         players.add(player);
                     }
 
@@ -209,7 +202,7 @@ public class ItemPlayersFragment extends Fragment {
             }
 
             @Override
-            public void onFailure(Call<ApiResponse> call, Throwable t) {
+            public void onFailure(Call<PlayersResponse> call, Throwable t) {
                 t.printStackTrace();
                 call.cancel();
             }
@@ -261,28 +254,28 @@ public class ItemPlayersFragment extends Fragment {
 
                     PlayersViewHolder viewHolder = (PlayersViewHolder) holder;
 
-                    Player player = (Player) list.get(i);
+                    ResponseItem player = (ResponseItem) list.get(i);
+                    StatisticsItem statisticsItem = player.getStatistics().get(0);
 
-
-                    viewHolder.name.setText(player.getName());
+                    viewHolder.name.setText(player.getPlayer().getName());
                     //viewHolder.standing.setText(String.valueOf(i + 1));
                     viewHolder.standing.setText(String.valueOf(players.indexOf(player) + 1));
-                    viewHolder.goals.setText(player.getGoals());
-                    viewHolder.scored_penalty.setText(player.getScoredPenalty());
-                    viewHolder.missed_penalty.setText(player.getMissedPenalty());
+                    viewHolder.goals.setText(String.valueOf(statisticsItem.getGoals().getTotal()));
+                    viewHolder.scored_penalty.setText(String.valueOf(statisticsItem.getPenalty().getScored()));
+                    viewHolder.missed_penalty.setText(String.valueOf(statisticsItem.getPenalty().getMissed()));
 
                     if (item_type.equals(StaticConfig.PARAM_ITEM_TYPE_TEAM))
-                        viewHolder.extra.setText(player.getPlace());
+                        viewHolder.extra.setText(statisticsItem.getGames().getPosition());
                     else
-                        viewHolder.extra.setText(player.getTeamName());
+                        viewHolder.extra.setText(statisticsItem.getTeam().getName());
 
 
-                    if (!player.getPlayerImage().isEmpty()) {
+                    if (!player.getPlayer().getPhoto().isEmpty()) {
                         picasso.cancelRequest(viewHolder.icon);
-                        picasso.load(player.getPlayerImage()).fit().into(viewHolder.icon);
+                        picasso.load(player.getPlayer().getPhoto()).fit().into(viewHolder.icon);
                     }
 
-                    if (team_id_a.equals(player.getTeamId()) || team_id_b.equals(player.getTeamId())) {
+                    if ((selectedPlayer != null && player.getPlayer().getId() == selectedPlayer.getId()) || team_id_a.equals(String.valueOf(statisticsItem.getTeam().getId())) || team_id_b.equals(String.valueOf(statisticsItem.getTeam().getId()))) {
                         viewHolder.V_root
                                 .setBackgroundColor(getResources()
                                         .getColor(android.R.color.holo_orange_light));
@@ -339,13 +332,13 @@ public class ItemPlayersFragment extends Fragment {
                 missed_penalty = itemView.findViewById(R.id.missed_penalty);
 
                 V_root.setOnClickListener(view -> {
-                    Player clickedPlayer = (Player) list.get(getAdapterPosition());
-                    if (player == null || !player
-                            .getPlayerId().equals(clickedPlayer.getPlayerId())) {
+                    ResponseItem clickedPlayer = (ResponseItem) list.get(getAdapterPosition());
+                    if (selectedPlayer == null || selectedPlayer.getId() != clickedPlayer.getPlayer().getId()) {
 
                         Utils.loadInterstitialAd(getActivity().getSupportFragmentManager(), "any","player", getContext(), () -> {
                             Intent intent = new Intent(context, PlayerActivity.class);
-                            intent.putExtra(StaticConfig.PLAYER, clickedPlayer);
+                            intent.putExtra(StaticConfig.PLAYER, clickedPlayer.getPlayer());
+                            intent.putExtra(StaticConfig.PLAYER_STATISTIC, clickedPlayer.getStatistics().get(0));
                             context.startActivity(intent);
                         });
 

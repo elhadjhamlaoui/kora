@@ -13,8 +13,8 @@ import com.app_republic.shoot.fragment.MatchDetailsFragment;
 import com.app_republic.shoot.fragment.StandingsFragment;
 import com.app_republic.shoot.fragment.TimeLineFragment;
 import com.app_republic.shoot.fragment.VideosFragment;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.Match;
+import com.app_republic.shoot.model.general.ApiResponse;
+import com.app_republic.shoot.model.general.Match;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
@@ -64,7 +64,6 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     List<String> tabList = new ArrayList<>();
 
     boolean firstCall = true;
-    long timeDifference;
 
     AppSingleton appSingleton;
     Gson gson;
@@ -123,10 +122,10 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         TV_extra = findViewById(R.id.extra);
 
         IV_logoTeamA.setOnClickListener(view -> {
-            Utils.startTeamActivity(MatchActivity.this, getSupportFragmentManager(), match.getTeamIdA());
+            Utils.startTeamActivity(MatchActivity.this, getSupportFragmentManager(), String.valueOf(match.getTeams().getHome().getId()), String.valueOf(match.getLeague().getId()));
         });
         IV_logoTeamB.setOnClickListener(view -> {
-            Utils.startTeamActivity(MatchActivity.this, getSupportFragmentManager(), match.getTeamIdB());
+            Utils.startTeamActivity(MatchActivity.this, getSupportFragmentManager(), String.valueOf(match.getTeams().getAway().getId()), String.valueOf(match.getLeague().getId()));
 
         });
 
@@ -139,18 +138,18 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         AppBarLayout appBarLayout = findViewById(R.id.appBarLayout);
         //appBarLayout.addOnOffsetChangedListener(new FadingViewOffsetListener(Layout_root));
 
-        TV_nameTeamA.setText(match.getLiveTeam1());
-        TV_nameTeamB.setText(match.getLiveTeam2());
+        TV_nameTeamA.setText(match.getTeams().getHome().getName());
+        TV_nameTeamB.setText(match.getTeams().getAway().getName());
 
 
         try {
-            Picasso.get().load(match.getTeamLogoA()).placeholder(R.drawable.ic_ball).into(IV_logoTeamA);
-            Picasso.get().load(match.getTeamLogoB()).placeholder(R.drawable.ic_ball).into(IV_logoTeamB);
+            Picasso.get().load(match.getTeams().getHome().getLogo()).placeholder(R.drawable.ic_ball).into(IV_logoTeamA);
+            Picasso.get().load(match.getTeams().getAway().getLogo()).placeholder(R.drawable.ic_ball).into(IV_logoTeamB);
 
         } catch (Resources.NotFoundException e) {
             e.printStackTrace();
-            Picasso.get().load(match.getTeamLogoA()).into(IV_logoTeamA);
-            Picasso.get().load(match.getTeamLogoB()).into(IV_logoTeamB);
+            Picasso.get().load(match.getTeams().getHome().getLogo()).into(IV_logoTeamA);
+            Picasso.get().load(match.getTeams().getAway().getLogo()).into(IV_logoTeamB);
         }
 
 
@@ -158,25 +157,24 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         runnable = () -> getMatchInfo();
 
 
-        if ("0".equals(match.getHasPlayers())) {
+        /*
+        if ("0".equals()) {
             fragmentList.remove(6);
             tabList.remove(6);
+        }*/
 
-
-        }
-
-        if ("0".equals(match.getHasStandings())) {
+        /*if ("0".equals(match.getHasStandings())) {
             fragmentList.remove(5);
             tabList.remove(5);
-
-        }
-
+        }*/
 
 
+
+        /*
         if ("0".equals(match.getHasTimeline())) {
             fragmentList.remove(0);
             tabList.remove(0);
-        }
+        }*/
 
 
         sectionsPagerAdapter.notifyDataSetChanged();
@@ -217,7 +215,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                 Intent sendIntent = new Intent();
                 sendIntent.setAction(Intent.ACTION_SEND);
                 sendIntent.putExtra(Intent.EXTRA_TEXT,
-                        match.getLiveTeam1() + " " + TV_state.getText().toString() + " " + match.getLiveTeam2()
+                        match.getTeams().getHome().getName() + " " + TV_state.getText().toString() + " " + match.getTeams().getAway().getName()
                                 + "\n\n" + getString(R.string.app_name) + "\n\n" +
                                 getString(R.string.play_store_link));
 
@@ -233,8 +231,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
     public void getMatchInfo() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatchInfo("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, match.getLiveId());
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatchById(String.valueOf(match.getFixture().getId()));
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -243,19 +240,11 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     String jsonString = items.getJSONObject(0).toString();
                     Match match;
-                    ;
                     match = gson.fromJson(jsonString, Match.class);
 
                     updateUI(match);
@@ -280,48 +269,19 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
     }
 
     private void updateUI(Match match) {
-        long now = System.currentTimeMillis();
-        int delay = Integer.parseInt(match.getLiveM3());
-        long originalTime = Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces());
-        long difference = now - originalTime + timeDifference;
-        String match_time = Utils.getFullTime(originalTime - timeDifference);
+        String matchStatus = match.getFixture().getStatus().getJsonMemberShort();
+        TV_scoreTeamA.setText("");
+        TV_scoreTeamB.setText("");
 
-        MatchActivity.this.match.setFullTime(match_time);
-
-        if (difference > 0) {
-            TV_scoreTeamA.setText((match.getLivePe1().equals("0") ? "" : "("
-                    + match.getLivePe1() + ") ")
-                    + match.getLiveRe1()
-            );
-            TV_scoreTeamB.setText(match.getLiveRe2() +
-                    (match.getLivePe2().equals("0") ? "" : " (" + match.getLiveRe2() + ")"));
-
-            TV_extra.setText("");
-
-            int minutes = Integer.parseInt(match.getActualMinutes());
-            if (minutes > 0) {
-                handler.postDelayed(runnable, 60 * 1000);
-                if (minutes > 45) {
-                    if (minutes > (60 - delay))
-                        TV_state.setText(String.valueOf(minutes - 15 + delay));
-                    else
-                        TV_state.setText(String.valueOf(45));
-
-                } else
-                    TV_state.setText(String.valueOf(minutes));
-            } else {
-                TV_state.setText(" - ");
-            }
-        } else {
-            TV_scoreTeamA.setText("");
-            TV_scoreTeamB.setText("");
-            TV_state.setText(match_time);
+        if(matchStatus.equals("NS")) {
+            // match not started
+            TV_state.setText(Utils.getReadableDateTime(match.getFixture().getTimestamp() * 1000L));
 
             if (firstCall) {
                 firstCall = false;
                 try {
-                    int seconds = Integer.parseInt(match.getRemainingSeconds());
-                    new CountDownTimer(seconds * 1000,
+                    long diffenrenceMillis = (match.getFixture().getTimestamp() * 1000) - System.currentTimeMillis();
+                    new CountDownTimer(diffenrenceMillis,
                             1000) {
                         public void onTick(long millisUntilFinished) {
                             TV_extra.setText(Utils.getRemainingTime(millisUntilFinished));
@@ -336,6 +296,52 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                 }
 
             }
+
+
+        } else if (Arrays.asList(StaticConfig.MATCH_FINISHED).contains(matchStatus)){
+            // match finished
+            int homePenalty = match.getScore().getPenalty().getHome();
+            int awayPenalty = match.getScore().getPenalty().getAway();
+
+            TV_scoreTeamA.setText((homePenalty == 0 ? "" : "("
+                    + homePenalty + ") ")
+                    + match.getGoals().getHome()
+            );
+            TV_scoreTeamB.setText(match.getGoals().getAway() +
+                    (awayPenalty == 0 ? "" : " (" + awayPenalty + ")")
+            );
+
+            TV_extra.setText("");
+
+            TV_state.setText(" - ");
+
+
+        } else if (Arrays.asList(StaticConfig.MATCH_STILL_PLAYING).contains(matchStatus)){
+            // match still playing
+
+            int homePenalty = match.getScore().getPenalty().getHome();
+            int awayPenalty = match.getScore().getPenalty().getAway();
+
+            TV_scoreTeamA.setText((homePenalty == 0 ? "" : "("
+                    + homePenalty + ") ")
+                    + match.getGoals().getHome()
+            );
+            TV_scoreTeamB.setText(match.getGoals().getAway() +
+                    (awayPenalty == 0 ? "" : " (" + awayPenalty + ")")
+            );
+
+
+            TV_extra.setText("");
+
+            handler.postDelayed(runnable, 60 * 1000);
+
+            TV_state.setText(String.valueOf(match.getFixture().getStatus().getElapsed()));
+        } else if(matchStatus.equals("TBD")){
+            TV_state.setText(Utils.getReadableDate(match.getFixture().getTimestamp() * 1000L));
+        } else if(matchStatus.equals("PST")){
+            TV_state.setText(getResources().getString(R.string.postponed));
+        } else if(matchStatus.equals("CANC")){
+            TV_state.setText(getResources().getString(R.string.canceled));
         }
     }
 
@@ -351,11 +357,11 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         args0.putString(StaticConfig.PARAM_ITEM_TYPE,
                 StaticConfig.PARAM_ITEM_TYPE_DEPARTMENT);
         args0.putString(StaticConfig.PARAM_ITEM_ID,
-                match.getDepId());
+                String.valueOf(match.getLeague().getId()));
         args0.putString(StaticConfig.PARAM_TEAM_ID_A,
-                match.getTeamIdA());
+                String.valueOf(match.getTeams().getHome().getId()));
         args0.putString(StaticConfig.PARAM_TEAM_ID_B,
-                match.getTeamIdB());
+                String.valueOf(match.getTeams().getAway().getId()));
 
         itemPlayersFragment.setArguments(args0);
         itemPlayersFragment.setRetainInstance(true);
@@ -366,11 +372,11 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         Bundle args1 = new Bundle();
 
         args1.putString(StaticConfig.PARAM_DEP_ID,
-                match.getDepId());
+                String.valueOf(match.getLeague().getId()));
         args1.putString(StaticConfig.PARAM_TEAM_ID_A,
-                match.getTeamIdA());
+                String.valueOf(match.getTeams().getHome().getId()));
         args1.putString(StaticConfig.PARAM_TEAM_ID_B,
-                match.getTeamIdB());
+                String.valueOf(match.getTeams().getAway().getId()));
 
         standingsFragment.setArguments(args1);
         standingsFragment.setRetainInstance(true);
@@ -383,7 +389,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         args2.putString(StaticConfig.PARAM_ITEM_TYPE,
                 StaticConfig.PARAM_TYPE_MATCH);
         args2.putString(StaticConfig.PARAM_ITEM_ID,
-                match.getLiveId());
+                String.valueOf(match.getFixture().getId()));
 
         itemNewsFragment.setArguments(args2);
         itemNewsFragment.setRetainInstance(true);
@@ -410,7 +416,7 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
                 StaticConfig.MATCH);
 
         args4.putString(StaticConfig.TARGET_ID,
-                match.getLiveId());
+                String.valueOf(match.getFixture().getId()));
 
 
         commentsFragment.setArguments(args4);
@@ -440,8 +446,8 @@ public class MatchActivity extends AppCompatActivity implements View.OnClickList
         fragmentList.add(timeLineFragment);
         fragmentList.add(matchDetailsFragment);
         fragmentList.add(commentsFragment);
-        fragmentList.add(videosFragment);
-        fragmentList.add(itemNewsFragment);
+        //fragmentList.add(videosFragment);
+        //fragmentList.add(itemNewsFragment);
         fragmentList.add(standingsFragment);
         fragmentList.add(itemPlayersFragment);
 

@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Country;
+import com.app_republic.shoot.model.general.Country;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.google.firebase.firestore.DocumentSnapshot;

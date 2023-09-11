@@ -20,10 +20,8 @@ import com.app_republic.shoot.BuildConfig;
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.MainActivity;
 import com.app_republic.shoot.activity.SplashActivity;
-import com.app_republic.shoot.model.News;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -75,6 +73,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
                 adsEditor.commit();
 
                 editor.remove("last_read");
+                editor.remove("last_read_leagues");
                 editor.commit();
             }
             if (/* Check if data needs to be processed by long running job */ true) {
@@ -185,6 +184,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
         PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), data.get("body").hashCode() /* Request code */, intent,
                 PendingIntent.FLAG_ONE_SHOT);
+
 
         String channelId = getString(R.string.default_notification_channel_id);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

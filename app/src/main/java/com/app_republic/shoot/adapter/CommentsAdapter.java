@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Comment;
+import com.app_republic.shoot.model.general.Comment;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.Utils;
 import com.google.firebase.firestore.FirebaseFirestore;

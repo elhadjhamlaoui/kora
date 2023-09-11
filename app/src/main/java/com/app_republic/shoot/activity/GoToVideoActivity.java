@@ -23,7 +23,7 @@ public class GoToVideoActivity extends AppCompatActivity implements View.OnClick
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_go_to_video);
 
-        BT_video = findViewById(R.id.video);
+        BT_video = findViewById(R.id.player);
         IV_back = findViewById(R.id.back);
 
         BT_video.setOnClickListener(this);
@@ -39,7 +39,7 @@ public class GoToVideoActivity extends AppCompatActivity implements View.OnClick
                 onBackPressed();
                 break;
 
-            case R.id.video:
+            case R.id.player:
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             Uri.parse(getIntent().getStringExtra(StaticConfig.VIDEO_URI))));

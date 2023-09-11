@@ -20,8 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.GameActivity;
-import com.app_republic.shoot.model.Game;
-import com.app_republic.shoot.model.GameCategory;
+import com.app_republic.shoot.model.general.Game;
+import com.app_republic.shoot.model.general.GameCategory;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.squareup.picasso.Picasso;
@@ -203,7 +203,7 @@ public class GamesFragment extends Fragment {
                             .getUrl().split("/");
                     elements[2] = elements[2].toLowerCase();
 
-                    intent.putExtra(StaticConfig.GAME, TextUtils.join("/", elements));
+                    intent.putExtra(StaticConfig.GAME, elements[2]);
                     startActivity(intent);
                 });
             }

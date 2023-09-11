@@ -1,5 +1,7 @@
 package com.app_republic.shoot.fragment;
 
+import static com.app_republic.shoot.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,15 +17,31 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Player;
-import com.app_republic.shoot.model.PlayerDepartment;
-import com.app_republic.shoot.model.PlayerDetail;
+import com.app_republic.shoot.model.PlayersResponse.League;
+import com.app_republic.shoot.model.PlayersResponse.Player;
+import com.app_republic.shoot.model.PlayersResponse.PlayersResponse;
+import com.app_republic.shoot.model.PlayersResponse.ResponseItem;
+import com.app_republic.shoot.model.PlayersResponse.StatisticsItem;
+import com.app_republic.shoot.model.general.LeagueModel;
+import com.app_republic.shoot.model.general.PlayerDepartment;
+import com.app_republic.shoot.model.general.PlayerDetail;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import com.squareup.picasso.Picasso;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Calendar;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class PlayerDetailsFragment extends Fragment implements View.OnClickListener {
 
@@ -31,12 +49,19 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
     ArrayList<PlayerDetail> details = new ArrayList<>();
     ArrayList<PlayerDepartment> departments = new ArrayList<>();
 
-    Player player, player_initial;
+    ArrayList<League> leagues = new ArrayList<>();
+
+    ArrayList<StatisticsItem> playerStatistics = new ArrayList<>();
+
+    Player player_initial;
+    StatisticsItem statisticItem;
     Adapter details_adapter;
     DepartmentsAdapter departments_adapter;
     RecyclerView details_recycler, departments_recycler;
 
+    AppSingleton appSingleton;
     String dep_id;
+    private Gson gson;
 
     public PlayerDetailsFragment() {
         // Required empty public constructor
@@ -50,6 +75,7 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        gson = AppSingleton.getInstance(getActivity()).getGson();
     }
 
     @Override
@@ -61,6 +87,7 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
 
         initialiseViews(view);
 
+        appSingleton = AppSingleton.getInstance(getActivity());
 
 
         details_adapter = new Adapter(getActivity(), details);
@@ -76,46 +103,27 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
 
         player_initial = getArguments().getParcelable(StaticConfig.PLAYER);
 
-
-        departments.clear();
-        dep_id = player_initial.getDepId();
-        departments.add(new PlayerDepartment(player_initial.getDepName(),
-                player_initial.getDepId(), player_initial.getDepImage(), true));
-
-        if (player_initial.getOtherInfo() != null)
-            for (Player player : player_initial.getOtherInfo()) {
-                PlayerDepartment department = new PlayerDepartment(player.getDepName(),
-                        player.getDepId(), player.getDepImage(), false);
-
-                departments.add(department);
-            }
-
-        departments_adapter.notifyDataSetChanged();
-
-
-        updateUI();
-
+        getPlayerStatistics();
 
         return view;
     }
-    private void updateUI() {
+    private void updateUI(String leagueId) {
         details.clear();
 
-        player = Utils.getPlayerFromDepId(player_initial, dep_id);
+        statisticItem = Utils.getPlayerStatisticFromDepId(playerStatistics, leagueId);
 
-        details.add(new PlayerDetail(getString(R.string.scored_penalty), player.getScoredPenalty(),
+        details.add(new PlayerDetail(getString(R.string.scored_penalty), String.valueOf(statisticItem.getPenalty().getScored()),
                 R.drawable.ic_goal));
-        details.add(new PlayerDetail(getString(R.string.missed_penalty), player.getMissedPenalty(),
+        details.add(new PlayerDetail(getString(R.string.missed_penalty), String.valueOf(statisticItem.getPenalty().getMissed()),
                 R.drawable.ic_goal));
-        details.add(new PlayerDetail(getString(R.string.goals), player.getGoals(),
+        details.add(new PlayerDetail(getString(R.string.goals), String.valueOf(statisticItem.getGoals().getTotal()),
                 R.drawable.ic_goal));
-        details.add(new PlayerDetail(getString(R.string.red_cards), player.getRedCards(),
+        details.add(new PlayerDetail(getString(R.string.red_cards), String.valueOf(statisticItem.getCards().getRed()),
                 R.drawable.ic_red_card));
-        details.add(new PlayerDetail(getString(R.string.yellow_cards), player.getYellowCards(),
+        details.add(new PlayerDetail(getString(R.string.yellow_cards), String.valueOf(statisticItem.getCards().getYellow()),
                 R.drawable.ic_yellow_card));
-        details.add(new PlayerDetail(getString(R.string.goals_against), player.getGoalsAgainst(),
+        details.add(new PlayerDetail(getString(R.string.goals_assist), String.valueOf(statisticItem.getGoals().getAssists()),
                 R.drawable.ic_goal));
-
 
         details_adapter.notifyDataSetChanged();
     }
@@ -194,6 +202,62 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
         }
     }
 
+    private void getPlayerStatistics() {
+
+        Call<PlayersResponse> call1 = StaticConfig.apiInterface.getPlayerStatistics(String.valueOf(player_initial.getId()), Calendar.getInstance().get(Calendar.YEAR));
+        call1.enqueue(new Callback<PlayersResponse>() {
+            @Override
+            public void onResponse(Call<PlayersResponse> call, Response<PlayersResponse> apiResponse) {
+                try {
+
+
+                    departments.clear();
+                    leagues.clear();
+
+                    playerStatistics.clear();
+
+                    PlayersResponse response = apiResponse.body();
+
+
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
+
+                    JSONObject jsonObject = items.getJSONObject(0);
+                    JSONArray statistics = jsonObject.getJSONArray("statistics");
+
+                    for (int i = 0; i < statistics.length(); i++) {
+                        boolean isSelected = false;
+                        if (i == 0)
+                            isSelected = true;
+                        StatisticsItem statisticsItem;
+                        statisticsItem = gson.fromJson(statistics.getJSONObject(i).toString(), StatisticsItem.class);
+                        leagues.add(statisticsItem.getLeague());
+                        playerStatistics.add(statisticsItem);
+                        departments.add(new PlayerDepartment(statisticsItem.getLeague().getName(), String.valueOf(statisticsItem.getLeague().getId()), statisticsItem.getLeague().getLogo(), isSelected));
+                    }
+                    departments_adapter.notifyDataSetChanged();
+
+                    updateUI(String.valueOf(playerStatistics.get(0).getLeague().getId()));
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IllegalStateException e) {
+                    e.printStackTrace();
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<PlayersResponse> call, Throwable t) {
+                t.printStackTrace();
+                call.cancel();
+            }
+        });
+
+    }
+
     class DepartmentsAdapter extends RecyclerView.Adapter<DepartmentsAdapter.ViewHolder> {
 
         ArrayList<PlayerDepartment> list;
@@ -220,8 +284,13 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
 
             PlayerDepartment department = list.get(i);
 
+            String name;
+            if (appSingleton.leagues.contains(Integer.parseInt(department.getId())))
+                name = appSingleton.leagueNames.get(appSingleton.leagues.indexOf(Integer.parseInt(department.getId())));
+            else
+                name = department.getName();
 
-            viewHolder.name.setText(department.getName());
+            viewHolder.name.setText(name);
 
             if (list.get(i).isSelected())
                 viewHolder.V_root.setSelected(true);
@@ -259,7 +328,7 @@ public class PlayerDetailsFragment extends Fragment implements View.OnClickListe
 
                     notifyDataSetChanged();
 
-                    updateUI();
+                    updateUI(dep_id);
 
 
                 });

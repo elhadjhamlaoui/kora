@@ -84,7 +84,7 @@
                     android:id="@+id/position"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/bac_circle_white"
+                    android:background="@drawable/bac_round_white"
                     android:gravity="center"
                     android:padding="5dp"
                     android:paddingStart="10dp"

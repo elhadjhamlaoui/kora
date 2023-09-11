@@ -11,10 +11,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
@@ -24,18 +22,16 @@ import com.app_republic.shoot.activity.InterstitialCustomAd;
 import com.app_republic.shoot.activity.LoginActivity;
 import com.app_republic.shoot.activity.SplashActivity;
 import com.app_republic.shoot.activity.TeamInfoActivity;
-import com.app_republic.shoot.model.Advert;
-import com.app_republic.shoot.model.Comment;
-import com.app_republic.shoot.model.Feeling;
-import com.app_republic.shoot.model.Player;
-import com.app_republic.shoot.model.Prediction;
-import com.app_republic.shoot.model.User;
+import com.app_republic.shoot.model.PlayersResponse.Player;
+import com.app_republic.shoot.model.PlayersResponse.StatisticsItem;
+import com.app_republic.shoot.model.general.Advert;
+import com.app_republic.shoot.model.general.Comment;
+import com.app_republic.shoot.model.general.Feeling;
+import com.app_republic.shoot.model.general.League;
+import com.app_republic.shoot.model.general.Prediction;
+import com.app_republic.shoot.model.general.User;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.DrawableImageViewTarget;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdSize;
@@ -50,13 +46,14 @@ import com.google.firebase.storage.UploadTask;
 
 
 import java.io.ByteArrayOutputStream;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.TimeZone;
 
 import pl.droidsonroids.gif.GifImageView;
 
@@ -64,30 +61,44 @@ public class Utils {
 
     public static long getMillisFromMatchDate(String match) {
         Calendar calendar = Calendar.getInstance();
-        String[] date = match.split(" ");
+        String[] date = match.split("T")[0].split("-");
         int year = Integer.parseInt(date[0]);
         int month = Integer.parseInt(date[1]) - 1;
         int day = Integer.parseInt(date[2]);
-        int hour = Integer.parseInt(date[3]);
-        int minute = Integer.parseInt(date[4]);
 
-        calendar.set(year, month, day, hour, minute);
+        calendar.set(year, month, day);
 
         return calendar.getTimeInMillis();
     }
 
-    public static String getReadableDate(Calendar cal) {
-        Date date = cal.getTime();
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        String formattedDate = dateFormat.format(date);
+    public static String getReadableDate(long timestampMillis) {
+        // Create a Date object from the timestamp in milliseconds
+        Date date = new Date(timestampMillis);
+
+        // Create a SimpleDateFormat object to format the date
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
+        // Set the timezone of the SimpleDateFormat to the local timezone
+        sdf.setTimeZone(TimeZone.getDefault());
+
+        // Format the date as a string
+        String formattedDate = sdf.format(date);
 
         return formattedDate;
     }
 
-    public static String getReadableFullDate(Calendar cal) {
-        Date date = cal.getTime();
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy hh:mm aa");
-        String formattedDate = dateFormat.format(date);
+    public static String getReadableDateTime(long timestampMillis) {
+        // Create a Date object from the timestamp in milliseconds
+        Date date = new Date(timestampMillis);
+
+        // Create a SimpleDateFormat object to format the date
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm aa");
+
+        // Set the timezone of the SimpleDateFormat to the local timezone
+        sdf.setTimeZone(TimeZone.getDefault());
+
+        // Format the date as a string
+        String formattedDate = sdf.format(date);
 
         return formattedDate;
     }
@@ -98,11 +109,20 @@ public class Utils {
         return day;
     }
 
-    public static String getFullTime(long time) {
-        SimpleDateFormat formatter = new SimpleDateFormat("hh:mm aa");
-        String dateString = formatter.format(new Date(time));
+    public static String getReadableTime(long timestampMillis) {
+        // Create a Date object from the timestamp in milliseconds
+        Date date = new Date(timestampMillis);
 
-        return dateString;
+        // Create a SimpleDateFormat object to format the date
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm aa");
+
+        // Set the timezone of the SimpleDateFormat to the local timezone
+        sdf.setTimeZone(TimeZone.getDefault());
+
+        // Format the date as a string
+        String formattedDate = sdf.format(date);
+
+        return formattedDate;
 
     }
 
@@ -132,14 +152,12 @@ public class Utils {
 
     }
 
-    public static Player getPlayerFromDepId(Player player, String dep_id) {
-        if (player.getOtherInfo() != null)
-            for (Player player1 : player.getOtherInfo())
-                if (player1.getDepId().equals(dep_id))
-                    return player1;
+    public static StatisticsItem getPlayerStatisticFromDepId(ArrayList<StatisticsItem> statisticsItems, String dep_id) {
+            for (StatisticsItem statisticsItem : statisticsItems)
+                if (String.valueOf(statisticsItem.getLeague().getId()).equals(dep_id))
+                    return statisticsItem;
 
-        return player;
-
+            return null;
     }
 
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -689,10 +707,11 @@ public class Utils {
 
     }
 
-    public static void startTeamActivity(Context context, FragmentManager fragmentManager, String team_id) {
+    public static void startTeamActivity(Context context, FragmentManager fragmentManager, String team_id, String league_id) {
         Utils.loadInterstitialAd(fragmentManager, "any", "team",  context, () -> {
             Intent intent = new Intent(context, TeamInfoActivity.class);
             intent.putExtra(StaticConfig.PARAM_TEAM_ID, team_id);
+            intent.putExtra(StaticConfig.PARAM_DEP_ID, league_id);
             context.startActivity(intent);
         });
     }
@@ -705,6 +724,13 @@ public class Utils {
                     return list.indexOf(advert);
 
         return -1;
+    }
+
+    public static String getLeagueNameById(League league, AppSingleton appSingleton) {
+        if (appSingleton.leagues.contains(league.getId()))
+            return appSingleton.leagueNames.get(appSingleton.leagues.indexOf(league.getId()));
+        else
+            return league.getName();
     }
 
     public static Intent getOpenFacebookIntent(Context context, String page) {

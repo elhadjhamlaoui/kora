@@ -68,6 +68,7 @@
                     android:textColor="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/logoTeamA"
+                    app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="@+id/logoTeamA"
                     app:layout_constraintTop_toBottomOf="@id/logoTeamA" />
 
@@ -80,6 +81,7 @@
                     android:textColor="@android:color/white"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="@+id/logoTeamB"
+                    app:layout_constraintHorizontal_bias="1.0"
                     app:layout_constraintStart_toStartOf="@+id/logoTeamB"
                     app:layout_constraintTop_toBottomOf="@+id/logoTeamB" />
 

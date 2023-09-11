@@ -20,12 +20,12 @@ import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.MainActivity;
 import com.app_republic.shoot.activity.MatchActivity;
 import com.app_republic.shoot.adapter.CommentsAdapter;
-import com.app_republic.shoot.model.Country;
-import com.app_republic.shoot.model.Feeling;
-import com.app_republic.shoot.model.Match;
-import com.app_republic.shoot.model.Comment;
-import com.app_republic.shoot.model.Prediction;
-import com.app_republic.shoot.model.User;
+import com.app_republic.shoot.model.general.Country;
+import com.app_republic.shoot.model.general.Feeling;
+import com.app_republic.shoot.model.general.Match;
+import com.app_republic.shoot.model.general.Comment;
+import com.app_republic.shoot.model.general.Prediction;
+import com.app_republic.shoot.model.general.User;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;
@@ -137,7 +137,7 @@ public class CommentsFragment extends Fragment implements FirebaseAuth.AuthState
 
         if (getActivity() instanceof MatchActivity) {
             rootType = StaticConfig.MATCH;
-            rootId = match.getLiveId();
+            rootId = String.valueOf(match.getFixture().getId());
             prediction.setTargetId(targetId);
             prediction.setTargetType(targetType);
 
@@ -323,11 +323,11 @@ public class CommentsFragment extends Fragment implements FirebaseAuth.AuthState
 
         } else if (targetType.equals(StaticConfig.MATCH)) {
 
-            if (!match.getTeamLogoA().isEmpty())
-                appSingleton.getPicasso().load(match.getTeamLogoA()).into(IV_team1);
+            if (!match.getTeams().getHome().getLogo().isEmpty())
+                appSingleton.getPicasso().load(match.getTeams().getHome().getLogo()).into(IV_team1);
 
-            if (!match.getTeamLogoB().isEmpty())
-                appSingleton.getPicasso().load(match.getTeamLogoB()).into(IV_team2);
+            if (!match.getTeams().getAway().getLogo().isEmpty())
+                appSingleton.getPicasso().load(match.getTeams().getAway().getLogo()).into(IV_team2);
 
             V_team1.setOnClickListener(view1 -> {
                 if (appSingleton.getUserLocalStore().isLoggedIn()) {

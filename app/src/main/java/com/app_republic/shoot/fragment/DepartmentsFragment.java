@@ -15,13 +15,11 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.Department;
-import com.app_republic.shoot.model.Standing;
+import com.app_republic.shoot.model.LeagueStandingResponse.League;
+import com.app_republic.shoot.model.general.ApiResponse;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
-import com.app_republic.shoot.utils.Utils;
 import com.google.android.gms.ads.formats.UnifiedNativeAd;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
@@ -43,7 +41,7 @@ import static com.app_republic.shoot.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_T
 
 public class DepartmentsFragment extends Fragment {
 
-    ArrayList<Department> departments = new ArrayList<>();
+    ArrayList<League> departments = new ArrayList<>();
     List<Object> list = new ArrayList<>();
 
     List<UnifiedNativeAd> mNativeAds = new ArrayList<>();
@@ -92,10 +90,13 @@ public class DepartmentsFragment extends Fragment {
 
         type = getArguments().getString(StaticConfig.PARAM_DEPS_TYPE);
 
+        /*
         if (type.equals(StaticConfig.DEPS_TYPE_PLAYERS))
             getDepartmentsWithPlayers();
         else
-            getDepartmentsWithStandings();
+            getDepartmentsWithStandings();*/
+
+        addLeagues();
 
         return view;
 
@@ -107,10 +108,11 @@ public class DepartmentsFragment extends Fragment {
     }
 
 
+    /*
     private void getDepartmentsWithStandings() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithStandings("0",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithStandings("1",
                 appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -130,7 +132,7 @@ public class DepartmentsFragment extends Fragment {
 
     private void getDepartmentsWithPlayers() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithPlayers("0",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getDepsWithPlayers("1",
                 appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -146,19 +148,42 @@ public class DepartmentsFragment extends Fragment {
             }
         });
 
+    }*/
+
+
+    void addLeagues() {
+
+
+        departments.clear();
+        list.clear();
+
+        departmentsAdapter.notifyDataSetChanged();
+
+        for (int i = 0; i < appSingleton.leagues.size(); i++) {
+            League league;
+            league = new League(appSingleton.leagueNames.get(i),"https://media-4.api-sports.io/football/leagues/" + appSingleton.leagues.get(i) + ".png", appSingleton.leagues.get(i));
+            departments.add(league);
+        }
+        list.addAll(departments);
+
+        if (departments.size() == 0)
+            AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, depsRecyclerView, departmentsAdapter,
+                    departments, list, 3);
+        else
+            AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, depsRecyclerView, departmentsAdapter,
+                    departments, list, NUMBER_OF_NATIVE_ADS_NEWS);
+
+
+
+        departmentsAdapter.notifyItemRangeInserted(0, departments.size());
     }
 
-    private void parseResponse(ApiResponse response) {
+    /*private void parseResponse(ApiResponse response) {
         try {
-            String current_date = response.getCurrentDate();
-            long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
             long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-            timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-            JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+            JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
             departments.clear();
             list.clear();
@@ -193,6 +218,8 @@ public class DepartmentsFragment extends Fragment {
 
 
     }
+
+     */
 
     class DepartmentsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
@@ -236,25 +263,25 @@ public class DepartmentsFragment extends Fragment {
                     break;
                 case CONTENT_ITEM_VIEW_TYPE:
 
-                    Department department = (Department) list.get(i);
+                    League department = (League) list.get(i);
 
                     DepsViewHolder viewHolder = (DepsViewHolder) holder;
 
 
-                    viewHolder.name.setText(department.getDepName());
+                    viewHolder.name.setText(department.getName());
 
-                    if (!department.getDepLogo().isEmpty()) {
+                    if (!department.getLogo().isEmpty()) {
                         picasso.cancelRequest(viewHolder.icon);
 
 
                         try {
-                            picasso.load(department.getDepLogo())
+                            picasso.load(department.getLogo())
                                     .fit()
                                     .placeholder(R.drawable.ic_ball)
                                     .into(viewHolder.icon);
                         } catch (Resources.NotFoundException e) {
                             e.printStackTrace();
-                            picasso.load(department.getDepLogo())
+                            picasso.load(department.getLogo())
                                     .fit()
                                     .into(viewHolder.icon);
                         }
@@ -307,7 +334,7 @@ public class DepartmentsFragment extends Fragment {
                         args.putString(StaticConfig.PARAM_ITEM_TYPE,
                                 StaticConfig.PARAM_ITEM_TYPE_DEPARTMENT);
                         args.putString(StaticConfig.PARAM_ITEM_ID,
-                                departments.get(getAdapterPosition()).getDepId());
+                                String.valueOf(departments.get(getAdapterPosition()).getId()));
 
                         fragment.setArguments(args);
                         getFragmentManager().beginTransaction()
@@ -318,7 +345,7 @@ public class DepartmentsFragment extends Fragment {
                         Fragment fragment = StandingsFragment.newInstance();
                         Bundle args = new Bundle();
                         args.putString(StaticConfig.PARAM_DEP_ID,
-                                departments.get(getAdapterPosition()).getDepId());
+                                String.valueOf(departments.get(getAdapterPosition()).getId()));
 
                         fragment.setArguments(args);
                         getFragmentManager().beginTransaction()

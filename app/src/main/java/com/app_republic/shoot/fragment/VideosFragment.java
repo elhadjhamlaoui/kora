@@ -2,7 +2,6 @@ package com.app_republic.shoot.fragment;
 
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -18,9 +17,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.GoToVideoActivity;
 import com.app_republic.shoot.activity.VideoActivity;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.Match;
-import com.app_republic.shoot.model.Video;
+import com.app_republic.shoot.model.general.ApiResponse;
+import com.app_republic.shoot.model.general.Match;
+import com.app_republic.shoot.model.general.Video;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
@@ -33,12 +32,7 @@ import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -49,7 +43,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import static com.app_republic.shoot.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
-import static com.app_republic.shoot.utils.StaticConfig.IS_LIVE;
 import static com.app_republic.shoot.utils.StaticConfig.MATCH;
 import static com.app_republic.shoot.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_VIDEOS;
 import static com.app_republic.shoot.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
@@ -250,8 +243,8 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
     public void getVideos() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getVideos("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, match.getLiveId());
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getVideos("1",
+                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, String.valueOf(match.getFixture().getId()));
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -259,15 +252,11 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;StaticConfig.TIME_DIFFERENCE = timeDifference;
 
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     list.clear();
                     videos.clear();
@@ -313,7 +302,7 @@ public class VideosFragment extends Fragment implements View.OnClickListener {
 
     private void loadLiveMatches() {
 
-        Video video1 = new Video(match.getLiveId(),"-1",
+        Video video1 = new Video(String.valueOf(match.getFixture().getId()),"-1",
                 "","",getString(R.string.live_stream));
         videos.add(video1);
         list.add(video1);

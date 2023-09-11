@@ -1,34 +1,26 @@
 package com.app_republic.shoot.activity;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.text.format.DateUtils;
-import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.LiveVideo;
-import com.app_republic.shoot.model.Match;
-import com.app_republic.shoot.model.Video;
+import com.app_republic.shoot.model.general.LiveVideo;
+import com.app_republic.shoot.model.general.Match;
 import com.app_republic.shoot.utils.AppSingleton;
-import com.app_republic.shoot.utils.InterstitialAdListener;
 import com.app_republic.shoot.utils.StaticConfig;
-import com.app_republic.shoot.utils.TouchyWebView;
 import com.app_republic.shoot.utils.Utils;
 
 import org.jsoup.Jsoup;
@@ -38,7 +30,6 @@ import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -63,9 +54,9 @@ public class VideoActivity extends AppCompatActivity {
 
         String VIDEO_URL;
 
-        isToday = DateUtils.isToday(Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces()));
+        isToday = DateUtils.isToday(Utils.getMillisFromMatchDate(match.getFixture().getDate()));
 
-        VIDEO_URL = appSingleton.VIDEO_BASE_URL + match.getLiveId();
+        VIDEO_URL = appSingleton.VIDEO_BASE_URL + match.getFixture().getId();
 
 
 
@@ -78,7 +69,6 @@ public class VideoActivity extends AppCompatActivity {
         //webView.clearHistory();
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setAllowFileAccess(true);
-        webView.getSettings().setAppCacheEnabled(true);
         webView.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
 
         webView.getSettings().setUserAgentString(MyUA);
@@ -102,7 +92,7 @@ public class VideoActivity extends AppCompatActivity {
             }
         });*/
 
-        if (match.getState().equals(getString(R.string.match_state_finished))) {
+        if (match.getFixture().getStatus().equals(getString(R.string.match_state_finished))) {
             webView.loadUrl(VIDEO_URL);
         } else {
             AsyncTask.execute(() -> loadLiveVideos());
@@ -297,10 +287,10 @@ public class VideoActivity extends AppCompatActivity {
                 liveVideo.setTeam1(element.select("div.Fareeq-r > span").first().html());
                 liveVideo.setTeam2(element.select("div.Fareeq-l > span").first().html());
 
-                if (match.getLiveTeam1().equals(liveVideo.getTeam1()) ||
-                        match.getLiveTeam1().equals(liveVideo.getTeam2())
-                || match.getLiveTeam2().equals(liveVideo.getTeam1())
-                        || match.getLiveTeam2().equals(liveVideo.getTeam2())
+                if (match.getTeams().getHome().getName().equals(liveVideo.getTeam1()) ||
+                        match.getTeams().getHome().getName().equals(liveVideo.getTeam2())
+                || match.getTeams().getAway().getName().equals(liveVideo.getTeam1())
+                        || match.getTeams().getAway().getName().equals(liveVideo.getTeam2())
                 ) {
 
                     handler.post(() -> webView.loadUrl(liveVideo.getHref()));

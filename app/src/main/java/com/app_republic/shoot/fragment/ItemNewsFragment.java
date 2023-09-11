@@ -17,8 +17,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.NewsItemActivity;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.News;
+import com.app_republic.shoot.model.general.ApiResponse;
+import com.app_republic.shoot.model.general.News;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
@@ -33,7 +33,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 import retrofit2.Call;
@@ -240,7 +239,7 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
     public void getNews() {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("0",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("1",
                 appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, item_type, item_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -249,16 +248,9 @@ public class ItemNewsFragment extends Fragment implements View.OnClickListener {
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-                    StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     list.clear();
                     news.clear();

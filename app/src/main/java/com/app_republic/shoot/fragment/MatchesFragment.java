@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,10 +22,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.MatchActivity;
 import com.app_republic.shoot.activity.NewsItemActivity;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.Match;
-import com.app_republic.shoot.model.News;
-import com.app_republic.shoot.model.TeamInfo;
+import com.app_republic.shoot.model.general.ApiResponse;
+import com.app_republic.shoot.model.general.Match;
+import com.app_republic.shoot.model.general.News;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
@@ -41,6 +41,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
@@ -51,7 +52,6 @@ import retrofit2.Response;
 
 import static android.view.View.GONE;
 import static com.app_republic.shoot.utils.StaticConfig.CONTENT_ITEM_VIEW_TYPE;
-import static com.app_republic.shoot.utils.StaticConfig.NUMBER_OF_NATIVE_ADS_NEWS;
 import static com.app_republic.shoot.utils.StaticConfig.UNIFIED_NATIVE_AD_VIEW_TYPE;
 
 public class MatchesFragment extends Fragment implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
@@ -82,8 +82,11 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     TextView TV_empty;
     ShimmerFrameLayout shimmerFrameLayout;
 
-    TeamInfo teamInfo;
     String player_id;
+    String league_id;
+
+    String team_id;
+
     Gson gson;
     private AppSingleton appSingleton;
 
@@ -112,8 +115,9 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
 
         if (getArguments() != null) {
-            teamInfo = getArguments().getParcelable(StaticConfig.TEAM_INFO);
             player_id = getArguments().getString(StaticConfig.PARAM_PLAYER_ID);
+            league_id = getArguments().getString(StaticConfig.PARAM_DEP_ID);
+            team_id = getArguments().getString(StaticConfig.PARAM_TEAM_ID);
         }
 
         initialiseViews(view);
@@ -135,38 +139,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                 calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
 
-        if (teamInfo != null && teamInfo.getRecentMatches() != null) {
-            LL_date_layout.setVisibility(GONE);
-
-            matches.addAll(teamInfo.getRecentMatches());
-
-            Collections.sort(matches, (o, t1) -> {
-                Match match = o;
-                Match match1 = t1;
-
-                long millis1 = Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces());
-                long millis2 = Utils.getMillisFromMatchDate(match1.getFullDatetimeSpaces());
-
-                if (millis1 > millis2)
-                    return 1;
-                else if (millis1 < millis2)
-                    return -1;
-                else
-                    return 0;
-            });
-            list.addAll(matches);
-
-            if (matches.size() == 0)
-                AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
-                        matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
-            else
-                AppSingleton.getInstance(getActivity()).loadNativeAds(mNativeAds, matches_recycler,
-                        matches_adapter, matches, list, NUMBER_OF_NATIVE_ADS_MATCHES);
-
-            matches_adapter.notifyDataSetChanged();
-            shimmerFrameLayout.hideShimmer();
-            shimmerFrameLayout.setVisibility(GONE);
-        } else if (player_id != null) {
+       if (player_id != null || team_id != null) {
             LL_date_layout.setVisibility(GONE);
 
             getPlayerMatches();
@@ -209,9 +182,8 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     }
 
     private void displayDate() {
-        TV_date.setText(Utils.getReadableDate(calendar));
+        TV_date.setText(Utils.getReadableDate(calendar.getTimeInMillis()));
         TV_day.setText(Utils.getReadableDay(calendar, getActivity()));
-
     }
 
     @Override
@@ -291,110 +263,83 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                     Match match = (Match) list.get(i);
 
-                    long now = System.currentTimeMillis();
-                    int delay = Integer.parseInt(match.getLiveM3());
-                    long originalTime = Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces());
+                    // fill the score the and the state
+
+                    String matchStatus = match.getFixture().getStatus().getJsonMemberShort();
+                    if(matchStatus.equals("NS")) {
+                        // match not started
+                        viewHolder1.scoreTeamA.setText("");
+                        viewHolder1.scoreTeamB.setText("");
+                    } else if (Arrays.asList(StaticConfig.MATCH_STATUS_SHOW_SCORE).contains(matchStatus)){
+                        //either finished or still playing
+
+                        int homePenalty = match.getScore().getPenalty().getHome();
+                        int awayPenalty = match.getScore().getPenalty().getAway();
+
+                        viewHolder1.scoreTeamA.setText((homePenalty == 0 ? "" : "("
+                                + homePenalty + ") ")
+                                + match.getGoals().getHome()
+                        );
+                        viewHolder1.scoreTeamB.setText(match.getGoals().getAway() +
+                                (awayPenalty == 0 ? "" : " (" + awayPenalty + ")")
+                        );
+                    } else {
+                        viewHolder1.scoreTeamA.setText("");
+                        viewHolder1.scoreTeamB.setText("");
+                    }
 
 
-                    long difference = now - originalTime + timeDifference;
                     viewHolder1.state.setBackground(getResources()
                             .getDrawable(R.drawable.bac_match_state));
                     viewHolder1.state.setTextColor(getResources()
                             .getColor(R.color.blue_9));
 
-                    if (difference > 0) {
+                    if(matchStatus.equals("NS")) {
+                        // match not started
+                       if (DateUtils.isToday(match.getFixture().getTimestamp() * 1000L) || dateString != null)
+                           viewHolder1.state.setText(Utils.getReadableTime(match.getFixture().getTimestamp() * 1000L));
+                       else
+                           viewHolder1.state.setText(Utils.getReadableDateTime(match.getFixture().getTimestamp() * 1000L));
 
-                        viewHolder1.live.setVisibility(View.GONE);
+                    } else if (Arrays.asList(StaticConfig.MATCH_FINISHED).contains(matchStatus)){
+                        // match finished
 
-                        viewHolder1.scoreTeamA.setText((match.getLivePe1().equals("0") ? "" : "("
-                                + match.getLivePe1() + ") ")
-                                + match.getLiveRe1()
-                        );
-                        viewHolder1.scoreTeamB.setText(match.getLiveRe2() +
-                                (match.getLivePe2().equals("0") ? "" : " (" + match.getLiveRe2() + ")"));
+                        viewHolder1.state.setBackgroundColor(getResources().getColor(android.R.color.transparent));
+                        viewHolder1.state.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
 
-                        int minutes = Integer.parseInt(match.getActualMinutes());
-                        if (minutes > 0) {
+                        viewHolder1.state.setText(" - ");
 
-                            match.setState(getString(R.string.match_state_live));
-                            if (minutes > 45) {
-                                if (minutes > (60 - delay))
-                                    viewHolder1.state.setText(String.valueOf(minutes - 15 + delay));
-                                else
-                                    viewHolder1.state.setText(String.valueOf(45));
-
-                            } else
-                                viewHolder1.state.setText(String.valueOf(minutes));
-                        } else {
-                            viewHolder1.state.setBackgroundColor(getResources().getColor(android.R.color.transparent));
-                            viewHolder1.state.setTextColor(getResources().getColor(R.color.colorPrimaryDark));
-
-                            match.setState(getString(R.string.match_state_finished));
-                            viewHolder1.state.setText(" - ");
-                        }
-                    } else {
-                        match.setState(getString(R.string.match_state_coming));
-                        viewHolder1.scoreTeamA.setText("");
-                        viewHolder1.scoreTeamB.setText("");
-
-                        if (teamInfo != null) {
-                            calendar.setTimeInMillis(originalTime - timeDifference);
-                            viewHolder1.state.setText(Utils.getReadableDate(calendar));
-
-                        } else
-                            viewHolder1.state.setText(Utils.getFullTime(originalTime - timeDifference));
-
-                        if (match.getLiveIslive().equals("1"))
-                            viewHolder1.live.setVisibility(View.VISIBLE);
-                        else
-                            viewHolder1.live.setVisibility(View.GONE);
+                    } else if (Arrays.asList(StaticConfig.MATCH_STILL_PLAYING).contains(matchStatus)){
+                        // match still playing
+                        viewHolder1.state.setText(String.valueOf(match.getFixture().getStatus().getElapsed()));
+                    } else if(matchStatus.equals("TBD")){
+                        viewHolder1.state.setText(Utils.getReadableDate(match.getFixture().getTimestamp() * 1000L));
+                    } else if(matchStatus.equals("PST")){
+                        viewHolder1.state.setText(getResources().getString(R.string.postponed));
+                    } else if(Arrays.asList(StaticConfig.MATCH_STATUS_CANCELED).contains(matchStatus)){
+                        viewHolder1.state.setText(getResources().getString(R.string.canceled));
                     }
 
 
-                    viewHolder1.name1.setText(match.getLiveTeam1());
-                    viewHolder1.name2.setText(match.getLiveTeam2());
+                    viewHolder1.name1.setText(match.getTeams().getHome().getName());
+                    viewHolder1.name2.setText(match.getTeams().getAway().getName());
 
-                    if (!match.getTeamLogoA().isEmpty()) {
+                    if (!match.getTeams().getHome().getLogo().isEmpty()) {
                         picasso.cancelRequest(viewHolder1.logo1);
-                        picasso.load(match.getTeamLogoA()).fit().into(viewHolder1.logo1);
+                        picasso.load(match.getTeams().getHome().getLogo()).fit().into(viewHolder1.logo1);
                     }
 
-                    if (!match.getTeamLogoB().isEmpty()) {
+                    if (!match.getTeams().getAway().getLogo().isEmpty()) {
                         picasso.cancelRequest(viewHolder1.logo2);
-                        picasso.load(match.getTeamLogoB()).fit().into(viewHolder1.logo2);
+                        picasso.load(match.getTeams().getAway().getLogo()).fit().into(viewHolder1.logo2);
                     }
 
 
                     try {
-                        if (teamInfo != null || player_id != null) {
-                            Match previousMatch;
-
-                            viewHolder1.department.setVisibility(View.VISIBLE);
-                            viewHolder1.department.setText(match.getLiveDep());
-
-                            if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
-                                viewHolder1.section.setText(match.getState());
-                                viewHolder1.V_section_layout.setVisibility(View.VISIBLE);
-                            } else {
-
-                                if (i == 1)
-                                    previousMatch = (Match) list.get(i - 1);
-                                else
-                                    previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
-                                            : (Match) list.get(i - 2);
-
-                                if (!match.getState().equals((previousMatch).getState())) {
-                                    viewHolder1.section.setText(match.getState());
-                                    viewHolder1.V_section_layout.setVisibility(View.VISIBLE);
-                                } else
-                                    viewHolder1.V_section_layout.setVisibility(GONE);
-
-                            }
-
-                        } else {
+                        viewHolder1.department.setText(Utils.getLeagueNameById(match.getLeague(), appSingleton));
+                        if (player_id != null) {
                             Match previousMatch;
                             if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
-                                viewHolder1.department.setText(match.getLiveDep());
                                 viewHolder1.department.setVisibility(View.VISIBLE);
                             } else {
                                 if (i == 1)
@@ -403,8 +348,25 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                                     previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
                                             : (Match) list.get(i - 2);
 
-                                if (!(previousMatch).getDepId().equals(match.getDepId())) {
-                                    viewHolder1.department.setText(match.getLiveDep());
+                                if (previousMatch.getLeague().getId() != match.getLeague().getId()) {
+                                    viewHolder1.department.setVisibility(View.VISIBLE);
+                                } else
+                                    viewHolder1.department.setVisibility(GONE);
+
+                            }
+
+                        } else {
+                            Match previousMatch;
+                            if (i == 0 || i == 1 && !(list.get(i - 1) instanceof Match)) {
+                                viewHolder1.department.setVisibility(View.VISIBLE);
+                            } else {
+                                if (i == 1)
+                                    previousMatch = (Match) list.get(i - 1);
+                                else
+                                    previousMatch = list.get(i - 1) instanceof Match ? (Match) list.get(i - 1)
+                                            : (Match) list.get(i - 2);
+
+                                if (previousMatch.getLeague().getId() != match.getLeague().getId()) {
                                     viewHolder1.department.setVisibility(View.VISIBLE);
                                 } else
                                     viewHolder1.department.setVisibility(GONE);
@@ -414,18 +376,6 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                     } catch (ClassCastException e) {
                         e.printStackTrace();
                     }
-
-
-
-                    /*if (i % 2 == 0)
-                        viewHolder1.V_root
-                                .setBackgroundColor(getResources()
-                                        .getColor(R.color.gray_200));
-                    else
-
-                        viewHolder1.V_root
-                                .setBackgroundColor(getResources()
-                                        .getColor(R.color.light_blue_0));*/
 
                     break;
             }
@@ -492,10 +442,9 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
     public void getMatches() {
 
 
-        dateString = Utils.getReadableDate(calendar);
+        dateString = Utils.getReadableDate(calendar.getTimeInMillis());
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatches("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, dateString);
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getMatches(dateString);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -504,17 +453,8 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
 
                     ApiResponse object = apiResponse.body();
-                    String current_date = object.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
-                    long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-                    StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-
-                    JSONArray items = new JSONArray(gson.toJson(object.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(object.getResponse()));
 
                     boolean liveMatches = false;
 
@@ -527,15 +467,22 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                         Match match;
                         match = gson.fromJson(jsonString, Match.class);
 
-                        long localTime = Utils.
-                                getMillisFromMatchDate(match.getFullDatetimeSpaces()) - timeDifference;
+                        boolean found = false;
 
-                        match.setLocalTime(String.valueOf(localTime));
-                        matches.add(match);
+                        for (int league : appSingleton.leagues) {
+                            if (match.getLeague().getId() == league) {
+                                found = true;
+                                break; // Exit the loop as soon as a match is found
+                            }
+                        }
 
-                        int minutes = Integer.parseInt(match.getActualMinutes());
-                        if (minutes > 0)
-                            liveMatches = true;
+                        if(found) {
+                            matches.add(match);
+                            if (Arrays.asList(StaticConfig.MATCH_IS_PLAYING).contains(match.getFixture().getStatus().getJsonMemberShort()))
+                                liveMatches = true;
+                        }
+
+
                     }
 
                     if (matches.isEmpty())
@@ -547,12 +494,33 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
                     if (liveMatches)
                         handler.postDelayed(runnable, 60 * 1000);
 
+
+                    /*Collections.sort(matches, (o, t1) -> {
+                        Match match = o;
+                        Match match1 = t1;
+
+                        return String.valueOf(match.getLeague().getId()).compareTo(String.valueOf(match1.getLeague().getId()));
+                    });*/
+
                     Collections.sort(matches, (o, t1) -> {
                         Match match = o;
                         Match match1 = t1;
 
-                        return match.getDepId().compareTo(match1.getDepId());
+                        int matchLeague = 0;
+                        int match1League = 0;
+
+                        for (int league : appSingleton.leagues) {
+                            if (match.getLeague().getId() == league) {
+                                matchLeague = appSingleton.leagues.indexOf(league);
+                            }
+                            if (match1.getLeague().getId() == league) {
+                                match1League = appSingleton.leagues.indexOf(league);
+                            }
+                        }
+
+                        return Integer.compare(matchLeague, match1League);
                     });
+
 
                     list.addAll(matches);
 
@@ -603,8 +571,7 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
     public void getPlayerMatches() {
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getPlayerMatches("0",
-                appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, player_id);
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getPlayerMatches(team_id, Calendar.getInstance().get(Calendar.YEAR));
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> apiResponse) {
@@ -612,18 +579,11 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
-                    StaticConfig.TIME_DIFFERENCE = timeDifference;
 
-                    StaticConfig.TIME_DIFFERENCE = timeDifference;
-
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     matches.clear();
                     list.clear();
@@ -637,18 +597,24 @@ public class MatchesFragment extends Fragment implements View.OnClickListener, D
 
                         matches.add(match);
                     }
+
                     Collections.sort(matches, (o, t1) -> {
                         Match match = o;
                         Match match1 = t1;
-                        long millis1 = Utils.getMillisFromMatchDate(match.getFullDatetimeSpaces());
-                        long millis2 = Utils.getMillisFromMatchDate(match1.getFullDatetimeSpaces());
 
-                        if (millis1 > millis2)
-                            return 1;
-                        else if (millis1 < millis2)
-                            return -1;
-                        else
-                            return 0;
+                        int matchLeague = 0;
+                        int match1League = 0;
+
+                        for (int league : appSingleton.leagues) {
+                            if (match.getLeague().getId() == league) {
+                                matchLeague = appSingleton.leagues.indexOf(league);
+                            }
+                            if (match1.getLeague().getId() == league) {
+                                match1League = appSingleton.leagues.indexOf(league);
+                            }
+                        }
+
+                        return Integer.compare(matchLeague, match1League);
                     });
 
                     list.addAll(matches);

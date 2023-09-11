@@ -3,7 +3,7 @@ package com.app_republic.shoot.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.app_republic.shoot.model.User;
+import com.app_republic.shoot.model.general.User;
 import com.google.gson.Gson;
 
 

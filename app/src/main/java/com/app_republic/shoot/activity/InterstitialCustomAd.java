@@ -21,8 +21,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.app_republic.shoot.R;
-import com.app_republic.shoot.model.Advert;
-import com.app_republic.shoot.model.News;
+import com.app_republic.shoot.model.general.Advert;
+import com.app_republic.shoot.model.general.News;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.Utils;

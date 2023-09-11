@@ -18,9 +18,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.app_republic.shoot.R;
 import com.app_republic.shoot.activity.NewsItemActivity;
-import com.app_republic.shoot.model.ApiResponse;
-import com.app_republic.shoot.model.News;
-import com.app_republic.shoot.model.TrendingTeam;
+import com.app_republic.shoot.model.general.ApiResponse;
+import com.app_republic.shoot.model.general.News;
+import com.app_republic.shoot.model.general.TrendingTeam;
 import com.app_republic.shoot.utils.AppSingleton;
 import com.app_republic.shoot.utils.StaticConfig;
 import com.app_republic.shoot.utils.UnifiedNativeAdViewHolder;
@@ -322,7 +322,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
     public void getTeamNews(String team_id) {
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("0",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getItemNews("1",
                 appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS, StaticConfig.TEAM, team_id);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -331,16 +331,13 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
+
                     StaticConfig.TIME_DIFFERENCE = timeDifference;
 
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     list.clear();
                     news.clear();
@@ -400,7 +397,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("0",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getLatestNews("1",
                 appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -409,16 +406,11 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
-
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
                     StaticConfig.TIME_DIFFERENCE = timeDifference;
 
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     list.clear();
                     news.clear();
@@ -469,7 +461,7 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
         trendingTeams.clear();
 
-        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTrendingTeams("0",
+        Call<ApiResponse> call1 = StaticConfig.apiInterface.getTrendingTeams("1",
                 appSingleton.JWS.equals("") ? "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJCQTozRTo3MzowRjpFMDo5MTo1QjpEMzpEQjoyQjoxRDowODoyNTpCOTpDMjpCNjpDRTo3MjpCMzpENiIsImlhdCI6MTYwNTk2MjYxNH0.PqYJXJQB30VPUPgLWYiUZ2eMfI5Yr00WxUyNqrmdE97jIDTqzlaH9pQE5tRA82S4IaVG1FEVq5JHXTuJ9Ik_Ag" : appSingleton.JWS);
         call1.enqueue(new Callback<ApiResponse>() {
             @Override
@@ -478,16 +470,12 @@ public class NewsFragment extends Fragment implements View.OnClickListener {
 
 
                     ApiResponse response = apiResponse.body();
-                    String current_date = response.getCurrentDate();
-                    long currentServerTime = Utils.getMillisFromServerDate(current_date);
 
                     long currentClientTime = Calendar.getInstance().getTimeInMillis();
 
-                    timeDifference = currentServerTime > currentClientTime ?
-                            currentServerTime - currentClientTime : currentClientTime - currentServerTime;
                     StaticConfig.TIME_DIFFERENCE = timeDifference;
 
-                    JSONArray items = new JSONArray(gson.toJson(response.getItems()));
+                    JSONArray items = new JSONArray(gson.toJson(response.getResponse()));
 
                     TrendingTeam global = new TrendingTeam("global");
                     trendingTeams.add(global);
